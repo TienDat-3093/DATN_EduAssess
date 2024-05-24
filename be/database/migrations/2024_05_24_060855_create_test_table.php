@@ -11,10 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('question_admin', function (Blueprint $table) {
+        Schema::create('test', function (Blueprint $table) {
             $table->id();
-            $table->string('question_text');
-            $table->string('question_img')->nullable();
+            $table->string('question_data');
+            $table->string('name');
+            $table->string('password')->nullable();
+            $table->string('topic_data');
+            $table->string('tag_data');
+            $table->integer('done_count');
+            $table->boolean('privacy');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -25,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('question_admin');
+        Schema::dropIfExists('test');
     }
 };

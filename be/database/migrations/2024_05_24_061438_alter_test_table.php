@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('question_admin', function (Blueprint $table) {
-            $table->id();
-            $table->string('question_text');
-            $table->string('question_img')->nullable();
-            $table->softDeletes();
-            $table->timestamps();
+        Schema::table('test', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained(
+                table: 'user', indexName: 'test_user_id'
+            );
         });
     }
 
@@ -25,6 +23,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('question_admin');
+        Schema::table('test', function (Blueprint $table) {
+            $table->dropForeign(['user_id']);
+            $table->dropColumn(['user_id']);
+        });
     }
 };
