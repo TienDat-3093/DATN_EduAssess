@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('question_admin', function (Blueprint $table) {
+        Schema::create('user_stats_detail', function (Blueprint $table) {
             $table->id();
-            $table->string('question_text');
-            $table->string('question_img')->nullable();
+            $table->integer('question_right');
+            $table->integer('question_wrong');
+            $table->integer('total_time');
+            $table->datetime('finished_at');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('question_admin');
+        Schema::dropIfExists('user_stats_detail');
     }
 };

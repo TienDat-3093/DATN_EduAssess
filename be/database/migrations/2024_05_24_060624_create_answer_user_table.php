@@ -11,10 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('question_admin', function (Blueprint $table) {
+        Schema::create('answer_user', function (Blueprint $table) {
             $table->id();
-            $table->string('question_text');
-            $table->string('question_img')->nullable();
+            $table->string('answer_data');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('question_admin');
+        Schema::dropIfExists('answer_user');
     }
 };
