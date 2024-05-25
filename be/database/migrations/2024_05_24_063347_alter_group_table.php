@@ -21,11 +21,11 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
+    /* public function down(): void
     {
         Schema::table('group', function (Blueprint $table) {
             $table->dropForeign(['leader_id']);
             $table->dropColumn(['leader_id']);
         });
-    }
+    } */
 };
