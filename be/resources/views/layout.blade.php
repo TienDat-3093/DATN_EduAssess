@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Edu Assess</title>
-    <link rel="shortcut icon" type="image/png" href="{{asset('assets/images/logos/favicon.png')}}" />
+    <link rel="shortcut icon" type="image/png" href="{{asset('assets/images/logos/logo(2).png')}}" />
     <link rel="stylesheet" href="{{asset('assets/css/styles.min.css')}}" />
 
     <script src="{{ asset('bootstrap-5.2.3/css/bootstrap.min.css') }}"></script>
@@ -19,8 +19,8 @@
             <!-- Sidebar scroll-->
             <div>
                 <div class="brand-logo d-flex align-items-center justify-content-between">
-                    <a href="./index.html" class="text-nowrap logo-img">
-                        <img src="{{asset('assets/images/logos/logo.png')}}" width="180" alt="" />
+                    <a href="/" class="text-nowrap logo-img">
+                        <img src="{{asset('assets/images/logos/logo(1).png')}}" width="180" alt="" />
                     </a>
                     <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
                         <i class="ti ti-x fs-8"></i>
