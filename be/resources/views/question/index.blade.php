@@ -2,9 +2,16 @@
 
 @section('content')
 @include('question.modals')
+<style>
+    .preview-img,.question-img {
+        max-height: 100px;
+        margin-top: 10px;
+    }
+</style>
 <div class="mt-3">
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createQuestion">
+        <i class="ti ti-playlist-add"></i>
         Create
     </button>
 
@@ -72,9 +79,9 @@
                                         <i class="ti ti-dots-vertical"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                    <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#detailQuestion">Detail</a></li>
+                                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#detailQuestion">Detail</a></li>
                                         <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editQuestion">Edit</a></li>
-                                        <li><a class="dropdown-item" >Delete</a></li>
+                                        <li><a class="dropdown-item">Delete</a></li>
 
 
                                     </ul>
@@ -128,4 +135,52 @@
         </div>
     </div>
 </div>
+
+<script>
+
+     function previewQuestion() {
+        const fileInput = document.getElementById('inputQuestion');
+        const fileQuestion = document.getElementById('fileQuestion');
+        const file = fileInput.files[0];
+
+        fileQuestion.innerHTML = '';
+
+        if (file) {
+            const fileName = document.createElement('p');
+            fileName.textContent = `Selected file: ${file.name}`;
+            fileQuestion.appendChild(fileName);
+
+            if (file.type.startsWith('image/')) {
+                const imgQuestion = document.createElement('img');
+                imgQuestion.classList.add('question-img');
+                imgQuestion.src = URL.createObjectURL(file);
+                fileQuestion.appendChild(imgQuestion);
+            }
+        }
+    }
+    let answerCount = 1;
+    function addAnswer(){
+
+    }
+    function previewFile(event,answerId) {
+        const fileInput = event.target;
+        const filePreview = document.getElementById(`filePreview${answerId}`);
+        const file = fileInput.files[0];
+
+        filePreview.innerHTML = '';
+
+        if (file) {
+            const fileName = document.createElement('p');
+            fileName.textContent = `Selected file: ${file.name}`;
+            filePreview.appendChild(fileName);
+
+            if (file.type.startsWith('image/')) {
+                const imgPreview = document.createElement('img');
+                imgPreview.classList.add('preview-img');
+                imgPreview.src = URL.createObjectURL(file);
+                filePreview.appendChild(imgPreview);
+            }
+        }
+    }
+</script>
 @endsection

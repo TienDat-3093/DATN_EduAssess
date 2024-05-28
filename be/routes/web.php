@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\QuestionsController;
 
 Route::get('/', function () {
-    return view('dashboard');
+    return view('login');
 });
 Route::get('/question', function () {
     return view('question.index');
