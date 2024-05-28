@@ -3,7 +3,8 @@
 @section('content')
 @include('question.modals')
 <style>
-    .preview-img,.question-img {
+    .preview-img,
+    .question-img {
         max-height: 100px;
         margin-top: 10px;
     }
@@ -80,7 +81,7 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#detailQuestion">Detail</a></li>
-                                        <li><a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editQuestion">Edit</a></li>
+                                        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#editQuestion">Edit</button></li>
                                         <li><a class="dropdown-item">Delete</a></li>
 
 
@@ -137,10 +138,16 @@
 </div>
 
 <script>
+    let answerCount = {create:1,edit:1};
+    //Gọi sự kiện đóng modal ok
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const createQuestion = document.getElementById('createQuestion');
+        createQuestion.addEventListener('hidden.bs.modal',()=> resetModalQuestion('create'));
+    })
 
-     function previewQuestion() {
-        const fileInput = document.getElementById('inputQuestion');
-        const fileQuestion = document.getElementById('fileQuestion');
+    function previewQuestion(modalType) {
+        const fileInput = document.getElementById(`${modalType}InputQuestion`);
+        const fileQuestion = document.getElementById(`${modalType}FileQuestion`);
         const file = fileInput.files[0];
 
         fileQuestion.innerHTML = '';
@@ -158,13 +165,39 @@
             }
         }
     }
-    let answerCount = 1;
-    function addAnswer(){
 
+
+    function addAnswer(modalType) {
+        answerCount[modalType]++;
+        const answersContainer = document.getElementById(`${modalType}AnswersContainer`);
+        const answerBox = document.createElement('div');
+        answerBox.id = `${modalType}AnswerBox_${answerCount[modalType]}`;
+        const newInputGroup = document.createElement('div');
+        newInputGroup.className = "input-group mb-2";
+        newInputGroup.innerHTML = `<span class="input-group-text">
+                                     <input name="answers" class="form-check-input mt-0" type="checkbox" value="">
+                                 </span>
+                                 <input type="text" class="form-control">
+                                 <label class="btn btn-outline-secondary mb-0" for="${modalType}InputAnswer${answerCount[modalType]}">
+                                     <span class="ti ti-upload"></span>
+                                 </label>
+                                 <input type="file" class="form-control d-none" id="${modalType}InputAnswer${answerCount[modalType]}" onchange="previewFile(event,${answerCount[modalType]},'${modalType}')">
+                                 <button type="button" class="btn btn-icon">
+                                     <span class="ti ti-circle-minus" aria-hidden="true" onclick="deleteAnswer(event,${answerCount[modalType]},'${modalType}')"></span>
+                                 </button>
+                             </div>`
+        const newFilePreview = document.createElement('div');
+        newFilePreview.id = `${modalType}FilePreview${answerCount[modalType]}`;
+        newFilePreview.className = 'mt-2';
+
+        answersContainer.appendChild(answerBox);
+        answerBox.appendChild(newInputGroup);
+        answerBox.appendChild(newFilePreview);
     }
-    function previewFile(event,answerId) {
+
+    function previewFile(event, index, modalType) {
         const fileInput = event.target;
-        const filePreview = document.getElementById(`filePreview${answerId}`);
+        const filePreview = document.getElementById(`${modalType}FilePreview${index}`);
         const file = fileInput.files[0];
 
         filePreview.innerHTML = '';
@@ -181,6 +214,41 @@
                 filePreview.appendChild(imgPreview);
             }
         }
+    }
+
+    function deleteAnswer(event, index, modalType) {
+        const button = event.target;
+        const answerInput = document.getElementById(`${modalType}AnswerBox_${index}`);
+        answerInput.remove();
+
+    }
+
+    function resetModalQuestion(modalType) {
+        document.getElementById(`${modalType}QuestionText`).value = '';
+        document.getElementById(`${modalType}InputQuestion`).value = '';
+        document.getElementById(`${modalType}FileQuestion`).innerHTML = '';
+
+        document.getElementById(`${modalType}LevelSelect`).selectedIndex = 0;
+        document.getElementById(`${modalType}TopicSelect`).selectedIndex = 0;
+
+        const answersContainer = document.getElementById(`${modalType}AnswersContainer`);
+        answersContainer.innerHTML = `<div id="createAnswerBox_1">
+                             <div class="input-group mb-2">
+                                 <span class="input-group-text">
+                                     <input name="answerCheck" class="form-check-input mt-0" type="checkbox" value="">
+                                 </span>
+                                 <input type="text" name="answerText" class="form-control">
+                                 <label class="btn btn-outline-secondary mb-0" for="createInputAnswer1">
+                                     <span class="ti ti-upload"></span>
+                                 </label>
+                                 <input type="file" name="answerImg" class="form-control d-none" id="createInputAnswer1" onchange="previewFile(event,1,'create')">
+                                 <button type="button" class="btn btn-icon">
+                                     <span class="ti ti-circle-minus" aria-hidden="true" onclick="deleteAnswer(event,1,'create')"></span>
+                                 </button>
+                             </div>
+                             <div id="createFilePreview1" class="mt-2"></div>
+                         </div>`
+        answerCount[modalType] = 1;
     }
 </script>
 @endsection
