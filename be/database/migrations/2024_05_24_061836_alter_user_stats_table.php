@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::table('user_stats', function (Blueprint $table) {
             $table->foreignId('test_id')->constrained(
-                table: 'test', indexName: 'user_stat_test_id'
+                table: 'tests', indexName: 'user_stat_test_id'
             );
             $table->foreignId('user_id')->constrained(
-                table: 'user', indexName: 'user_stat_user_id'
+                table: 'users', indexName: 'user_stat_user_id'
             );
         });
     }

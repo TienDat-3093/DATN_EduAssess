@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('group', function (Blueprint $table) {
+        Schema::table('groups', function (Blueprint $table) {
             $table->foreignId('leader_id')->constrained(
-                table: 'user', indexName: 'group_leader_id'
+                table: 'users', indexName: 'group_leader_id'
             );
         });
     }
@@ -23,7 +23,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('group', function (Blueprint $table) {
+        Schema::table('groups', function (Blueprint $table) {
             $table->dropForeign(['leader_id']);
             $table->dropColumn(['leader_id']);
         });

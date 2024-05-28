@@ -9,34 +9,34 @@ use Illuminate\Support\Facades\Auth;
 
 class UsersController extends Controller
 {
+    public function index()
+    {
+        return view('dashboard');
+    }
     public function login()
     {
         return view('login');
     }
     public function loginHandle(Request $request)
     {
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password, 'is_admin' => 1, 'status' => 1 ])) {
             $user = Auth::user();
             if ($user) {
-                if ($user['status_id'] == 2) {
-                    return redirect()->route('admin.login')->with('alert', 'Tài khoản đã bị khóa');
-                } else {
-                    return redirect()->route('dashboard.index');
-                }
+                return redirect()->route('dashboard.index');
             }
         }
-        return redirect()->route('admin.login')->with('alert', 'Access denied!');
+        return redirect()->route('login')->with('alert', 'Access denied!');
     }
     public function logout()
     {
         Auth::logout();
-        return redirect()->route('admin.login');
+        return redirect()->route('login');
     }
-    public function getLoginUser()
-    {
-        if (Auth::check()) {
-            $username = Auth::user()->username;
-            return $username;
-        }
-    }
+    // public function getLoginUser()
+    // {
+    //     if (Auth::check()) {
+    //         $username = Auth::user()->username;
+    //         return $username;
+    //     }
+    // }
 }

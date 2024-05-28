@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="assets/vendor/fonts/boxicons.css" />
     <!-- link boostrap -->
     <script src="{{ asset('bootstrap-5.2.3/css/bootstrap.min.css') }}"></script>
+    <!-- SweetAlert -->
+    <link rel="stylesheet" href="{{ asset('sweetalert2/sweetalert2.min.css') }}">
 </head>
 
 <body>
@@ -101,7 +103,7 @@
                                             <i class="ti ti-list-check fs-6"></i>
                                             <p class="mb-0 fs-3">My Task</p>
                                         </a>
-                                        <a href="./authentication-login.html" class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
+                                        <a href="{{ route('logout') }}" class="btn btn-outline-primary mx-3 mt-2 d-block">Logout</a>
                                     </div>
                                 </div>
                             </li>
@@ -124,7 +126,12 @@
     <script src="{{asset('assets/libs/apexcharts/dist/apexcharts.min.js')}}"></script>
     <script src="{{asset('assets/libs/simplebar/dist/simplebar.js')}}"></script>
     <script src="{{asset('assets/js/dashboard.js')}}"></script>
-
+    <script src="{{ asset('sweetalert2/sweetalert2.all.min.js') }}"></script>
+    @if (session('alert'))
+    <script>
+        Swal.fire("{{ session('alert') }}")
+    </script>
+    @endif
 
 </body>
 
