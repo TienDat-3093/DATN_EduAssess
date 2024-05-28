@@ -7,6 +7,8 @@
     <title>Edu Assess</title>
     <link rel="shortcut icon" type="image/png" href="{{asset('assets/images/logos/logo(2).png')}}" />
     <link rel="stylesheet" href="{{asset('assets/css/styles.min.css')}}" />
+    <!-- SweetAlert -->
+    <link rel="stylesheet" href="{{ asset('sweetalert2/sweetalert2.min.css') }}">
 </head>
 
 <body>
@@ -24,16 +26,17 @@
 
                                 <p class="text-center">Your Quiz</p>
                                 <span class='bx bxl-facebook-circle'></span>
-                                <form>
+                                <form action="{{ route('loginHandle') }}" method="POST">
+                                    @csrf
                                     <div class="mb-3">
                                         <label for="exampleInputEmail1" class="form-label">Email</label>
-                                        <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                                        <input type="email" class="form-control" id="email" name="email" aria-describedby="emailHelp">
                                     </div>
                                     <div class="mb-4">
                                         <label for="exampleInputPassword1" class="form-label">Password</label>
-                                        <input type="password" class="form-control" id="exampleInputPassword1">
+                                        <input type="password" id="password" class="form-control" name="password">
                                     </div>
-                                    <div class="d-flex align-items-center justify-content-between mb-4">
+                                    <!-- <div class="d-flex align-items-center justify-content-between mb-4">
                                         <div class="form-check">
                                             <input class="form-check-input primary" type="checkbox" value="" id="flexCheckChecked" checked>
                                             <label class="form-check-label text-dark" for="flexCheckChecked">
@@ -41,11 +44,10 @@
                                             </label>
                                         </div>
                                         <a class="text-primary fw-bold" href="./index.html">Forgot Password ?</a>
-                                    </div>
-                                    <a href="./index.html" class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2">Sign In</a>
+                                    </div> -->
+                                    <button class="btn btn-primary w-100 py-8 fs-4 mb-4 rounded-2" type="submit">Sign In</button>
                                     <div class="d-flex align-items-center justify-content-center">
-
-                                        <p class="fs-4 mb-0 fw-bold">New to Modernize?</p>
+                                        <p class="fs-4 mb-0 fw-bold">New to us?</p>
                                         <a class="text-primary fw-bold ms-2" href="./authentication-register.html">Create an account</a>
                                     </div>
                                 </form>
@@ -58,6 +60,12 @@
     </div>
     <script src="{{asset('assets/libs/jquery/dist/jquery.min.js')}}"></script>
     <script src="{{asset('assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js')}}"></script>
+    <script src="{{ asset('sweetalert2/sweetalert2.all.min.js') }}"></script>
+    @if (session('alert'))
+    <script>
+        Swal.fire("{{ session('alert') }}")
+    </script>
+    @endif
 </body>
 
 </html>

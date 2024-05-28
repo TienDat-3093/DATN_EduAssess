@@ -11,18 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('question_user', function (Blueprint $table) {
+        Schema::table('question_users', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained(
-                table: 'user', indexName: 'question_user_user_id'
+                table: 'users', indexName: 'question_user_user_id'
             );
             $table->foreignId('question_type_id')->constrained(
-                table: 'question_type', indexName: 'question_user_question_type'
+                table: 'question_types', indexName: 'question_user_question_type'
             );
             $table->foreignId('level_id')->constrained(
-                table: 'level', indexName: 'question_user_level'
+                table: 'levels', indexName: 'question_user_level'
             );
             $table->foreignId('topic_id')->constrained(
-                table: 'topic', indexName: 'question_user_topic'
+                table: 'topics', indexName: 'question_user_topic'
             );
         });
     }
@@ -32,7 +32,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('question_user', function (Blueprint $table) {
+        Schema::table('question_users', function (Blueprint $table) {
             $table->dropForeign(['question_type_id','level_id','topic_id']);
             $table->dropColumn(['question_type_id','level_id','topic_id']);
         });

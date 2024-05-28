@@ -2,22 +2,22 @@
 
 namespace Database\Seeders;
 
-use App\Models\Topic;
+use App\Models\Levels;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class TopicSeeder extends Seeder
+class LevelsSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $listTopic = ['php','c++','python'];
-        foreach($listTopic as $topic)
+        $listLevel = ['Easy','Medium','Difficult'];
+        foreach($listLevel as $level)
         {
-            Topic::create([
-                'name' => $topic,
+            Levels::create([
+                'name' => $level,
             ]);
         }
     }
