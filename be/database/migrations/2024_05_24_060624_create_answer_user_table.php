@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('answer_user', function (Blueprint $table) {
+        Schema::create('answer_users', function (Blueprint $table) {
             $table->id();
             $table->string('answer_data');
             $table->softDeletes();
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('answer_user');
+        Schema::dropIfExists('answer_users');
     }
 };
