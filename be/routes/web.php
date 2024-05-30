@@ -1,8 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\QuestionsController;
+use App\Http\Controllers\Web\QuestionsAdminController;
 use App\Http\Controllers\UsersController;
+use App\Models\QuestionsAdmin;
 
 // Route::get('/', function () {
 //     return view('login');
@@ -23,4 +24,8 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/logout', [UsersController::class, 'logout'])->name('logout');
     Route::get('/', [UsersController::class, 'index'])->name('dashboard.index');
+
+    Route::prefix('/question')->name('question.')->group(function(){
+        Route::get('/',[QuestionsAdminController::class,'index'])->name('index');
+    });
 });

@@ -39,6 +39,21 @@
                              <option value="3">python</option>
                          </select>
                      </div>
+                     <div class="col-md mb-2">
+                         <label for="createTypeRadio" class="form-label d-block">Question Type</label>
+                         <div class="form-check form-check-inline mt-2">
+                             <input class="form-check-input" type="radio" name="createTypeRadio" id="typeRadio1" value="option1">
+                             <label class="form-check-label" for="inlineRadio1">1</label>
+                         </div>
+                         <div class="form-check form-check-inline">
+                             <input class="form-check-input" type="radio" name="createTypeRadio" id="typeRadio2" value="option2">
+                             <label class="form-check-label" for="inlineRadio2">2</label>
+                         </div>
+                         <div class="form-check form-check-inline">
+                             <input class="form-check-input" type="radio" name="createTypeRadio" id="typeRadio3" value="option3">
+                             <label class="form-check-label" for="inlineRadio3">3 </label>
+                         </div>
+                     </div>
                      <label for="answer" class="form-label">Answer</label>
                      <div id="createAnswersContainer">
                          <div id="createAnswerBox_1">
@@ -51,8 +66,8 @@
                                      <span class="ti ti-upload"></span>
                                  </label>
                                  <input type="file" name="answerImg" class="form-control d-none" id="createInputAnswer1" onchange="previewFile(event,1,'create')">
-                                 <button type="button" class="btn btn-icon">
-                                     <span class="ti ti-circle-minus" aria-hidden="true" onclick="deleteAnswer(event,1,'create')"></span>
+                                 <button type="button" class="btn btn-icon" onclick="deleteAnswer(event,1,'create')">
+                                     <span class="ti ti-circle-minus" aria-hidden="true" ></span>
                                  </button>
                              </div>
                              <div id="createFilePreview1" class="mt-2"></div>

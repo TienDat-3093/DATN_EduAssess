@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\QuestionTypes;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,7 +17,9 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LevelsSeeder::class,
             TopicsSeeder::class,
+            QuestionTypesSeeder::class,
             UsersSeeder::class,
+            QuestionsAdminSeeder::class,
         ]);
     }
 }
