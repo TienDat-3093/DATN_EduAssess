@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             QuestionTypesSeeder::class,
             UsersSeeder::class,
             QuestionsAdminSeeder::class,
+            TagsSeeder::class,
         ]);
     }
 }
