@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\QuestionsAdminController;
 use App\Http\Controllers\Web\TopicsController;
 use App\Http\Controllers\Web\TagsController;
 use App\Http\Controllers\Web\UsersController;
+use App\Http\Controllers\Web\TestsController;
 use App\Models\QuestionsAdmin;
 
 // Route::get('/', function () {
@@ -41,5 +42,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/create',[TagsController::class,'createHandle'])->name('create');
         Route::post('/edit/{id}',[TagsController::class,'editHandle'])->name('edit');
         Route::get('/delete/{id}',[TagsController::class,'deleteHandle'])->name('delete');
+    });
+    
+    Route::prefix('/test')->name('test.')->group(function(){
+        Route::get('/',[TestsController::class,'index'])->name('index');
+        Route::get('/create',[TestsController::class,'create'])->name('create');
+        Route::post('/searchQuestion',[TestsController::class,'searchQuestion'])->name('searchQuestion');
+        Route::post('/create',[TestsController::class,'createHandle'])->name('createHandle');
+        // Route::post('/edit/{id}',[TestsController::class,'editHandle'])->name('edit');
+        Route::get('/delete/{id}',[TestsController::class,'deleteHandle'])->name('delete');
     });
 });

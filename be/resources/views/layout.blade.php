@@ -73,6 +73,14 @@
                                 <span class="hide-menu">Tags</span>
                             </a>
                         </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="/test" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-article"></i>
+                                </span>
+                                <span class="hide-menu">Tests</span>
+                            </a>
+                        </li>
 
                 </nav>
                 <!-- End Sidebar navigation -->
