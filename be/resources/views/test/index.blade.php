@@ -1,5 +1,5 @@
 @extends('layout')
-
+@include('test.modals')
 @section('content')
 <div class="mt-3">
     <a href="{{route('test.create')}}"><button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createTest">
@@ -7,6 +7,11 @@
         Create
     </button></a>
 </div>
+<font id="error">
+@if(Session::has('error'))
+    <font style="vertical-align: inherit;color:red">{{Session::get('error')}}</font>
+@endif
+</font>
 <div class="col-lg-13 d-flex align-items-stretch">
     <div class="card w-100">
         <div class="card-body p-4">
@@ -53,11 +58,17 @@
                             @endif
                             <td>
                                 <div class="btn-group">
-                                    @if($test->deleted_at)
-                                        <a href="{{ route('test.delete', ['id' => $test->id] )}}"><button class="btn btn-secondary">Restore</button></a>
-                                    @else
-                                        <a href="{{ route('test.delete', ['id' => $test->id] )}}"><button class="btn btn-secondary">Delete</button></a>
-                                    @endif
+                                    <button type="button" class="btn btn-icon rounded-pill hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><button onclick="getTags(this)" id="edit-test" type="button" class="edit-test-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editTest" item-name="{{$test->name}}" item-id="{{$test->id}}" >Edit</button></li>
+                                        <li><a href="{{route('test.detail', ['id' => $test->id] )}}"><button id="edit-test" type="button" class="edit-test-btn dropdown-item"  >Detail</button></a></li>
+                                        @if($test->deleted_at)
+                                        <li><a href="{{ route('test.delete', ['id' => $test->id] )}}" class="dropdown-item">Restore</a></li>
+                                        @else
+                                        <li><a href="{{ route('test.delete', ['id' => $test->id] )}}" class="dropdown-item">Delete</a></li>
+                                        @endif
                                     </ul>
                                 </div>
                             </td>
@@ -70,3 +81,47 @@
     </div>
 </div>
 @endsection
+<script src="{{ asset('assets/jquery-3.7.1.min.js') }}">    
+</script>
+<script>
+    var $j = jQuery.noConflict();
+    document.addEventListener('DOMContentLoaded', (event) => {
+        const createTag = document.getElementById('editTest');
+        editTest.addEventListener('hidden.bs.modal', () => {
+            const checkboxes = editTest.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+        });
+        setTimeout(function() {
+                var elements = document.querySelectorAll('#error');
+                if (elements) {
+                    elements.forEach(function(element) {
+                        element.style.display = 'none';
+                    });
+                }
+            }, 5000);
+    });
+    function getTags(button) {
+            const testID = button.getAttribute('item-id')
+            $j.ajax({
+                url: "{{ route('test.getTags', ['id' => ':testID']) }}".replace(':testID', testID),
+                method: 'GET',
+                success: function(data) {
+                    const tags = JSON.parse(data.tag_data);
+                    tags.forEach(tagNumber => {
+                        const input = document.getElementById('tag-' + tagNumber);
+                        if (input) {
+                            input.checked = true;
+                        }
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching tag_data:', error);
+                }
+            });
+        const editTest = document.getElementById('editTest');
+        const editForm = editTest.querySelector('form');
+        editForm.action = "{{ route('test.edit', ['id' => ':testID']) }}".replace(':testID', testID);
+    };
+</script>

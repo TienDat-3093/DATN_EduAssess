@@ -49,7 +49,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/create',[TestsController::class,'create'])->name('create');
         Route::post('/searchQuestion',[TestsController::class,'searchQuestion'])->name('searchQuestion');
         Route::post('/create',[TestsController::class,'createHandle'])->name('createHandle');
-        // Route::post('/edit/{id}',[TestsController::class,'editHandle'])->name('edit');
+        Route::get('/getTags/{id}',[TestsController::class,'getTags'])->name('getTags');
+        Route::get('/detail/{id}',[TestsController::class,'detail'])->name('detail');
+        Route::post('/edit/{id}',[TestsController::class,'edit'])->name('edit');
         Route::get('/delete/{id}',[TestsController::class,'deleteHandle'])->name('delete');
     });
 });
