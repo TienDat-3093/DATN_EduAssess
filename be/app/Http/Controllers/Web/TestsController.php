@@ -19,7 +19,27 @@ class TestsController extends Controller
 {
     public function index(){
         $listTests = Tests::withTrashed()->get();
-        return view('/test/index',compact('listTests'));
+        $listTags = Tags::all();
+        return view('/test/index',compact('listTests','listTags'));
+    }
+    public function edit(Request $request,$id){
+        if(!$request->tag_data)
+            return redirect()->route('test.index')->withError("Tags can't be empty");
+        $test = Tests::withTrashed()->find($id);
+        $test->tag_data = json_encode(array_unique($request->tag_data));
+        $test->save();
+        return redirect()->route('test.index')->with('alert','Successfully edited');
+    }
+    public function getTags($id){
+        $test = Tests::withTrashed()->find($id);
+        $tag_data = $test->tag_data;
+        return response()->json(['tag_data' => $tag_data]);
+    }
+    public function detail($id){
+        $test = Tests::withTrashed()->find($id);
+        $question_ids = json_decode($test->question_data);
+        $listQuestions = QuestionsAdmin::whereIn('id', $question_ids)->get();
+        return view('/test/details',compact('listQuestions'));
     }
     public function create(){
         $listLevels = Levels::all();
@@ -51,9 +71,9 @@ class TestsController extends Controller
     public function createHandle(TestsRequest $request){
         $test = new Tests();
         $test->name = $request->name;
-        $test->question_data = json_encode($request->question_data);
+        $test->question_data = json_encode(array_unique($request->question_data));
         $test->topic_data = json_encode(array_unique($request->topic_data));
-        $test->tag_data = json_encode($request->tag_data);
+        $test->tag_data = json_encode(array_unique($request->tag_data));
         $test->done_count = 0;
         $test->privacy = 0;
         $test->user_id = Auth::id();
