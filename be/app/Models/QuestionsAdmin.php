@@ -4,11 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class QuestionsAdmin extends Model
 {
     use HasFactory;
     protected $table = 'question_admins';
+    use SoftDeletes;
 
     public function user()
     {
