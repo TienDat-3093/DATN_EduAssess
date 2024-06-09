@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\UsersRequest;
 use App\Models\Users;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Hash;
 
 class UsersController extends Controller
 {
@@ -56,44 +59,62 @@ class UsersController extends Controller
                         ->get();
         return view('user/results', compact('listUsers'));
     }
-    public function createHandle(CreateUserRequest $request)
+    public function createHandle(UsersRequest $request)
     {
+        if($request->password!=$request->re_password)
+            return redirect()->route('user.index')->with('alert', "Password doesn't match!");
         $user = new Users();
         $user->username = $request->username;
-        $user->fullname = $request->fullname;
         $user->email = $request->email;
+        $user->date_of_birth = $request->date_of_birth;
         $user->password = Hash::make($request->password);
-        $user->phone_number = $request->phone_number;
+        if ($request->hasFile("image")) {
+            $file = $request->file("image");
+            $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('img/users', $fileName);
+            $user->image = $path;
+        }
         $user->save();
-        return redirect()->route('user.index')->with('alert', 'Thêm tài khoản user thành công');
+        return redirect()->route('user.index')->with('alert', 'Successfully created!');
     }
-    public function editHandle(CreateUserRequest $request, $id)
+    public function getUser($id){
+        $user = Users::find($id);
+        return $user;
+    }
+    public function editHandle(Request $request, $id)
     {
         $user = Users::find($id);
-        if (empty($user)) {
-            return redirect()->route('user.index')->with('alert', 'Tài khoản user không tồn tại');
-        }
         $user->username = $request->username;
-        $user->fullname = $request->fullname;
-        $user->email = $request->email;
-        $user->password = Hash::make($request->password);
-        $user->phone_number = $request->phone_number;
+        $user->date_of_birth = $request->date_of_birth;
+        if ($request->hasFile("image")) {
+            if($user->image){
+            $img = $user->image;
+                if (Storage::exists($img)) {
+                    Storage::delete($img);
+                }
+            }
+            $file = $request->file("image");
+            $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('img/users', $fileName);
+            $user->image = $path;
+        }
         $user->save();
-
-        return redirect()->route('user.index')->with('alert', 'Cập nhật tài khoản user thành công');
+        return redirect()->route('user.index')->with('alert', 'Successfully edited!');
     }
     public function delete($id)
     {
         $user = Users::find($id);
         if (!$user) {
-            return redirect()->route('user.index')->with('error','Topic not found');
+            return redirect()->route('user.index')->with('error','User not found');
         }
-        if($user->trashed()){
-            $user->restore();
+        if($user->status == 0){
+            $user->status = 1;
+            $user->save();
             return redirect()->route('user.index')->with('alert','Successfully restored');
         }
         else{
-            $user->delete();
+            $user->status = 0;
+            $user->save();
             return redirect()->route('user.index')->with('alert','Successfully deleted');
         }
     }

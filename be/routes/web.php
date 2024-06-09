@@ -63,6 +63,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [UsersController::class, 'index'])->name('index');
         Route::post('/search', [UsersController::class, 'search'])->name('search');
         Route::post('/create', [UsersController::class, 'createHandle'])->name('createHandle');
+        Route::get('/getUser/{id}', [UsersController::class, 'getUser'])->name('getUser');
         Route::post('/edit/{id}', [UsersController::class, 'editHandle'])->name('editHandle');
         Route::get('/delete/{id}', [UsersController::class, 'delete'])->name('delete');
     });

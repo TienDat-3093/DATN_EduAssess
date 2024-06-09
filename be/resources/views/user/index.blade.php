@@ -9,11 +9,18 @@
         Create
     </button>
 </div>
-<font id="errorName" style="vertical-align: inherit;">
-    @error('name')
-    <font style="vertical-align: inherit;color:red">{{ $message }}</font>
+    @error('username')
+    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.</font>
     @enderror
-</font>
+    @error('email')
+    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.</font>
+    @enderror
+    @error('password')
+    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.</font>
+    @enderror
+    @error('date_of_birth')
+    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.</font>
+    @enderror
 <div class="input-group input-group-merge">
     <span class="input-group-text" id="basic-addon-search31"><i class="bx bx-search"></i></span>
     <input type="text" id="searchInput" class="form-control" placeholder="Search..." aria-label="Search..."
@@ -76,20 +83,33 @@
                 const editUserModal = document.getElementById('editUser');
                 const editForm = editUserModal.querySelector('form');
                 editForm.action = "{{ route('user.editHandle', ['id' => ':itemId']) }}".replace(':itemId', itemId);
-                const editName = document.getElementById('editUserName');
-                editName.value = itemName;
+                getUser(itemId);
             });
         });
     })
     function resetModalUser(modalType) {
-        document.getElementById(`${modalType}UserName`).value = '';
+        document.getElementById(`${modalType}Username`).value = '';
+        document.getElementById(`${modalType}Email`).value = '';
+        document.getElementById(`${modalType}Dateofbirth`).value = '';
+        if(modalType == "create"){
+        document.getElementById(`${modalType}Password`).value = '';
+        document.getElementById(`${modalType}RePassword`).value = '';
+        }
+        const newFilePreview = document.getElementById(`${modalType}FileUser`);
+        const imgElement = newFilePreview.querySelector('img');
+        if(imgElement)
+        newFilePreview.removeChild(imgElement);
     }
-    setTimeout(function() {
-    var element = document.getElementById('errorName');
-    if (element) {
-        element.style.display = 'none';
-    }
-    }, 5000);
+    document.addEventListener("DOMContentLoaded", function() {
+            setTimeout(function() {
+                var elements = document.querySelectorAll('#error');
+                if (elements) {
+                    elements.forEach(function(element) {
+                        element.remove();
+                    });
+                }
+            }, 5000);
+        });
     var $j = jQuery.noConflict();
         $j(document).ready(function() {
             $j('#searchInput').on('keyup', function(event) {
@@ -133,5 +153,24 @@
                 }
             }
         }
+    function getUser(userID){
+            $j.ajax({
+                url: "{{ route('user.getUser', ['id' => ':userID']) }}".replace(':userID', userID),
+                method: 'GET',
+                success: function(data) {
+                    document.getElementById('editUsername').value = data.username;
+                    document.getElementById('editEmail').value = data.email;
+                    document.getElementById('editDateofbirth').value = data.date_of_birth;
+                    const imgElement = document.createElement('img');
+                    const newFilePreview = document.getElementById('editFileUser');
+                    imgElement.src = data.image;
+                    imgElement.className = 'preview-img';
+                    newFilePreview.appendChild(imgElement);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching user data:', error);
+                }
+            });
+    }
 </script>
 @endsection

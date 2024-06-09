@@ -13,6 +13,7 @@ use App\Models\Levels;
 use App\Models\Topics;
 use App\Models\AnswersAdmin;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class QuestionsAdminController extends Controller
 {
@@ -98,6 +99,10 @@ class QuestionsAdminController extends Controller
             $question->question_text = $request->edit_questionText;
 
             if ($request->hasFile('edit_questionImg')) {
+                $img = $question->question_img;
+                if (Storage::exists($img)) {
+                    Storage::delete($img);
+                }
                 $file = $request->file('edit_questionImg');
                 $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
                 $path = $request->file('edit_questionImg')->storeAs('img', $fileName);
@@ -107,6 +112,16 @@ class QuestionsAdminController extends Controller
             $question->topic_id = $request->edit_topic;
             $question->question_type_id = $request->edit_typeRadio;
             $question->save();
+            $oldAnswers = AnswersAdmin::where('question_admin_id', $id)->first();
+            if ($oldAnswers) {
+
+                $answerData = json_decode($oldAnswers->answer_data);
+                    foreach ($answerData as $key => $value) {
+                            if (Storage::exists('/img/answers/' . $value->img)) {
+                                    Storage::delete('/img/answers/' . $value->img);
+                                }
+                }
+            }
             AnswersAdmin::where('question_admin_id', $id)->delete();
             $answer =new AnswersAdmin();
 

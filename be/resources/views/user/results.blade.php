@@ -21,10 +21,10 @@
             <h6 class="fw-semibold mb-0">Normal</h6>
         </td>
         @endif
-        @if($user->deleted_at)
+        @if($user->status == 0)
         <td class="border-bottom-0">
             <font class="badge bg-danger rounded-3 fw-semibol">
-                Deleted at: {{ \Carbon\Carbon::parse($user->deleted_at)->format('d/m/Y H:i:s') }}
+                Locked
             </font>
         </td>
         @else
@@ -41,7 +41,7 @@
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><button id="edit-user" type="button" class="edit-user-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editUser" item-name="{{$user->name}}" item-id="{{$user->id}}" >Edit</button></li>
-                    @if($user->deleted_at)
+                    @if($user->status == 0)
                     <li><a href="{{ route('user.delete', ['id' => $user->id] )}}" class="dropdown-item">Restore</a></li>
                     @else
                     <li><a href="{{ route('user.delete', ['id' => $user->id] )}}" class="dropdown-item">Delete</a></li>
