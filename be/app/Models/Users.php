@@ -10,5 +10,4 @@ class Users extends Model
 {
     use HasFactory;
     protected $table = 'users';
-    use SoftDeletes;
 }

@@ -50,6 +50,14 @@
                             <span class="hide-menu">UI COMPONENTS</span>
                         </li>
                         <li class="sidebar-item">
+                            <a class="sidebar-link" href="/user" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-article"></i>
+                                </span>
+                                <span class="hide-menu">Users</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
                             <a class="sidebar-link" href="/question" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-article"></i>
