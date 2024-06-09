@@ -30,6 +30,11 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('/question')->name('question.')->group(function(){
         Route::get('/',[QuestionsAdminController::class,'index'])->name('index');
+        Route::post('/create',[QuestionsAdminController::class,'create'])->name('create');
+        Route::get('edit/{id}',[QuestionsAdminController::class,'edit'])->name('edit');
+        Route::post('edit/{id}',[QuestionsAdminController::class,'editHandle'])->name('editHandle');
+        Route::post('delete/{id}',[QuestionsAdminController::class,'deleteHandle'])->name('delete');
+
     });
     Route::prefix('/topic')->name('topic.')->group(function(){
         Route::get('/',[TopicsController::class,'index'])->name('index');

@@ -3,92 +3,97 @@
      <div class="modal-dialog " role="document">
          <div class="modal-content">
              <div class="modal-header">
-                 <h5 class="modal-title" id="createModalQuestion">Add Question</h5>
+                 <h5 class="modal-title" id="create_modalQuestion">Add Question</h5>
                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
              </div>
-             <div class="modal-body">
-                 <div class="row">
-                     <div class="col mb-3">
-                         <label for="createQuestionText" class="form-label">Name</label>
-                         <div class="input-group">
-                             <input type="text" id="createQuestionText" name="createQuestionText" class="form-control" placeholder="Enter Name">
-                             <label class="btn btn-outline-secondary mb-0" for="createInputQuestion">
-                                 <span class="ti ti-upload"></span>
-                             </label>
-                             <input type="file" name="createInputQuestion" class="form-control d-none" id="createInputQuestion" onchange="previewQuestion('create')">
-                         </div>
-                         <div id="createFileQuestion" name="createFileQuestion" class="mt-2"></div>
-                     </div>
+             <form id="create_questionForm" action="{{route('question.create')}}" method="post" enctype="multipart/form-data" onsubmit="return validateForm('create_')">
+                 @csrf
+                 <div class="modal-body">
 
 
-                     <div class="mb-3">
-                         <label for="createLevelSelect" class="form-label">Level</label>
-                         <select id="createLevelSelect" name="createLevelSelect" class="form-select">
-                             <option>Level select</option>
-                             <option value="1">Easy</option>
-                             <option value="2">Medium</option>
-                             <option value="3">Difficult</option>
-                         </select>
-                     </div>
-                     <div class="mb-3 mt-1">
-                         <label for="createTopicSelect" class="form-label">Topic</label>
-                         <select id="createTopicSelect" name="createTopicSelect" class="form-select">
-                             <option>Topic select</option>
-                             <option value="1">php</option>
-                             <option value="2">c+</option>
-                             <option value="3">python</option>
-                         </select>
-                     </div>
-                     <div class="col-md mb-2">
-                         <label for="createTypeRadio" class="form-label d-block">Question Type</label>
-                         <div class="form-check form-check-inline mt-2">
-                             <input class="form-check-input" type="radio" name="createTypeRadio" id="typeRadio1" value="option1">
-                             <label class="form-check-label" for="inlineRadio1">1</label>
-                         </div>
-                         <div class="form-check form-check-inline">
-                             <input class="form-check-input" type="radio" name="createTypeRadio" id="typeRadio2" value="option2">
-                             <label class="form-check-label" for="inlineRadio2">2</label>
-                         </div>
-                         <div class="form-check form-check-inline">
-                             <input class="form-check-input" type="radio" name="createTypeRadio" id="typeRadio3" value="option3">
-                             <label class="form-check-label" for="inlineRadio3">3 </label>
-                         </div>
-                     </div>
-                     <label for="answer" class="form-label">Answer</label>
-                     <div id="createAnswersContainer">
-                         <div id="createAnswerBox_1">
-                             <div class="input-group mb-2">
-                                 <span class="input-group-text">
-                                     <input name="answerCheck" class="form-check-input mt-0" type="checkbox" value="">
-                                 </span>
-                                 <input type="text" name="answerText" class="form-control">
-                                 <label class="btn btn-outline-secondary mb-0" for="createInputAnswer1">
+                     <div class="row">
+                         <div class="col mb-3">
+                             <label for="create_questionText" class="form-label">Name</label>
+                             <div class="input-group">
+                                 <input type="text" id="create_questionText" name="create_questionText" class="form-control" placeholder="Enter Name" value="{{ old('questionText') }}">
+
+                                 <label class="btn btn-outline-secondary mb-0" for="create_inputQuestion">
                                      <span class="ti ti-upload"></span>
                                  </label>
-                                 <input type="file" name="answerImg" class="form-control d-none" id="createInputAnswer1" onchange="previewFile(event,1,'create')">
-                                 <button type="button" class="btn btn-icon" onclick="deleteAnswer(event,1,'create')">
-                                     <span class="ti ti-circle-minus" aria-hidden="true" ></span>
-                                 </button>
+                                 <input type="file" name="create_questionImg" class="form-control d-none" id="create_inputQuestion" onchange="previewQuestion('create_')">
                              </div>
-                             <div id="createFilePreview1" class="mt-2"></div>
+                             <font id="errorName" style="vertical-align: inherit;">
+                                 @error('questionText')
+                                 <font style="vertical-align: inherit;color:red">{{ $message }}</font>
+                                 @enderror
+                             </font>
+                             <div id="create_fileQuestion" name="create_fileQuestion" class="mt-2"></div>
                          </div>
+
+
+                         <div class="mb-3">
+                             <label for="create_levelSelect" class="form-label">Level</label>
+                             <select id="create_levelSelect" name="create_level" class="form-select">
+                                 <option>Level select</option>
+                                 @if(!empty($listLevels))
+                                 @foreach($listLevels as $level )
+                                 <option value="{{$level->id}}">{{$level->name}}</option>
+
+                                 @endforeach
+                                 @else
+                                 <option value="">No choose</option>
+                                 @endif
+                             </select>
+                         </div>
+                         <div class="mb-3 mt-1">
+                             <label for="create_topicSelect" class="form-label">Topic</label>
+                             <select id="create_topicSelect" name="create_topic" class="form-select">
+                                 <option>Topic select</option>
+                                 @if(!empty($listTopics))
+                                 @foreach($listTopics as $topic)
+                                 <option value="{{$topic->id}}">{{$topic->name}}</option>
+
+                                 @endforeach
+                                 @else
+                                 <option value="">No choose</option>
+                                 @endif
+                             </select>
+                         </div>
+                         <div class="col-md mb-2">
+                             <label for="create_typeRadio" class="form-label d-block">Question Type</label>
+                             @if(!empty($listTypes))
+                             @foreach($listTypes as $type)
+                             <div class="form-check form-check-inline mt-2">
+                                 <input class="form-check-input" type="radio" name="create_typeRadio" id="create_typeRadio{{$type->id}}" value="{{$type->id}}" @if($type->id ==1) checked @endif >
+                                 <label class="form-check-label" for="create_typeRadio{{$type->id}}">{{$type->name}}</label>
+                             </div>
+
+                             @endforeach
+                             @endif
+                         </div>
+                         <label for="create_answer" class="form-label">Answer</label>
+                         <div id="create_answersContainer">
+                             <!-- answers -->
+
+                         </div>
+
+
                      </div>
+                     <button id="create_btnAnswer" type="button" class="btn rounded-pill btn-icon" onclick="addAnswer('checkbox','create_')">
+                         <span class="ti ti-circle-plus"> Add answer</span>
 
-
+                     </button>
 
 
                  </div>
-                 <button type="button" class="btn rounded-pill btn-icon" onclick="addAnswer('create')">
-                     <span class="ti ti-circle-plus"> Add answer</span>
+                 <div class="modal-footer">
+                     <button type="button" class="btn btn-outline-secondary" onclick="resetModalQuestion('create_')">
+                         Delete
+                     </button>
 
-                 </button>
-             </div>
-             <div class="modal-footer">
-                 <button type="button" class="btn btn-outline-secondary" onclick="resetModalQuestion('create')">
-                     Delete
-                 </button>
-                 <button type="button" class="btn btn-primary">Save changes</button>
-             </div>
+                     <button type="submit" class="btn btn-primary">Save changes</button>
+                 </div>
+             </form>
          </div>
      </div>
  </div>
@@ -99,77 +104,133 @@
      <div class="modal-dialog " role="document">
          <div class="modal-content">
              <div class="modal-header">
-                 <h5 class="modal-title" id="editModalQuestion">Edit Question</h5>
+                 <h5 class="modal-title" id="modalQuestion">Edit Question</h5>
                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
              </div>
-             <div class="modal-body">
-                 <div class="row">
-                     <div class="col mb-3">
-                         <label for="editQuestionText" class="form-label">Name</label>
-                         <div class="input-group">
-                             <input type="text" id="editQuestionText" name="editQuestionText" class="form-control" placeholder="Enter Name">
-                             <label class="btn btn-outline-secondary mb-0" for="editInputQuestion">
-                                 <span class="ti ti-upload"></span>
-                             </label>
-                             <input type="file" name="editInputQuestion" class="form-control d-none" id="editInputQuestion" onchange="previewQuestion('edit')">
-                         </div>
-                         <div id="editFileQuestion" name="editFileQuestion" class="mt-2"></div>
-                     </div>
+             <form id="edit_questionForm" action="" method="post" enctype="multipart/form-data" onsubmit="return validateForm('edit_')">
+                 @csrf
+                 <div class="modal-body">
 
 
-                     <div class="mb-3">
-                         <label for="editLevelSelect" class="form-label">Level</label>
-                         <select id="editLevelSelect" name="editLevelSelect" class="form-select">
-                             <option>Level select</option>
-                             <option value="1">Easy</option>
-                             <option value="2">Medium</option>
-                             <option value="3">Difficult</option>
-                         </select>
-                     </div>
-                     <div class="mb-3 mt-1">
-                         <label for="editTopicSelect" class="form-label">Topic</label>
-                         <select id="editTopicSelect" name="editTopicSelect" class="form-select">
-                             <option>Topic select</option>
-                             <option value="1">php</option>
-                             <option value="2">c+</option>
-                             <option value="3">python</option>
-                         </select>
-                     </div>
-                     <label for="answer" class="form-label">Answer</label>
-                     <div id="editAnswersContainer">
-                         <div id="editAnswerBox_1">
-                             <div class="input-group mb-2">
-                                 <span class="input-group-text">
-                                     <input name="answerCheck" class="form-check-input mt-0" type="checkbox" value="">
-                                 </span>
-                                 <input type="text" name="answerText" class="form-control">
-                                 <label class="btn btn-outline-secondary mb-0" for="editInputAnswer1">
+                     <div class="row">
+                         <div class="col mb-3">
+                             <label for="edit_questionText" class="form-label">Name</label>
+                             <div class="input-group">
+                                 <input type="text" id="edit_questionText" name="edit_questionText" class="form-control" placeholder="Enter Name">
+
+                                 <label class="btn btn-outline-secondary mb-0" for="edit_inputQuestion">
                                      <span class="ti ti-upload"></span>
                                  </label>
-                                 <input type="file" name="answerImg" class="form-control d-none" id="editInputAnswer1" onchange="previewFile(event,1,'edit')">
-                                 <button type="button" class="btn btn-icon">
-                                     <span class="ti ti-circle-minus" aria-hidden="true" onclick="deleteAnswer(event,1,'edit')"></span>
-                                 </button>
+                                 <input type="file" name="edit_questionImg" class="form-control d-none" id="edit_inputQuestion" onchange="previewQuestion('edit_')">
                              </div>
-                             <div id="editFilePreview1" class="mt-2"></div>
+
+                             <div id="edit_fileQuestion" name="edit_fileQuestion" class="mt-2">
+                                 <img src="" class="question-img" id="edit_loadImg" />
+                             </div>
                          </div>
+
+
+                         <div class="mb-3">
+                             <label for="edit_levelSelect" class="form-label">Level</label>
+                             <select id="edit_levelSelect" name="edit_level" class="form-select">
+                                 <option>Level select</option>
+                                 @if(!empty($listLevels))
+                                 @foreach($listLevels as $level )
+                                 <option value="{{$level->id}}">{{$level->name}}</option>
+
+                                 @endforeach
+                                 @else
+                                 <option value="">No choose</option>
+                                 @endif
+                             </select>
+                         </div>
+                         <div class="mb-3 mt-1">
+                             <label for="edit_topicSelect" class="form-label">Topic</label>
+                             <select id="edit_topicSelect" name="edit_topic" class="form-select">
+                                 <option>Topic select</option>
+                                 @if(!empty($listTopics))
+                                 @foreach($listTopics as $topic)
+                                 <option value="{{$topic->id}}">{{$topic->name}}</option>
+
+                                 @endforeach
+                                 @else
+                                 <option value="">No choose</option>
+                                 @endif
+                             </select>
+                         </div>
+                         <div class="col-md mb-2">
+                             <label for="edit_typeRadio" class="form-label d-block">Question Type</label>
+                             @if(!empty($listTypes))
+                             @foreach($listTypes as $type)
+                             <div class="form-check form-check-inline mt-2">
+                                 <input class="form-check-input" type="radio" name="edit_typeRadio" id="edit_typeRadio{{$type->id}}" value="{{$type->id}}" @if($type->id ==1) checked @endif >
+                                 <label class="form-check-label" for="edit_typeRadio{{$type->id}}">{{$type->name}}</label>
+                             </div>
+
+                             @endforeach
+                             @endif
+                         </div>
+                         <label for="answer" class="form-label">Answer</label>
+                         <div id="edit_answersContainer">
+                             <!-- answers -->
+
+                         </div>
+
+
                      </div>
+                     <button id="edit_btnAnswer" type="button" class="btn rounded-pill btn-icon" onclick="addAnswer('checkbox','edit_')">
+                         <span class="ti ti-circle-plus"> Add answer</span>
 
-
+                     </button>
 
 
                  </div>
-                 <button type="button" class="btn rounded-pill btn-icon" onclick="addAnswer('edit')">
-                     <span class="ti ti-circle-plus"> Add answer</span>
+                 <div class="modal-footer">
+                     <button type="button" class="btn btn-outline-secondary" onclick="resetModalQuestion('edit_')">
+                         Delete
+                     </button>
 
-                 </button>
-             </div>
-             <div class="modal-footer">
-                 <button type="button" class="btn btn-outline-secondary" onclick="resetModalQuestion('edit')">
-                     Delete
-                 </button>
-                 <button type="button" class="btn btn-primary">Save changes</button>
-             </div>
+                     <button type="submit" class="edit-question-btn btn btn-primary" data-id="">Save changes</button>
+                 </div>
+             </form>
          </div>
      </div>
  </div>
+
+ <div class="modal fade" id="detailQuestion" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel1">Answer Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Img</th>
+                                <th>Text</th>
+                                <th>Answer Right</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            <tr>
+                                <td><img src="" alt="Avatar" class="preview-img"></td>
+                                <td class="text-wrap text-break"><p class="mb-0 fw-normal">Your long text here that needs to be wrapped properly within the table cell to ensure it doesn't overflow.</p></td>
+                                <td><span class="badge bg-secondary rounded-3 fw-semibold">Medium</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+

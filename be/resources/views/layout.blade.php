@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrfToken" content="{{ csrf_token() }}">
     <title>Edu Assess</title>
     <link rel="shortcut icon" type="image/png" href="{{asset('assets/images/logos/logo(2).png')}}" />
     <link rel="stylesheet" href="{{asset('assets/css/styles.min.css')}}" />
@@ -14,7 +15,14 @@
     <!-- SweetAlert -->
     <link rel="stylesheet" href="{{ asset('sweetalert2/sweetalert2.min.css') }}">
 </head>
-
+<style>
+    .preview-img,
+    .question-img {
+        max-height: 100px;
+        max-width: 100px;
+        margin-top: 10px;
+    }
+</style>
 <body>
     <!--  Body Wrapper -->
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
