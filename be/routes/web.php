@@ -26,10 +26,15 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
 
     Route::get('/logout', [UsersController::class, 'logout'])->name('logout');
-    Route::get('/', [UsersController::class, 'index'])->name('dashboard.index');
+    Route::get('/', [UsersController::class, 'dashboard'])->name('dashboard.index');
 
     Route::prefix('/question')->name('question.')->group(function(){
         Route::get('/',[QuestionsAdminController::class,'index'])->name('index');
+        Route::post('/create',[QuestionsAdminController::class,'create'])->name('create');
+        Route::get('edit/{id}',[QuestionsAdminController::class,'edit'])->name('edit');
+        Route::post('edit/{id}',[QuestionsAdminController::class,'editHandle'])->name('editHandle');
+        Route::post('delete/{id}',[QuestionsAdminController::class,'deleteHandle'])->name('delete');
+
     });
     Route::prefix('/topic')->name('topic.')->group(function(){
         Route::get('/',[TopicsController::class,'index'])->name('index');
@@ -53,5 +58,13 @@ Route::middleware('auth')->group(function () {
         Route::get('/detail/{id}',[TestsController::class,'detail'])->name('detail');
         Route::post('/edit/{id}',[TestsController::class,'edit'])->name('edit');
         Route::get('/delete/{id}',[TestsController::class,'deleteHandle'])->name('delete');
+    });
+    Route::prefix('/user')->name('user.')->group(function () {
+        Route::get('/', [UsersController::class, 'index'])->name('index');
+        Route::post('/search', [UsersController::class, 'search'])->name('search');
+        Route::post('/create', [UsersController::class, 'createHandle'])->name('createHandle');
+        Route::get('/getUser/{id}', [UsersController::class, 'getUser'])->name('getUser');
+        Route::post('/edit/{id}', [UsersController::class, 'editHandle'])->name('editHandle');
+        Route::get('/delete/{id}', [UsersController::class, 'delete'])->name('delete');
     });
 });

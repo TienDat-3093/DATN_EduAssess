@@ -48,7 +48,7 @@
                             @if($topic->deleted_at)
                             <td class="border-bottom-0">
                                 <font class="badge bg-danger rounded-3 fw-semibol">
-                                    Deleted at: {{$topic->deleted_at}}
+                                    Deleted at: {{ \Carbon\Carbon::parse($topic->deleted_at)->format('d/m/Y H:i:s') }}
                                 </font>
                             </td>
                             @else
