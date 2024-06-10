@@ -115,69 +115,95 @@ class QuestionsAdminController extends Controller
             $question->question_type_id = $request->edit_typeRadio;
             $question->save();
 
-            // Xử lý câu trả lời cũ
 
-            $oldAnswers = AnswersAdmin::where('question_admin_id', $id)->first();
-            if ($oldAnswers) {
-                $answerData = json_decode($oldAnswers->answer_data);
-                foreach ($answerData as $key => $value) {
-                    if (isset($value->img) && Storage::exists('img/answers/' . $value->img)) {
-                        Storage::delete('img/answers/' . $value->img);
+            $answer = AnswersAdmin::where('question_admin_id', $id)->first();
+
+            if ($answer) {
+                $oldAnswer = json_decode($answer->answer_data);
+                foreach ($request->edit_answerText as $index => $text) {
+                    $answerText = $text;
+                    $is_correct = isset($request->edit_answers[$index]) && $request->edit_answers[$index] ? 1 : 0;
+
+                    $answerCount = 'answer_' . $index + 1;
+                    if ($request->hasFile("edit_answerImg.$index")) {
+                        // Thêm hình ảnh mới
+                        $file = $request->file("edit_answerImg.$index");
+                        $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
+                        $path = $file->storeAs('img/answers', $fileName);
+                        //xoa hinh trong img/aswers
+                        if (isset($oldAnswer->$answerCount->img) && Storage::exists('img/answers/' . $oldAnswer->$answerCount->img)) {
+                            Storage::delete('img/answers/' . $oldAnswer->$answerCount->img);
+                        }
+
+                        if (isset($oldAnswer->$answerCount)) {
+                            $oldAnswer->$answerCount->text = $answerText;
+                            $oldAnswer->$answerCount->img = $fileName;
+                            $oldAnswer->$answerCount->is_correct = $is_correct;
+                        } else {
+                            $oldAnswer->$answerCount = (object)[
+                                'text' => $answerText,
+                                'img' => $fileName,
+                                'is_correct' => $is_correct,
+                            ];
+                        }
+                    }
+
+                }
+                $answersString = json_encode($oldAnswer);
+                $answer->answer_data = $answersString;
+                $answer->save();
+
+            } else {
+                $answer = new AnswersAdmin();
+                $answer->question_admin_id = $question->id;
+                $answers = [];
+                $i = 0;
+                foreach ($request->edit_answerText as $index => $text) {
+                    $i++;
+                    $answerText = $text;
+                    $is_correct = isset($request->edit_answers[$index]) && $request->edit_answers[$index] ? 1 : 0;
+
+                    if ($request->hasFile("edit_answerImg.$index")) {
+                        // Thêm hình ảnh mới
+                        $file = $request->file("edit_answerImg.$index");
+                        $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
+                        $path = $file->storeAs('img/answers', $fileName);
+                        // Xóa hình ảnh cũ tương ứng nếu có
+                        $answers["answer_$i"] = [
+                            'text' => $answerText,
+                            'img' => $fileName,
+                            'is_correct' => $is_correct
+                        ];
+                    } else {
+                        $answers["answer_$i"] = [
+                            'text' => $answerText,
+                            'img' => null,
+                            'is_correct' => $is_correct
+                        ];
                     }
                 }
+
+                $answersString = json_encode($answers);
+                $answer->answer_data = $answersString;
+                $answer->save();
+
             }
-            AnswersAdmin::where('question_admin_id', $id)->delete();
-
-            // Lưu câu trả lời mới
-            $answer = new AnswersAdmin();
-            $answer->question_admin_id = $question->id;
-            $answers = [];
-            $i = 0;
-            foreach ($request->edit_answerText as $index => $text) {
-                $i++;
-                $answerText = $text;
-                $is_correct = isset($request->edit_answers[$index]) && $request->edit_answers[$index] ? 1 : 0;
-
-                if ($request->hasFile("edit_answerImg.$index")) {
-                    // Thêm hình ảnh mới
-                    $file = $request->file("edit_answerImg.$index");
-                    $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
-                    $path = $file->storeAs('img/answers', $fileName);
-
-
-                    $answers["answer_$i"] = [
-                        'text' => $answerText,
-                        'img' => $fileName,
-                        'is_correct' => $is_correct
-                    ];
-                } else {
-                    $answers["answer_$i"] = [
-                        'text' => $answerText,
-                        'img' => null,
-                        'is_correct' => $is_correct
-                    ];
-                }
-            }
-
-            $answersString = json_encode($answers);
-            $answer->answer_data = $answersString;
-            $answer->save();
 
             return redirect()->route('question.index')->with('alert', 'Successfully edited');
         }
     }
-    public function deleteHandle($id){
+    public function deleteHandle($id)
+    {
         $question = QuestionsAdmin::withTrashed()->find($id);
         if (!$question) {
-            return redirect()->route('question.index')->with('error','Tag not found');
+            return redirect()->route('question.index')->with('error', 'Tag not found');
         }
-        if($question->trashed()){
+        if ($question->trashed()) {
             $question->restore();
-            return redirect()->route('question.index')->with('alert','Successfully restored');
-        }
-        else{
+            return redirect()->route('question.index')->with('alert', 'Successfully restored');
+        } else {
             $question->delete();
-            return redirect()->route('question.index')->with('alert','Successfully deleted');
+            return redirect()->route('question.index')->with('alert', 'Successfully deleted');
         }
     }
 }

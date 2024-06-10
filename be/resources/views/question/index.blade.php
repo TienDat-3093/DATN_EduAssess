@@ -108,16 +108,17 @@
                                         <li><button data-question-id="{{$question->id}}" class="btnEdit dropdown-item" data-bs-toggle="modal" data-bs-target="#editQuestion">Edit</button></li>
                                         @if($question->deleted_at)
                                         <li>
-                                            <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST">
+                                            <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST" class="restore-form">
                                                 @csrf
-                                                <button type="submit" class="dropdown-item">Restore</button>
+                                                <button type="button" data-name="{{ $question->question_text }}" class="dropdown-item restore-link">Restore</button>
                                             </form>
                                         </li>
                                         @else
                                         <li>
-                                            <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this question?');">
+                                            <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST" class="delete-form">
                                                 @csrf
-                                                <button type="submit" class="dropdown-item">Delete</button>
+                                                @method('POST')
+                                                <button type="button" data-name="{{ $question->question_text }}" class="dropdown-item delete-link">Delete</button>
                                             </form>
                                         </li>
                                         @endif
@@ -130,10 +131,15 @@
                         @endforeach
                     </tbody>
                 </table>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     var csrfToken = '{{ csrf_token() }}';
@@ -210,12 +216,13 @@
 
 
     function editQuestion(questionID) {
+        $('#edit_questionImg').hide();
         $.ajax({
             url: 'question/edit/' + questionID,
             type: "get",
             success: function(data, answer) {
 
-                console.log('data', data)
+                console.log(data.data.question_img)
 
                 $('#edit_questionText').val(data.data.question_text);
                 $("#edit_topicSelect").val(data.data.topic_id);
@@ -228,6 +235,12 @@
                     loadAnswer(data.answer[0].answer_data, 'edit_', 'radio')
                 } else if (data.data.question_type_id == '3') {
                     loadAnswer(data.answer[0].answer_data, 'edit_', 'radio')
+                }
+                if (data.data.question_img) {
+
+                    $('#edit_loadImg').attr('src', data.data.question_img).show();
+                } else {
+                    $('#edit_loadImg').attr('src', '').show();
                 }
 
             }
@@ -250,7 +263,10 @@
             resetModalQuestion('create_');
         });
         const editQuestion = document.getElementById('editQuestion');
-        editQuestion.addEventListener('hidden.bs.modal', () => resetModalQuestion('edit_'));
+        editQuestion.addEventListener('hidden.bs.modal', () => {
+            resetModalQuestion('edit_');
+            window.location.reload();
+        });
         //end event
 
 
@@ -265,34 +281,73 @@
 
             }
         });
-        document.getElementById('createQuestion').addEventListener('submit',(event)=>{
+        document.getElementById('createQuestion').addEventListener('submit', (event) => {
             var checkInputs = document.querySelectorAll('input[name="create_answers[]"].check-box');
             var hiddenInputs = document.querySelectorAll('input[name="create_answers[]"][type="hidden"].hidden-box');
 
-            checkInputs.forEach(function(item,index)
-            {
-                if(item.checked == true)
-                {
+            checkInputs.forEach(function(item, index) {
+                if (item.checked == true) {
                     hiddenInputs[index].disabled = true;
-                }else{
+                } else {
                     hiddenInputs[index].disabled = false;
                 }
             })
         })
-        document.getElementById('editQuestion').addEventListener('submit',(event)=>{
+        document.getElementById('editQuestion').addEventListener('submit', (event) => {
             var checkInputs = document.querySelectorAll('input[name="edit_answers[]"].check-box');
             var hiddenInputs = document.querySelectorAll('input[name="edit_answers[]"][type="hidden"].hidden-box');
 
-            checkInputs.forEach(function(item,index)
-            {
-                if(item.checked == true)
-                {
+            checkInputs.forEach(function(item, index) {
+                if (item.checked == true) {
                     hiddenInputs[index].disabled = true;
-                }else{
+                } else {
                     hiddenInputs[index].disabled = false;
                 }
             })
         })
+        document.querySelectorAll('.delete-link').forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                var form = this.closest('form');
+                var name = this.getAttribute('data-name');
+
+                Swal.fire({
+                    title: 'Xác Nhận Xóa?',
+                    text: 'Bạn có chắc muốn xóa câu hỏi: ' + name,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đồng ý',
+                    cancelButtonText: 'Hủy bỏ',
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+
+        document.querySelectorAll('.restore-link').forEach(function(link) {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                var form = this.closest('form');
+                var name = this.getAttribute('data-name');
+
+                Swal.fire({
+                    title: 'Xác Nhận Khôi Phục?',
+                    text: 'Bạn có chắc muốn khôi phục câu hỏi: ' + name,
+                    icon: 'info',
+                    showCancelButton: true,
+                    confirmButtonText: 'Đồng ý',
+                    cancelButtonText: 'Hủy bỏ',
+                }).then(function(result) {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
 
 
     })
