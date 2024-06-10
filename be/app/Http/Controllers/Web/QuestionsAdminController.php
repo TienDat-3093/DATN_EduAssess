@@ -28,7 +28,7 @@ class QuestionsAdminController extends Controller
 
     public function create(Request $request)
     {
-        /* dd($request->all()); */
+
         $question = new QuestionsAdmin();
         $question->user_id = Auth::user()->id;
         $question->question_text = $request->create_questionText;
@@ -91,53 +91,57 @@ class QuestionsAdminController extends Controller
 
     public function editHandle(Request $request, $id)
     {
-
         $question = QuestionsAdmin::find($id);
 
         if (!empty($question)) {
             $question->user_id = Auth::user()->id;
             $question->question_text = $request->edit_questionText;
 
+            // Xử lý hình ảnh của câu hỏi
             if ($request->hasFile('edit_questionImg')) {
-                $img = $question->question_img;
-                if (Storage::exists($img)) {
-                    Storage::delete($img);
-                }
+                // Thêm hình ảnh mới
                 $file = $request->file('edit_questionImg');
-                $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
-                $path = $request->file('edit_questionImg')->storeAs('img', $fileName);
+                $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('img', $fileName);
+                // Xóa hình ảnh cũ nếu có
+                if (!empty($question->question_img) && Storage::exists($question->question_img)) {
+                    Storage::delete($question->question_img);
+                }
                 $question->question_img = $path;
             }
+
             $question->level_id = $request->edit_level;
             $question->topic_id = $request->edit_topic;
             $question->question_type_id = $request->edit_typeRadio;
             $question->save();
+
+            // Xử lý câu trả lời cũ
+
             $oldAnswers = AnswersAdmin::where('question_admin_id', $id)->first();
             if ($oldAnswers) {
-
                 $answerData = json_decode($oldAnswers->answer_data);
-                    foreach ($answerData as $key => $value) {
-                            if (Storage::exists('/img/answers/' . $value->img)) {
-                                    Storage::delete('/img/answers/' . $value->img);
-                                }
+                foreach ($answerData as $key => $value) {
+                    if (isset($value->img) && Storage::exists('img/answers/' . $value->img)) {
+                        Storage::delete('img/answers/' . $value->img);
+                    }
                 }
             }
             AnswersAdmin::where('question_admin_id', $id)->delete();
-            $answer =new AnswersAdmin();
 
-
+            // Lưu câu trả lời mới
+            $answer = new AnswersAdmin();
             $answer->question_admin_id = $question->id;
             $answers = [];
             $i = 0;
             foreach ($request->edit_answerText as $index => $text) {
                 $i++;
                 $answerText = $text;
-
                 $is_correct = isset($request->edit_answers[$index]) && $request->edit_answers[$index] ? 1 : 0;
 
                 if ($request->hasFile("edit_answerImg.$index")) {
+                    // Thêm hình ảnh mới
                     $file = $request->file("edit_answerImg.$index");
-                    $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
+                    $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
                     $path = $file->storeAs('img/answers', $fileName);
 
 
@@ -156,10 +160,8 @@ class QuestionsAdminController extends Controller
             }
 
             $answersString = json_encode($answers);
-
             $answer->answer_data = $answersString;
             $answer->save();
-
 
             return redirect()->route('question.index')->with('alert', 'Successfully edited');
         }

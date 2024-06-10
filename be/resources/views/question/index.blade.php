@@ -218,9 +218,6 @@
                 console.log('data', data)
 
                 $('#edit_questionText').val(data.data.question_text);
-
-
-
                 $("#edit_topicSelect").val(data.data.topic_id);
                 $("#edit_levelSelect").val(data.data.level_id);
 
@@ -268,6 +265,34 @@
 
             }
         });
+        document.getElementById('createQuestion').addEventListener('submit',(event)=>{
+            var checkInputs = document.querySelectorAll('input[name="create_answers[]"].check-box');
+            var hiddenInputs = document.querySelectorAll('input[name="create_answers[]"][type="hidden"].hidden-box');
+
+            checkInputs.forEach(function(item,index)
+            {
+                if(item.checked == true)
+                {
+                    hiddenInputs[index].disabled = true;
+                }else{
+                    hiddenInputs[index].disabled = false;
+                }
+            })
+        })
+        document.getElementById('editQuestion').addEventListener('submit',(event)=>{
+            var checkInputs = document.querySelectorAll('input[name="edit_answers[]"].check-box');
+            var hiddenInputs = document.querySelectorAll('input[name="edit_answers[]"][type="hidden"].hidden-box');
+
+            checkInputs.forEach(function(item,index)
+            {
+                if(item.checked == true)
+                {
+                    hiddenInputs[index].disabled = true;
+                }else{
+                    hiddenInputs[index].disabled = false;
+                }
+            })
+        })
 
 
     })
@@ -293,7 +318,8 @@
             newInputGroup.className = "input-group mb-2";
             newInputGroup.innerHTML = `
             <span class="input-group-text">
-                <input name="${modalType}answers[]" class="form-check-input mt-0" type="${inputType}" ${answer.is_correct ? 'checked' : ''}>
+                <input name="${modalType}answers[]" class="check-box form-check-input mt-0" type="${inputType}" ${answer.is_correct ? 'checked' : ''} value ="1">
+                <input name ="${modalType}answers[]" class="hidden-box" type="hidden" value="0">
             </span>
             <input type="text" name="${modalType}answerText[]" id="${modalType}answerText${answerCount[modalType]}" class="form-control" value="${answer.text}">
             <label class="btn btn-outline-secondary mb-0" for="${modalType}inputAnswer${answerCount[modalType]}">
@@ -337,8 +363,9 @@
         <div class ="${modalType}answerBox" id="${modalType}answerBox_${index}">
             <div class="input-group mb-2">
                 <span class="input-group-text">
-                    <input name="${modalType}answers[]" class="form-check-input mt-0" type="${inputType}" >
-                </span>
+                    <input name="${modalType}answers[]" class="check-box form-check-input mt-0" type="${inputType}" value ="1">
+                    <input name ="${modalType}answers[]" class="hidden-box" type="hidden" value="0">
+                    </span>
                 <input type="text" name="${modalType}answerText[]" class="form-control" id ="${modalType}answerText${index}">
                 <label class="btn btn-outline-secondary mb-0" for="${modalType}inputAnswer${index}">
                     <span class="ti ti-upload"></span>
@@ -389,8 +416,9 @@
         const newInputGroup = document.createElement('div');
         newInputGroup.className = "input-group mb-2";
         newInputGroup.innerHTML = `<span class="input-group-text">
-                                     <input name="${modalType}answers[]" class="form-check-input mt-0" type="${inputType}" >
-                                 </span>
+                                     <input name="${modalType}answers[]" class="check-box form-check-input mt-0" type="${inputType}" value="1">
+                                        <input name ="${modalType}answers[]" class="hidden-box" type="hidden" value="0">
+                                     </span>
                                  <input type="text" name="${modalType}answerText[]" id="${modalType}answerText${answerCount[modalType]}" class="form-control">
                                  <label class="btn btn-outline-secondary mb-0" for="${modalType}inputAnswer${answerCount[modalType]}">
                                      <span class="ti ti-upload"></span>
