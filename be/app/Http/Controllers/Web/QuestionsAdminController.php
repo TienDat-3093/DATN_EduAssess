@@ -130,7 +130,7 @@ class QuestionsAdminController extends Controller
                         // Thêm hình ảnh mới
                         $file = $request->file("edit_answerImg.$index");
                         $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
-                        /* $path = $file->storeAs('img/answers', $fileName); */
+                        $path = $file->storeAs('img/answers', $fileName);
                         //xoa hinh trong img/aswers
                         if (isset($oldAnswer->$answerCount->img) && Storage::exists('img/answers/' . $oldAnswer->$answerCount->img)) {
                             Storage::delete('img/answers/' . $oldAnswer->$answerCount->img);
