@@ -115,8 +115,16 @@ class QuestionsAdminController extends Controller
             $question->topic_id = $request->edit_topic;
             $question->question_type_id = $request->edit_typeRadio;
             $question->save();
-
-
+            //xoa anh cu
+            $oldAnswers = AnswersAdmin::where('question_admin_id', $id)->first();
+            if ($oldAnswers) {
+                $answerData = json_decode($oldAnswers->answer_data);
+                foreach ($answerData as $key => $value) {
+                    if (isset($value->img) && Storage::exists('img/answers/' . $value->img)) {
+                        Storage::delete('img/answers/' . $value->img);
+                    }
+                }
+            }
             AnswersAdmin::where('question_admin_id', $id)->delete();
             $answer = new AnswersAdmin();
             $answer->question_admin_id = $question->id;
