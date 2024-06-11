@@ -117,9 +117,42 @@ class QuestionsAdminController extends Controller
             $question->save();
 
 
-            $answer = AnswersAdmin::where('question_admin_id', $id)->first();
+            AnswersAdmin::where('question_admin_id', $id)->delete();
+            $answer = new AnswersAdmin();
+            $answer->question_admin_id = $question->id;
+            $answers = [];
+            $i = 0;
+            foreach ($request->edit_answerText as $index => $text) {
+                $i++;
+                $answerText = $text;
+                $is_correct = isset($request->edit_answers[$index]) && $request->edit_answers[$index] ? 1 : 0;
 
-            if ($answer) {
+                if ($request->hasFile("edit_answerImg.$index")) {
+                    // Thêm hình ảnh mới
+                    $file = $request->file("edit_answerImg.$index");
+                    $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
+                    $path = $file->storeAs('img/answers', $fileName);
+                    // Xóa hình ảnh cũ tương ứng nếu có
+                    $answers["answer_$i"] = [
+                        'text' => $answerText,
+                        'img' => $fileName,
+                        'is_correct' => $is_correct
+                    ];
+                } else {
+                    $answers["answer_$i"] = [
+                        'text' => $answerText,
+                        'img' => null,
+                        'is_correct' => $is_correct
+                    ];
+                }
+            }
+
+            $answersString = json_encode($answers);
+            $answer->answer_data = $answersString;
+            $answer->save();
+
+            /* $answer = AnswersAdmin::where('question_admin_id', $id)->first(); */
+            /* if ($answer) {
                 $oldAnswer = json_decode($answer->answer_data);
                 foreach ($request->edit_answerText as $index => $text) {
                     $answerText = $text;
@@ -135,6 +168,7 @@ class QuestionsAdminController extends Controller
                         if (isset($oldAnswer->$answerCount->img) && Storage::exists('img/answers/' . $oldAnswer->$answerCount->img)) {
                             Storage::delete('img/answers/' . $oldAnswer->$answerCount->img);
                         }
+
                         $oldAnswer->$answerCount->img =  $fileName;
                     }
                     if (isset($oldAnswer->$answerCount)) {
@@ -186,7 +220,7 @@ class QuestionsAdminController extends Controller
                 $answersString = json_encode($answers);
                 $answer->answer_data = $answersString;
                 $answer->save();
-            }
+            } */
 
             return redirect()->route('question.index')->with('alert', 'Successfully edited');
         }
