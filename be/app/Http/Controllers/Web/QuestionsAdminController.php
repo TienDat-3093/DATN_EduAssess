@@ -91,6 +91,7 @@ class QuestionsAdminController extends Controller
 
     public function editHandle(Request $request, $id)
     {
+
         $question = QuestionsAdmin::find($id);
 
         if (!empty($question)) {
@@ -129,31 +130,30 @@ class QuestionsAdminController extends Controller
                         // Thêm hình ảnh mới
                         $file = $request->file("edit_answerImg.$index");
                         $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
-                        $path = $file->storeAs('img/answers', $fileName);
+                        /* $path = $file->storeAs('img/answers', $fileName); */
                         //xoa hinh trong img/aswers
                         if (isset($oldAnswer->$answerCount->img) && Storage::exists('img/answers/' . $oldAnswer->$answerCount->img)) {
                             Storage::delete('img/answers/' . $oldAnswer->$answerCount->img);
                         }
-
-                        if (isset($oldAnswer->$answerCount)) {
-                            $oldAnswer->$answerCount->text = $answerText;
-                            $oldAnswer->$answerCount->img = $fileName;
-                            $oldAnswer->$answerCount->is_correct = $is_correct;
-                        } else {
-                            $oldAnswer->$answerCount = (object)[
-                                'text' => $answerText,
-                                'img' => $fileName,
-                                'is_correct' => $is_correct,
-                            ];
-                        }
+                        $oldAnswer->$answerCount->img =  $fileName;
                     }
-
+                    if (isset($oldAnswer->$answerCount)) {
+                        $oldAnswer->$answerCount->text = $answerText;
+                        $oldAnswer->$answerCount->is_correct = $is_correct;
+                    } else {
+                        $oldAnswer->$answerCount = (object)[
+                            'text' => $answerText,
+                            'img' =>  isset($fileName) ? $fileName : null,
+                            'is_correct' => $is_correct,
+                        ];
+                    }
                 }
+
                 $answersString = json_encode($oldAnswer);
                 $answer->answer_data = $answersString;
                 $answer->save();
-
             } else {
+
                 $answer = new AnswersAdmin();
                 $answer->question_admin_id = $question->id;
                 $answers = [];
@@ -186,7 +186,6 @@ class QuestionsAdminController extends Controller
                 $answersString = json_encode($answers);
                 $answer->answer_data = $answersString;
                 $answer->save();
-
             }
 
             return redirect()->route('question.index')->with('alert', 'Successfully edited');
