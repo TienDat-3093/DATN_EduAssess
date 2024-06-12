@@ -1,15 +1,15 @@
-@foreach($listTests as $test)
+@foreach($listTopics as $topic)
                         <tr>
                             <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">{{$test->id}}</h6>
+                                <h6 class="fw-semibold mb-0">{{$topic->id}}</h6>
                             </td>
                             <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-1">{{$test->name}}</h6>
+                                <h6 class="fw-semibold mb-1">{{$topic->name}}</h6>
                             </td>
-                            @if($test->deleted_at)
+                            @if($topic->deleted_at)
                             <td class="border-bottom-0">
                                 <font class="badge bg-danger rounded-3 fw-semibol">
-                                    Deleted at: {{ \Carbon\Carbon::parse($test->deleted_at)->format('d/m/Y H:i:s') }}
+                                    Deleted at: {{ \Carbon\Carbon::parse($topic->deleted_at)->format('d/m/Y H:i:s') }}
                                 </font>
                             </td>
                             @else
@@ -25,12 +25,11 @@
                                         <i class="ti ti-dots-vertical"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><button onclick="getTags(this)" id="edit-test" type="button" class="edit-test-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editTest" item-name="{{$test->name}}" item-id="{{$test->id}}" >Edit</button></li>
-                                        <li><a href="{{route('test.detail', ['id' => $test->id] )}}"><button id="edit-test" type="button" class="edit-test-btn dropdown-item"  >Detail</button></a></li>
-                                        @if($test->deleted_at)
-                                        <li><a href="{{ route('test.delete', ['id' => $test->id] )}}" class="dropdown-item">Restore</a></li>
+                                        <li><button class="edit-topic-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editTopic" item-name="{{$topic->name}}" item-id="{{$topic->id}}" >Edit</button></li>
+                                        @if($topic->deleted_at)
+                                        <li><a href="{{ route('topic.delete', ['id' => $topic->id] )}}" class="dropdown-item">Restore</a></li>
                                         @else
-                                        <li><a href="{{ route('test.delete', ['id' => $test->id] )}}" class="dropdown-item">Delete</a></li>
+                                        <li><a href="{{ route('topic.delete', ['id' => $topic->id] )}}" class="dropdown-item">Delete</a></li>
                                         @endif
                                     </ul>
                                 </div>

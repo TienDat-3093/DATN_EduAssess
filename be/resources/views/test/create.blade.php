@@ -116,7 +116,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @include('test/results')
+                    @include('test/create_results')
                     </tbody>
                 </table>
             </div>

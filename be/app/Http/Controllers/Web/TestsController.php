@@ -22,6 +22,12 @@ class TestsController extends Controller
         $listTags = Tags::all();
         return view('/test/index',compact('listTests','listTags'));
     }
+    public function search(Request $request)
+    {
+        $keyword = $request->input('data');
+        $listTests = Tests::withTrashed()->where('name', 'like', "%$keyword%")->get();
+        return view('test/results', compact('listTests'));
+    }
     public function edit(Request $request,$id){
         if(!$request->tag_data)
             return redirect()->route('test.index')->withError("Tags can't be empty");
@@ -66,7 +72,7 @@ class TestsController extends Controller
             return $query;
         })
         ->get();
-        return view('test/results', compact('listTopics','listLevels','listTypes','listQuestions'));
+        return view('test/create_results', compact('listTopics','listLevels','listTypes','listQuestions'));
     }
     public function createHandle(TestsRequest $request){
         $test = new Tests();

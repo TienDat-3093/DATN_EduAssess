@@ -14,6 +14,12 @@ class TagsController extends Controller
         $listTags = Tags::withTrashed()->get();
         return view('/tag/index',compact('listTags'));
     }
+    public function search(Request $request)
+    {
+        $keyword = $request->input('data');
+        $listTags = Tags::withTrashed()->where('name', 'like', "%$keyword%")->get();
+        return view('tag/results', compact('listTags'));
+    }
     public function createHandle(TagsRequest $request){
         $tag = new Tags();
         $tag->name = $request->name;

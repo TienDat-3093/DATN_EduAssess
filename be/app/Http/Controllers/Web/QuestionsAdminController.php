@@ -17,15 +17,37 @@ use Illuminate\Support\Facades\Storage;
 
 class QuestionsAdminController extends Controller
 {
-    public function index()
-    {
+    public function index(Request $request){
+        $topic_id = $request->input('topics_id');
+        $level_id = $request->input('levels_id');
+        if ($topic_id || $level_id) {
+            return $this->search($request);
+        }
         $listTopics = Topics::all();
         $listLevels = Levels::all();
         $listTypes = QuestionTypes::all();
         $listQuestions = QuestionsAdmin::withTrashed()->get();
         return view('question/index', compact('listTopics', 'listLevels', 'listTypes', 'listQuestions'));
     }
-
+    public function search(Request $request)
+    {
+        $topic_id = $request->input('topics_id');
+        $level_id = $request->input('levels_id');
+        $listTypes = QuestionTypes::all();
+        $listTopics = Topics::all();
+        $listLevels = Levels::all();
+        $listQuestions = QuestionsAdmin::withTrashed()->when($topic_id != 0, function ($query) use ($topic_id) {
+            return $query->where('topic_id', $topic_id)->orderBy('level_id');
+        })
+        ->when($level_id != 0, function ($query) use ($level_id) {
+            return $query->where('level_id', $level_id)->orderBy('topic_id');
+        })
+        ->when($topic_id == 0 && $level_id == 0, function ($query) {
+            return $query;
+        })
+        ->get();
+        return view('question/index', compact('listTopics','listLevels','listTypes','listQuestions'));
+    }
     public function create(Request $request)
     {
 

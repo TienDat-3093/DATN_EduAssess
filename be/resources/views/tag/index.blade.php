@@ -14,12 +14,17 @@
     <font style="vertical-align: inherit;color:red">{{ $message }}</font>
     @enderror
 </font>
+<div class="input-group input-group-merge">
+    <span class="input-group-text" id="basic-addon-search31"><i class="bx bx-search"></i></span>
+    <input type="text" id="searchInput" class="form-control" placeholder="Search..." aria-label="Search..."
+        aria-describedby="basic-addon-search31">
+</div>
 <div class="col-lg-13 d-flex align-items-stretch">
     <div class="card w-100">
         <div class="card-body p-4">
             <h5 class="card-title fw-semibold mb-4">List Tags</h5>
             <div class="table-responsive">
-                <table class="table text-nowrap mb-0 align-middle">
+                <table id="lisTags" class="table text-nowrap mb-0 align-middle">
                     <thead class="text-dark fs-4">
                         <tr>
                             <th class="border-bottom-0">
@@ -37,44 +42,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($listTags as $tag)
-                        <tr>
-                            <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">{{$tag->id}}</h6>
-                            </td>
-                            <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-1">{{$tag->name}}</h6>
-                            </td>
-                            @if($tag->deleted_at)
-                            <td class="border-bottom-0">
-                                <font class="badge bg-danger rounded-3 fw-semibol">
-                                    Deleted at: {{ \Carbon\Carbon::parse($tag->deleted_at)->format('d/m/Y H:i:s') }}
-                                </font>
-                            </td>
-                            @else
-                            <td class="border-bottom-0">
-                                <font class="badge bg-success rounded-3 fw-semibol">
-                                    Active
-                                </font>
-                            </td>
-                            @endif
-                            <td>
-                                <div class="btn-group">
-                                    <button type="button" class="btn btn-icon rounded-pill hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="ti ti-dots-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><button class="edit-tag-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editTag" item-name="{{$tag->name}}" item-id="{{$tag->id}}" >Edit</button></li>
-                                        @if($tag->deleted_at)
-                                        <li><a href="{{ route('tag.delete', ['id' => $tag->id] )}}" class="dropdown-item">Restore</a></li>
-                                        @else
-                                        <li><a href="{{ route('tag.delete', ['id' => $tag->id] )}}" class="dropdown-item">Delete</a></li>
-                                        @endif
-                                    </ul>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
+                    @include('tag/results')
                     </tbody>
                 </table>
             </div>
@@ -82,7 +50,33 @@
     </div>
 </div>
 
+<script src="{{asset('assets/jquery-3.7.1.min.js')}}"></script>
 <script>
+    var $j = jQuery.noConflict();
+        $j(document).ready(function() {
+            $j('#searchInput').on('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    search();
+                }
+            });
+        });
+    function search() {
+            let keyword = $j('#searchInput').val();
+            $j.ajax({
+                url: "{{ route('tag.search') }}",
+                type: 'POST',
+                data: {
+                    data: keyword,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    $j('#lisTags tbody').html(data);
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
     document.addEventListener('DOMContentLoaded', (event) => {
         const createTag = document.getElementById('createTag');
         createTag.addEventListener('hidden.bs.modal', () => resetModalTag('create'));

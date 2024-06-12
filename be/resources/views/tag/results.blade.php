@@ -1,15 +1,15 @@
-@foreach($listTests as $test)
+@foreach($listTags as $tag)
                         <tr>
                             <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">{{$test->id}}</h6>
+                                <h6 class="fw-semibold mb-0">{{$tag->id}}</h6>
                             </td>
                             <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-1">{{$test->name}}</h6>
+                                <h6 class="fw-semibold mb-1">{{$tag->name}}</h6>
                             </td>
-                            @if($test->deleted_at)
+                            @if($tag->deleted_at)
                             <td class="border-bottom-0">
                                 <font class="badge bg-danger rounded-3 fw-semibol">
-                                    Deleted at: {{ \Carbon\Carbon::parse($test->deleted_at)->format('d/m/Y H:i:s') }}
+                                    Deleted at: {{ \Carbon\Carbon::parse($tag->deleted_at)->format('d/m/Y H:i:s') }}
                                 </font>
                             </td>
                             @else
@@ -25,12 +25,11 @@
                                         <i class="ti ti-dots-vertical"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
-                                        <li><button onclick="getTags(this)" id="edit-test" type="button" class="edit-test-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editTest" item-name="{{$test->name}}" item-id="{{$test->id}}" >Edit</button></li>
-                                        <li><a href="{{route('test.detail', ['id' => $test->id] )}}"><button id="edit-test" type="button" class="edit-test-btn dropdown-item"  >Detail</button></a></li>
-                                        @if($test->deleted_at)
-                                        <li><a href="{{ route('test.delete', ['id' => $test->id] )}}" class="dropdown-item">Restore</a></li>
+                                        <li><button class="edit-tag-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editTag" item-name="{{$tag->name}}" item-id="{{$tag->id}}" >Edit</button></li>
+                                        @if($tag->deleted_at)
+                                        <li><a href="{{ route('tag.delete', ['id' => $tag->id] )}}" class="dropdown-item">Restore</a></li>
                                         @else
-                                        <li><a href="{{ route('test.delete', ['id' => $test->id] )}}" class="dropdown-item">Delete</a></li>
+                                        <li><a href="{{ route('tag.delete', ['id' => $tag->id] )}}" class="dropdown-item">Delete</a></li>
                                         @endif
                                     </ul>
                                 </div>
