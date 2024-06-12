@@ -38,12 +38,14 @@ Route::middleware('auth')->group(function () {
     });
     Route::prefix('/topic')->name('topic.')->group(function(){
         Route::get('/',[TopicsController::class,'index'])->name('index');
+        Route::post('/search', [TopicsController::class, 'search'])->name('search');
         Route::post('/create',[TopicsController::class,'createHandle'])->name('create');
         Route::post('/edit/{id}',[TopicsController::class,'editHandle'])->name('edit');
         Route::get('/delete/{id}',[TopicsController::class,'deleteHandle'])->name('delete');
     });
     Route::prefix('/tag')->name('tag.')->group(function(){
         Route::get('/',[TagsController::class,'index'])->name('index');
+        Route::post('/search', [TagsController::class, 'search'])->name('search');
         Route::post('/create',[TagsController::class,'createHandle'])->name('create');
         Route::post('/edit/{id}',[TagsController::class,'editHandle'])->name('edit');
         Route::get('/delete/{id}',[TagsController::class,'deleteHandle'])->name('delete');
@@ -52,6 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('/test')->name('test.')->group(function(){
         Route::get('/',[TestsController::class,'index'])->name('index');
         Route::get('/create',[TestsController::class,'create'])->name('create');
+        Route::post('/search', [TestsController::class, 'search'])->name('search');
         Route::post('/searchQuestion',[TestsController::class,'searchQuestion'])->name('searchQuestion');
         Route::post('/create',[TestsController::class,'createHandle'])->name('createHandle');
         Route::get('/getTags/{id}',[TestsController::class,'getTags'])->name('getTags');

@@ -22,6 +22,38 @@
 <div class="col-lg-13 d-flex align-items-stretch">
     <div class="card w-100">
         <div class="card-body p-4">
+            <h5 class="card-title fw-semibold mb-4">Select Questions</h5>
+            <div>
+            </div>
+                <form action="/question" method="GET">
+                    <label class="form-label">
+                        Level
+                    </label>
+                    <select id="level" name="levels_id" class="form-select" aria-label="Default select example">
+                        <option value="0">All</option>
+                        @foreach ($listLevels as $level)
+                            <option value="{{ $level->id }}">{{ $level->name }}</option>
+                        @endforeach
+                    </select>
+                    <label class="form-label">
+                        Topic
+                    </label>
+                    <select id="topic" name="topics_id" class="form-select" aria-label="Default select example">
+                        <option value="0">All</option>
+                        @foreach ($listTopics as $topic)
+                            <option value="{{ $topic->id }}">{{ $topic->name }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="btn btn-outline-secondary">
+                        Search
+                    </button>
+                </form>
+        </div>
+    </div>
+</div>
+<div class="col-lg-13 d-flex align-items-stretch">
+    <div class="card w-100">
+        <div class="card-body p-4">
             <h5 class="card-title fw-semibold mb-4">List Questions</h5>
             <div class="table-responsive">
                 <table class="table text-nowrap mb-0 align-middle">
@@ -55,7 +87,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($listQuestions as $question)
+                    @foreach($listQuestions as $question)
                         <tr>
                             <td class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">{{$question->id}}</h6>
@@ -140,7 +172,7 @@
 
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{ asset('assets/jquery-3.7.1.min.js') }}"></script>
 <script>
     var csrfToken = '{{ csrf_token() }}';
     $(document).ready(function() {
