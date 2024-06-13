@@ -26,22 +26,19 @@
             <div>
             </div>
                 <form action="/question" method="GET">
-                    <label class="form-label">
-                        Level
-                    </label>
+                    <label class="form-label">Level</label>
                     <select id="level" name="levels_id" class="form-select" aria-label="Default select example">
-                        <option value="0">All</option>
+                        <option value="0" {{ (request()->has('levels_id') && request('levels_id') == 0) ? 'selected' : '' }}>All</option>
                         @foreach ($listLevels as $level)
-                            <option value="{{ $level->id }}">{{ $level->name }}</option>
+                            <option value="{{ $level->id }}" {{ (request()->has('levels_id') && request('levels_id') == $level->id) ? 'selected' : '' }}>{{ $level->name }}</option>
                         @endforeach
                     </select>
-                    <label class="form-label">
-                        Topic
-                    </label>
+
+                    <label class="form-label">Topic</label>
                     <select id="topic" name="topics_id" class="form-select" aria-label="Default select example">
-                        <option value="0">All</option>
+                        <option value="0" {{ (request()->has('topics_id') && request('topics_id') == 0) ? 'selected' : '' }}>All</option>
                         @foreach ($listTopics as $topic)
-                            <option value="{{ $topic->id }}">{{ $topic->name }}</option>
+                            <option value="{{ $topic->id }}" {{ (request()->has('topics_id') && request('topics_id') == $topic->id) ? 'selected' : '' }}>{{ $topic->name }}</option>
                         @endforeach
                     </select>
                     <button type="submit" class="btn btn-outline-secondary">

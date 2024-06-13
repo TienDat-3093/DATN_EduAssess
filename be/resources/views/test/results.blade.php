@@ -6,6 +6,9 @@
                             <td class="border-bottom-0">
                                 <h6 class="fw-semibold mb-1">{{$test->name}}</h6>
                             </td>
+                            <td class="border-bottom-0">
+                                <h6 class="fw-semibold mb-1">{{$test->user->username}}</h6>
+                            </td>
                             @if($test->deleted_at)
                             <td class="border-bottom-0">
                                 <font class="badge bg-danger rounded-3 fw-semibol">

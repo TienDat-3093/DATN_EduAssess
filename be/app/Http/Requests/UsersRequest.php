@@ -23,9 +23,9 @@ class UsersRequest extends FormRequest
     {
         return [
             'username' => 'required|max:20|min:1',
-            'email' => 'required', 'regex:/^.+@.+$/', 'max:20',
+            'email' => 'required|regex:/^.+@.+$/|max:20',
             'date_of_birth' => 'required',
-            'password' => 'required',
+            'password' => 'required|confirmed',
         ];
     }
     public function messages(): array
@@ -35,6 +35,7 @@ class UsersRequest extends FormRequest
             'min' => ":attribute can't be lower than :min character",
             'max' => ":attribute can't be higher than :max characters",
             'regex:/^.+@.+$/' => ":attribute must have @",
+            'confirmed' => ":attribute must match",
         ];
     }
     public function attributes()

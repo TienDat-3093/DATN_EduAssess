@@ -7,6 +7,9 @@
             <h6 class="fw-semibold mb-0">{{$user->username}}</h6>
         </td>
         <td class="border-bottom-0">
+            <img src="{{ $user->image ? asset($user->image) : asset('img/users/default.png') }}" class="preview-img" alt="">
+        </td>
+        <td class="border-bottom-0">
             <h6 class="fw-semibold mb-0">{{$user->email}}</h6>
         </td>
         <td class="border-bottom-0">
@@ -42,9 +45,9 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><button id="edit-user" type="button" class="edit-user-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editUser" item-name="{{$user->name}}" item-id="{{$user->id}}" >Edit</button></li>
                     @if($user->status == 0)
-                    <li><a href="{{ route('user.delete', ['id' => $user->id] )}}" class="dropdown-item">Restore</a></li>
+                    <li><a href="{{ route('user.delete', ['id' => $user->id] )}}" class="dropdown-item">Unlock</a></li>
                     @else
-                    <li><a href="{{ route('user.delete', ['id' => $user->id] )}}" class="dropdown-item">Delete</a></li>
+                    <li><a href="{{ route('user.delete', ['id' => $user->id] )}}" class="dropdown-item">Lock</a></li>
                     @endif
                 </ul>
             </div>
