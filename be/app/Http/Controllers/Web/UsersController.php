@@ -61,8 +61,6 @@ class UsersController extends Controller
     }
     public function createHandle(UsersRequest $request)
     {
-        if($request->password!=$request->re_password)
-            return redirect()->route('user.index')->with('alert', "Password doesn't match!");
         $user = new Users();
         $user->username = $request->username;
         $user->email = $request->email;

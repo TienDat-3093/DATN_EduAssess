@@ -37,7 +37,7 @@
                      <div class="col mb-3">
                          <label for="createUserName" class="form-label">Confirm Password</label>
                          <div class="input-group">
-                             <input type="password" id="createRePassword" name="re_password" class="form-control" placeholder="Re-Enter password">
+                             <input type="password" id="createRePassword" name="password_confirmation" class="form-control" placeholder="Re-Enter password">
                          </div>
                      </div>
                  </div>
@@ -83,14 +83,6 @@
                          <label for="editUserName" class="form-label">Username</label>
                          <div class="input-group">
                              <input type="text" id="editUsername" name="username" class="form-control" placeholder="Enter username">
-                         </div>
-                     </div>
-                 </div>
-                 <div class="row">
-                     <div class="col mb-3">
-                         <label for="editUserName" class="form-label">Email</label>
-                         <div class="input-group">
-                             <input type="email" id="editEmail" name="email" class="form-control" placeholder="Enter email">
                          </div>
                      </div>
                  </div>

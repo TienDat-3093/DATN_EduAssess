@@ -10,16 +10,16 @@
     </button>
 </div>
     @error('username')
-    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.</font>
+    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.<br></font>
     @enderror
     @error('email')
-    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.</font>
+    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.<br></font>
     @enderror
     @error('password')
-    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.</font>
+    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.<br></font>
     @enderror
     @error('date_of_birth')
-    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.</font>
+    <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.<br></font>
     @enderror
 <div class="input-group input-group-merge">
     <span class="input-group-text" id="basic-addon-search31"><i class="bx bx-search"></i></span>
@@ -39,6 +39,9 @@
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Username</h6>
+                            </th>
+                            <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Avatar</h6>
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Email</h6>
@@ -159,7 +162,6 @@
                 method: 'GET',
                 success: function(data) {
                     document.getElementById('editUsername').value = data.username;
-                    document.getElementById('editEmail').value = data.email;
                     document.getElementById('editDateofbirth').value = data.date_of_birth;
                     const imgElement = document.createElement('img');
                     const newFilePreview = document.getElementById('editFileUser');
