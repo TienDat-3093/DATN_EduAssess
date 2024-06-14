@@ -170,7 +170,7 @@ class QuestionsAdminController extends Controller
                     ];
                 } else {
                     //Xóa ảnh trong array các ảnh cũ
-                    if($request->edit_answerImg[$index]){
+                    if(isset($request->edit_answerImg[$index])){
                         $index = array_search($request->edit_answerImg[$index], $oldImgArray);
                         if ($index !== false) {
                             unset($oldImgArray[$index]);
@@ -178,7 +178,7 @@ class QuestionsAdminController extends Controller
                     }
                     $answers["answer_$i"] = [
                         'text' => $answerText,
-                        'img' => ($request->edit_answerImg[$index] ? $request->edit_answerImg[$index] : null),
+                        'img' => (isset($request->edit_answerImg[$index]) ? $request->edit_answerImg[$index] : null),
                         'is_correct' => $is_correct
                     ];
                 }
