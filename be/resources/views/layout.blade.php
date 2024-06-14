@@ -14,6 +14,7 @@
     <script src="{{ asset('bootstrap-5.2.3/css/bootstrap.min.css') }}"></script>
     <!-- SweetAlert -->
     <link rel="stylesheet" href="{{ asset('sweetalert2/sweetalert2.min.css') }}">
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 </head>
 <style>
     .preview-img,
