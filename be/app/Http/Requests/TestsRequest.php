@@ -24,7 +24,6 @@ class TestsRequest extends FormRequest
         return [
             'name' => 'required',
             'question_data' => 'required',
-            'topic_data' => 'required',
             'tag_data' => 'required',
         ];
     }
@@ -39,7 +38,6 @@ class TestsRequest extends FormRequest
         return [
             'name' => 'Test name',
             'question_data' => 'Questions',
-            'topic_data' => 'Topics',
             'tag_data' => 'Tags',
         ];
     }

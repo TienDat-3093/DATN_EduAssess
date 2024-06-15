@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/',[TestsController::class,'index'])->name('index');
         Route::get('/create',[TestsController::class,'create'])->name('create');
         Route::post('/search', [TestsController::class, 'search'])->name('search');
-        Route::post('/searchQuestion',[TestsController::class,'searchQuestion'])->name('searchQuestion');
+        Route::post('/getQuestion',[TestsController::class,'getQuestion'])->name('getQuestion');
         Route::post('/create',[TestsController::class,'createHandle'])->name('createHandle');
         Route::get('/getTags/{id}',[TestsController::class,'getTags'])->name('getTags');
         Route::get('/detail/{id}',[TestsController::class,'detail'])->name('detail');
