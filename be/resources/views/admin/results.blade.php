@@ -36,9 +36,9 @@
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li><button id="edit-user" type="button" class="edit-user-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editUser" item-name="{{$user->name}}" item-id="{{$user->id}}" >Edit</button></li>
                     @if($user->status == 0)
-                    <li><a href="{{ route('user.delete', ['id' => $user->id] )}}" class="dropdown-item">Unlock</a></li>
+                    <li><a href="{{ route('admin.delete', ['id' => $user->id] )}}" class="dropdown-item">Unlock</a></li>
                     @else
-                    <li><a href="{{ route('user.delete', ['id' => $user->id] )}}" class="dropdown-item">Lock</a></li>
+                    <li><a href="{{ route('admin.delete', ['id' => $user->id] )}}" class="dropdown-item">Lock</a></li>
                     @endif
                 </ul>
             </div>

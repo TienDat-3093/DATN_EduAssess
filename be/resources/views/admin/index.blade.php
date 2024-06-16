@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('content')
-@include('user.modals')
+@include('admin.modals')
 <div class="mt-3">
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createUser">
@@ -58,7 +58,7 @@
                         </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
-                        @include('user/results')
+                        @include('admin/results')
                     </tbody>
                 </table>
             </div>
@@ -82,7 +82,7 @@
                 const itemName = button.getAttribute('item-name');
                 const editUserModal = document.getElementById('editUser');
                 const editForm = editUserModal.querySelector('form');
-                editForm.action = "{{ route('user.editHandle', ['id' => ':itemId']) }}".replace(':itemId', itemId);
+                editForm.action = "{{ route('admin.editHandle', ['id' => ':itemId']) }}".replace(':itemId', itemId);
                 getUser(itemId);
             });
         });
@@ -122,7 +122,7 @@
         function search() {
             let keyword = $j('#searchInput').val();
             $j.ajax({
-                url: "{{ route('user.search') }}",
+                url: "{{ route('admin.search') }}",
                 type: 'POST',
                 data: {
                     data: keyword,
@@ -155,7 +155,7 @@
         }
     function getUser(userID){
             $j.ajax({
-                url: "{{ route('user.getUser', ['id' => ':userID']) }}".replace(':userID', userID),
+                url: "{{ route('admin.getUser', ['id' => ':userID']) }}".replace(':userID', userID),
                 method: 'GET',
                 success: function(data) {
                     document.getElementById('editUsername').value = data.username;
