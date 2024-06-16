@@ -50,7 +50,7 @@ class QuestionsAdminController extends Controller
     }
     public function create(Request $request)
     {
-
+        // dd($request->all());
         $question = new QuestionsAdmin();
         $question->user_id = Auth::user()->id;
         $question->question_text = $request->create_questionText;
@@ -113,7 +113,7 @@ class QuestionsAdminController extends Controller
 
     public function editHandle(Request $request, $id)
     {
-
+        // dd($request->all());
         $question = QuestionsAdmin::find($id);
 
         if (!empty($question)) {
@@ -137,13 +137,14 @@ class QuestionsAdminController extends Controller
             $question->topic_id = $request->edit_topic;
             $question->question_type_id = $request->edit_typeRadio;
             $question->save();
-            //xoa anh cu
-            $oldAnswers = AnswersAdmin::where('question_admin_id', $id)->first();
-            if ($oldAnswers) {
-                $answerData = json_decode($oldAnswers->answer_data);
-                foreach ($answerData as $key => $value) {
-                    if (isset($value->img) && Storage::exists('img/answers/' . $value->img)) {
-                        Storage::delete('img/answers/' . $value->img);
+            //Lấy các data của ảnh cũ và bỏ vào 1 mảng
+            $oldImgArray = [];
+            $answersAdmin = AnswersAdmin::where('question_admin_id', $id)->first();
+            if($answersAdmin !== null){
+                $old_answer_data = json_decode($answersAdmin->answer_data);
+                foreach ($old_answer_data as $answer) {
+                    if (isset($answer->img)) {
+                        $oldImgArray[] = $answer->img;
                     }
                 }
             }
@@ -156,11 +157,10 @@ class QuestionsAdminController extends Controller
                 $i++;
                 $answerText = $text;
                 $is_correct = isset($request->edit_answers[$index]) && $request->edit_answers[$index] ? 1 : 0;
-
                 if ($request->hasFile("edit_answerImg.$index")) {
-                    // Thêm hình ảnh mới
                     $file = $request->file("edit_answerImg.$index");
                     $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
+                    // Thêm hình ảnh mới
                     $path = $file->storeAs('img/answers', $fileName);
                     // Xóa hình ảnh cũ tương ứng nếu có
                     $answers["answer_$i"] = [
@@ -169,14 +169,25 @@ class QuestionsAdminController extends Controller
                         'is_correct' => $is_correct
                     ];
                 } else {
+                    //Xóa ảnh trong array các ảnh cũ
+                    if(isset($request->edit_answerImg[$index])){
+                        $index = array_search($request->edit_answerImg[$index], $oldImgArray);
+                        if ($index !== false) {
+                            unset($oldImgArray[$index]);
+                        }
+                    }
                     $answers["answer_$i"] = [
                         'text' => $answerText,
-                        'img' => null,
+                        'img' => (isset($request->edit_answerImg[$index]) ? $request->edit_answerImg[$index] : null),
                         'is_correct' => $is_correct
                     ];
                 }
             }
-
+            //Xóa các ảnh cũ không cần
+            foreach ($oldImgArray as $img){
+                if (Storage::exists('img/answers/' . $img))
+                        Storage::delete('img/answers/' . $img);
+            }
             $answersString = json_encode($answers);
             $answer->answer_data = $answersString;
             $answer->save();

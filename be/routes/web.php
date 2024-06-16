@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\QuestionsAdminController;
 use App\Http\Controllers\Web\TopicsController;
 use App\Http\Controllers\Web\TagsController;
 use App\Http\Controllers\Web\UsersController;
+use App\Http\Controllers\Web\AdminsController;
 use App\Http\Controllers\Web\TestsController;
 use App\Models\QuestionsAdmin;
 
@@ -27,6 +28,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/logout', [UsersController::class, 'logout'])->name('logout');
     Route::get('/', [UsersController::class, 'dashboard'])->name('dashboard.index');
+    Route::post('/editProfile/{id}', [UsersController::class, 'editProfile'])->name('editProfile');
 
     Route::prefix('/question')->name('question.')->group(function(){
         Route::get('/',[QuestionsAdminController::class,'index'])->name('index');
@@ -55,12 +57,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/',[TestsController::class,'index'])->name('index');
         Route::get('/create',[TestsController::class,'create'])->name('create');
         Route::post('/search', [TestsController::class, 'search'])->name('search');
-        Route::post('/searchQuestion',[TestsController::class,'searchQuestion'])->name('searchQuestion');
+        Route::post('/getQuestion',[TestsController::class,'getQuestion'])->name('getQuestion');
         Route::post('/create',[TestsController::class,'createHandle'])->name('createHandle');
         Route::get('/getTags/{id}',[TestsController::class,'getTags'])->name('getTags');
         Route::get('/detail/{id}',[TestsController::class,'detail'])->name('detail');
         Route::post('/edit/{id}',[TestsController::class,'edit'])->name('edit');
         Route::get('/delete/{id}',[TestsController::class,'deleteHandle'])->name('delete');
+    });
+    Route::prefix('/admin')->name('admin.')->group(function () {
+        Route::get('/', [AdminsController::class, 'index'])->name('index');
+        Route::post('/search', [AdminsController::class, 'search'])->name('search');
+        Route::post('/create', [AdminsController::class, 'createHandle'])->name('createHandle');
+        Route::get('/getUser/{id}', [AdminsController::class, 'getUser'])->name('getUser');
+        Route::post('/edit/{id}', [AdminsController::class, 'editHandle'])->name('editHandle');
+        Route::get('/delete/{id}', [AdminsController::class, 'delete'])->name('delete');
     });
     Route::prefix('/user')->name('user.')->group(function () {
         Route::get('/', [UsersController::class, 'index'])->name('index');

@@ -1,19 +1,20 @@
 
 
+@if (!empty($message))
+    <div class="fixed-corner">
+        {{ $message }}
+    </div>
+@endif
+                    @if (!empty($listQuestions) && $listQuestions->count() > 0)
                         @foreach($listQuestions as $question)
                         <tr>
                             <td class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">{{$question->id}}</h6>
-                            </td>
-                            <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-1">{{$question->user->username}}</h6>
+                                <input type="hidden" name="selected_questions[]" id="hidden-{{$question->id}}" value="{{$question->id}}">
                             </td>
 
                             <td class="border-bottom-0">
                                 <img src="{{asset($question->question_img)}}" class="question-img" style="width: 50px; height: 50px;" alt="">
-                            </td>
-                            <td class="border-bottom-0">
-                                <p class="mb-0 fw-normal text-wrap ">{{$question->question_text}}</p>
                             </td>
                             <td class="border-bottom-0">
                                 <div class="d-flex align-items-center gap-2">
@@ -45,10 +46,11 @@
                             </td>
                             <td>
                                 <div class="btn-group">
-                                    <button type="button" onclick="AddQuestion(this)" questionText="{{$question->question_text}}" questionId="{{$question->id}}" questionTopic="{{$question->topic->id}}" class="btn btn-primary mb-4">
-                                        Add
+                                    <button type="button" onclick="removeQuestion(this)" class="btn btn-primary mb-4">
+                                        Remove
                                     </button>
                                 </div>
                             </td>
                         </tr>
                         @endforeach
+                        @endif
