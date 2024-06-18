@@ -11,4 +11,9 @@ class Tests extends Model
     use HasFactory;
     protected $table = 'tests';
     use SoftDeletes;
+
+    public function user()
+    {
+        return $this->belongsTo(Users::class);
+    }
 }

@@ -36,6 +36,33 @@ class UsersController extends Controller
         Auth::logout();
         return redirect()->route('login');
     }
+    public function editProfile(UsersRequest $request, $id)
+    {
+        if(Auth::user()->id != $id)
+            return back()->with('alert', 'Incorrect user id!');
+        $user = Users::find($id);
+        if (!Hash::check($request->old_password, $user->password)) {
+            return back()->with('alert', 'Incorrect password!');
+        }
+        $user->username = $request->username;
+        $user->email = $request->email;
+        $user->date_of_birth = $request->date_of_birth;
+        $user->password = Hash::make($request->password);
+        if ($request->hasFile("image")) {
+            if($user->image){
+            $img = $user->image;
+                if (Storage::exists($img)) {
+                    Storage::delete($img);
+                }
+            }
+            $file = $request->file("image");
+            $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('img/users', $fileName);
+            $user->image = $path;
+        }
+        $user->save();
+        return redirect()->route('user.index')->with('alert', 'Successfully edited!');
+    }
     // public function getLoginUser()
     // {
     //     if (Auth::check()) {
@@ -44,10 +71,10 @@ class UsersController extends Controller
     //     }
     // }
 
-    //Manage
+    //Manage User
     public function index()
     {
-        $listUsers = Users::orderBy('is_admin', 'desc')->get();
+        $listUsers = Users::where('is_admin', 0)->get();
         return view('user/index', compact('listUsers'));
     }
 
@@ -55,14 +82,12 @@ class UsersController extends Controller
     {
         $keyword = $request->input('data');
         $listUsers = Users::where('username', 'like', "%$keyword%")
-                        ->orderBy('is_admin', 'desc')
+                        ->where('is_admin', 0)
                         ->get();
         return view('user/results', compact('listUsers'));
     }
     public function createHandle(UsersRequest $request)
     {
-        if($request->password!=$request->re_password)
-            return redirect()->route('user.index')->with('alert', "Password doesn't match!");
         $user = new Users();
         $user->username = $request->username;
         $user->email = $request->email;
@@ -78,12 +103,12 @@ class UsersController extends Controller
         return redirect()->route('user.index')->with('alert', 'Successfully created!');
     }
     public function getUser($id){
-        $user = Users::find($id);
+        $user = Users::where('is_admin', 0)->find($id);
         return $user;
     }
     public function editHandle(Request $request, $id)
     {
-        $user = Users::find($id);
+        $user = Users::where('is_admin', 0)->find($id);
         $user->username = $request->username;
         $user->date_of_birth = $request->date_of_birth;
         if ($request->hasFile("image")) {
@@ -103,7 +128,7 @@ class UsersController extends Controller
     }
     public function delete($id)
     {
-        $user = Users::find($id);
+        $user = Users::where('is_admin', 0)->find($id);
         if (!$user) {
             return redirect()->route('user.index')->with('error','User not found');
         }

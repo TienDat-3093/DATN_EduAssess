@@ -9,19 +9,15 @@
              <form id="create_questionForm" action="{{route('question.create')}}" method="post" enctype="multipart/form-data" onsubmit="return validateForm('create_')">
                  @csrf
                  <div class="modal-body">
-
-
                      <div class="row">
                          <div class="col mb-3">
                              <label for="create_questionText" class="form-label">Name</label>
-                             <div class="input-group">
-                                 <input type="text" id="create_questionText" name="create_questionText" class="form-control" placeholder="Enter Name" value="{{ old('questionText') }}">
-
+                                <textarea id="create_editor" name="create_questionText"></textarea>
                                  <label class="btn btn-outline-secondary mb-0" for="create_inputQuestion">
                                      <span class="ti ti-upload"></span>
                                  </label>
                                  <input type="file" name="create_questionImg" class="form-control d-none" id="create_inputQuestion" onchange="previewQuestion('create_')">
-                             </div>
+                             
                              <font id="errorName" style="vertical-align: inherit;">
                                  @error('questionText')
                                  <font style="vertical-align: inherit;color:red">{{ $message }}</font>
@@ -34,7 +30,6 @@
                          <div class="mb-3">
                              <label for="create_levelSelect" class="form-label">Level</label>
                              <select id="create_levelSelect" name="create_level" class="form-select">
-                                 <option>Level select</option>
                                  @if(!empty($listLevels))
                                  @foreach($listLevels as $level )
                                  <option value="{{$level->id}}">{{$level->name}}</option>
@@ -48,7 +43,6 @@
                          <div class="mb-3 mt-1">
                              <label for="create_topicSelect" class="form-label">Topic</label>
                              <select id="create_topicSelect" name="create_topic" class="form-select">
-                                 <option>Topic select</option>
                                  @if(!empty($listTopics))
                                  @foreach($listTopics as $topic)
                                  <option value="{{$topic->id}}">{{$topic->name}}</option>
@@ -115,14 +109,12 @@
                      <div class="row">
                          <div class="col mb-3">
                              <label for="edit_questionText" class="form-label">Name</label>
-                             <div class="input-group">
-                                 <input type="text" id="edit_questionText" name="edit_questionText" class="form-control" placeholder="Enter Name">
-
+                                <textarea id="edit_editor" name="edit_questionText"></textarea>
                                  <label class="btn btn-outline-secondary mb-0" for="edit_inputQuestion">
                                      <span class="ti ti-upload"></span>
                                  </label>
                                  <input type="file" name="edit_questionImg" class="form-control d-none" id="edit_inputQuestion" onchange="previewQuestion('edit_')">
-                             </div>
+                             
 
                              <div id="edit_fileQuestion" name="edit_fileQuestion" class="mt-2">
                                  <img src="" class="question-img" id="edit_loadImg" />
@@ -133,7 +125,6 @@
                          <div class="mb-3">
                              <label for="edit_levelSelect" class="form-label">Level</label>
                              <select id="edit_levelSelect" name="edit_level" class="form-select">
-                                 <option>Level select</option>
                                  @if(!empty($listLevels))
                                  @foreach($listLevels as $level )
                                  <option value="{{$level->id}}">{{$level->name}}</option>
@@ -147,7 +138,6 @@
                          <div class="mb-3 mt-1">
                              <label for="edit_topicSelect" class="form-label">Topic</label>
                              <select id="edit_topicSelect" name="edit_topic" class="form-select">
-                                 <option>Topic select</option>
                                  @if(!empty($listTopics))
                                  @foreach($listTopics as $topic)
                                  <option value="{{$topic->id}}">{{$topic->name}}</option>

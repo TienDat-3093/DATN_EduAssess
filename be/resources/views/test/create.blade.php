@@ -1,5 +1,17 @@
 @extends('layout')
-
+<style>
+    .fixed-corner {
+        position: fixed;
+        top: 20px; /* Adjust top position as needed */
+        right: 20px; /* Adjust right position as needed */
+        z-index: 1000; /* Adjust z-index if necessary to ensure it appears above other content */
+        padding: 10px;
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+</style>
 @section('content')
 <form action="{{route('test.createHandle')}}" method="POST" id="createTest">
     @csrf
@@ -42,11 +54,13 @@
         </div>
     </div>
 </div>
+<div id="question_data">
+</div>
 </form>
 <div class="col-lg-13 d-flex align-items-stretch">
     <div class="card w-100">
         <div class="card-body p-4">
-            <h5 class="card-title fw-semibold mb-4">Select Questions</h5>
+            <h5 class="card-title fw-semibold mb-4">Automatic Questions Selector</h5>
             <div>
             <font id="error">
                 @error('question_data')
@@ -72,34 +86,30 @@
                             <option value="{{ $topic->id }}">{{ $topic->name }}</option>
                         @endforeach
                     </select>
-                    <button id="searchButton" type="button" class="btn btn-outline-secondary">
-                        Search
+                    <label class="form-label">
+                        Amount
+                    </label>
+                    <input id="amount_question" class="form-control" type="number" name="amount_question"/>
+                    <br>
+                    <button id="getQuestionButton" type="button" class="btn btn-outline-secondary">
+                        Get questions
                     </button>
         </div>
     </div>
 </div>
-<div id="added-question">
-</div>
 <div class="col-lg-13 d-flex align-items-stretch">
     <div class="card w-100">
         <div class="card-body p-4">
-            <h5 class="card-title fw-semibold mb-4">List Questions</h5>
+            <h5 class="card-title fw-semibold mb-4">Selected Questions</h5>
             <div class="table-responsive">
-                <table id="listSearchQuestions" class="table text-nowrap mb-0 align-middle">
+            <table id="listSelectedQuestions" class="table text-nowrap mb-0 align-middle">
                     <thead class="text-dark fs-4">
                         <tr>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Id</h6>
                             </th>
                             <th class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">User</h6>
-                            </th>
-
-                            <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Image</h6>
-                            </th>
-                            <th class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">Text</h6>
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Level</h6>
@@ -115,8 +125,9 @@
                             </th>
                         </tr>
                     </thead>
+                    
                     <tbody>
-                    @include('test/results')
+                    @include('test/create_results')
                     </tbody>
                 </table>
             </div>
@@ -127,97 +138,79 @@
     <script>
         var $j = jQuery.noConflict();
         $j(document).ready(function() {
-            $j('#searchButton').on('click', function() {
-                search();
+            $j('#getQuestionButton').on('click', function() {
+                getQuestion();
             });
         });
-
-        function search() {
+        function removeQuestion(button) {
+        var tr = $j(button).closest('tr');
+        tr.remove();
+            let amount_question = $j('#amount_question').val();
+            let selected_questions = [];
+            $j('input[name="selected_questions[]"]').each(function() {
+                selected_questions.push($j(this).val());
+            });
+            $j.ajax({
+                url: "{{ route('test.getQuestion') }}",
+                type: 'POST',
+                data: {
+                    selected_questions: selected_questions,
+                    amount_question: amount_question,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(data) {
+                    $j('#listSelectedQuestions tbody').html(data);
+                    var hiddenInputs = $j('#listSelectedQuestions tbody').find('input[type="hidden"]');
+                    $j('#question_data').empty();
+                    hiddenInputs.each(function(index, element) {
+                        var hiddenInput = document.createElement('input'); // Create a new hidden input element
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'question_data[]'; // Set the name attribute to question_data[]
+                        hiddenInput.value = $j(element).val();
+                        $j('#question_data').append(hiddenInput);
+                    });
+                },
+                error: function(xhr) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+        function getQuestion() {
             let topic_id = $j('#topic').val();
             let level_id = $j('#level').val();
+            let amount_question = $j('#amount_question').val();
+            let selected_questions = [];
+            $j('input[type="hidden"][name="selected_questions[]"]').each(function() {
+                selected_questions.push($j(this).val());
+            });
+            // console.log(selected_questions);
             $j.ajax({
-                url: "{{ route('test.searchQuestion') }}",
+                url: "{{ route('test.getQuestion') }}",
                 type: 'POST',
                 data: {
                     topic_id: topic_id,
                     level_id: level_id,
+                    selected_questions: selected_questions,
+                    amount_question: amount_question,
                     _token: '{{ csrf_token() }}'
                 },
                 success: function(data) {
-                    $j('#listSearchQuestions tbody').html(data);
+                    $j('#listSelectedQuestions tbody').html(data);
+                    var hiddenInputs = $j('#listSelectedQuestions tbody').find('input[type="hidden"]');
+                    $j('#question_data').empty();
+                    hiddenInputs.each(function(index, element) {
+                        var hiddenInput = document.createElement('input'); // Create a new hidden input element
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'question_data[]'; // Set the name attribute to question_data[]
+                        hiddenInput.value = $j(element).val();
+                        $j('#question_data').append(hiddenInput);
+                    });
                 },
                 error: function(xhr) {
                     console.error(xhr.responseText);
                 }
             });
         };
-        function AddQuestion(button) {
-            var questionId = button.getAttribute('questionId');
-            var questionTopic = button.getAttribute('questionTopic');
-            var questionText = button.getAttribute('questionText');
-
-            var existingContainer = document.querySelector('div[data-question="' + questionId + '"][data-topic="' + questionTopic + '"]');
-            var existingParagraph = document.querySelector('p[data-question="' + questionId + '"][data-topic="' + questionTopic + '"]');
-
-            if (existingContainer||existingParagraph) {
-                return;
-            }
-
-            var container = document.createElement('div');
-            container.setAttribute('data-question', questionId);
-            container.setAttribute('data-topic', questionTopic);
-
-            var questionInput = document.createElement('input');
-            questionInput.type = 'hidden';
-            questionInput.name = 'question_data[]';
-            questionInput.value = questionId;
-
-            var topicInput = document.createElement('input');
-            topicInput.type = 'hidden';
-            topicInput.name = 'topic_data[]';
-            topicInput.value = questionTopic;
-
-            container.appendChild(questionInput);
-            container.appendChild(topicInput);
-
-            document.getElementById('createTest').appendChild(container);
-            
-            var wrapperDiv = document.createElement('div');
-
-            var questionParagraph = document.createElement('p');
-            questionParagraph.style.display = 'inline';
-            questionParagraph.setAttribute('data-question', questionId);
-            questionParagraph.setAttribute('data-topic', questionTopic);
-            questionParagraph.textContent = 'Added Question: ' + questionText;
-
-            var deleteButton = document.createElement('button');
-            deleteButton.style.display = 'inline';
-            deleteButton.textContent = 'X';
-            deleteButton.onclick = function() {
-                DeleteQuestion(this,questionId, questionTopic);
-            };
-
-            var container = document.getElementById('added-question');
-
-            wrapperDiv.appendChild(questionParagraph);
-            wrapperDiv.appendChild(deleteButton);
-
-            container.appendChild(wrapperDiv);
-        };
-        function DeleteQuestion(button,questionId,questionTopic){
-            var existingContainer = document.querySelector('div[data-question="' + questionId + '"][data-topic="' + questionTopic + '"]');
-            var existingParagraph = document.querySelector('p[data-question="' + questionId + '"][data-topic="' + questionTopic + '"]');
-
-            if (existingContainer) {
-                existingContainer.remove();
-            }
-
-            if (existingParagraph) {
-                existingParagraph.remove();
-            }
-            button.remove();
-            return;
-        }
         document.addEventListener("DOMContentLoaded", function() {
             setTimeout(function() {
                 var elements = document.querySelectorAll('#error');

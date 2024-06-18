@@ -22,6 +22,35 @@
 <div class="col-lg-13 d-flex align-items-stretch">
     <div class="card w-100">
         <div class="card-body p-4">
+            <h5 class="card-title fw-semibold mb-4">Select Questions</h5>
+            <div>
+            </div>
+                <form action="/question" method="GET">
+                    <label class="form-label">Level</label>
+                    <select id="level" name="levels_id" class="form-select" aria-label="Default select example">
+                        <option value="0" {{ (request()->has('levels_id') && request('levels_id') == 0) ? 'selected' : '' }}>All</option>
+                        @foreach ($listLevels as $level)
+                            <option value="{{ $level->id }}" {{ (request()->has('levels_id') && request('levels_id') == $level->id) ? 'selected' : '' }}>{{ $level->name }}</option>
+                        @endforeach
+                    </select>
+
+                    <label class="form-label">Topic</label>
+                    <select id="topic" name="topics_id" class="form-select" aria-label="Default select example">
+                        <option value="0" {{ (request()->has('topics_id') && request('topics_id') == 0) ? 'selected' : '' }}>All</option>
+                        @foreach ($listTopics as $topic)
+                            <option value="{{ $topic->id }}" {{ (request()->has('topics_id') && request('topics_id') == $topic->id) ? 'selected' : '' }}>{{ $topic->name }}</option>
+                        @endforeach
+                    </select>
+                    <button type="submit" class="btn btn-outline-secondary">
+                        Search
+                    </button>
+                </form>
+        </div>
+    </div>
+</div>
+<div class="col-lg-13 d-flex align-items-stretch">
+    <div class="card w-100">
+        <div class="card-body p-4">
             <h5 class="card-title fw-semibold mb-4">List Questions</h5>
             <div class="table-responsive">
                 <table class="table text-nowrap mb-0 align-middle">
@@ -38,9 +67,6 @@
                                 <h6 class="fw-semibold mb-0">Image</h6>
                             </th>
                             <th class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">Text</h6>
-                            </th>
-                            <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Level</h6>
                             </th>
                             <th class="border-bottom-0">
@@ -55,7 +81,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($listQuestions as $question)
+                    @foreach($listQuestions as $question)
                         <tr>
                             <td class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">{{$question->id}}</h6>
@@ -66,9 +92,6 @@
 
                             <td class="border-bottom-0">
                                 <img src="{{asset($question->question_img)}}" class="question-img" alt="">
-                            </td>
-                            <td class="border-bottom-0">
-                                <p class="mb-0 fw-normal text-wrap ">{{$question->question_text}}</p>
                             </td>
                             <td class="border-bottom-0">
                                 <div class="d-flex align-items-center gap-2">
@@ -140,7 +163,25 @@
 
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="{{ asset('assets/jquery-3.7.1.min.js') }}"></script>
+<script>
+        ClassicEditor
+            .create(document.querySelector( '#create_editor' ) )
+            .then(  newEditor => {
+                create_editor = newEditor;
+            } )
+            .catch(error => {
+                console.error(error);
+            });
+        ClassicEditor
+            .create(document.querySelector( '#edit_editor' ) )
+            .then(  newEditor => {
+                edit_editor = newEditor;
+            } )
+            .catch(error => {
+                console.error(error);
+            });
+</script>
 <script>
     var csrfToken = '{{ csrf_token() }}';
     $(document).ready(function() {
@@ -224,7 +265,7 @@
 
                 console.log(data.data.question_img)
 
-                $('#edit_questionText').val(data.data.question_text);
+                edit_editor.setData(data.data.question_text);
                 $("#edit_topicSelect").val(data.data.topic_id);
                 $("#edit_levelSelect").val(data.data.level_id);
 
@@ -304,6 +345,15 @@
                     hiddenInputs[index].disabled = false;
                 }
             })
+
+            var imgInputs = document.querySelectorAll('input[name="edit_answerImg[]"]');
+            var hiddenImg = document.querySelectorAll('input[name="edit_answerImg[]"][type="hidden"]');
+
+            imgInputs.forEach(function(item, index) {
+                checkbox.addEventListener('change', function() {
+                    hiddenInputs[index].disabled = true;
+                });
+            })
         })
         document.querySelectorAll('.delete-link').forEach(function(link) {
             link.addEventListener('click', function(event) {
@@ -381,6 +431,7 @@
                 <span class="ti ti-upload"></span>
             </label>
             <input type="file" name="${modalType}answerImg[]" class="form-control d-none" id="${modalType}inputAnswer${answerCount[modalType]}" onchange="previewFile(event, ${answerCount[modalType]}, '${modalType}')">
+            <input type="hidden" name="${modalType}answerImg[]" id="${modalType}inputAnswer${answerCount[modalType]}" value="${answer.img ? answer.img : ''}">
             <button type="button" class="btn btn-icon" onclick="deleteAnswer(event, ${answerCount[modalType]}, '${modalType}')">
                 <span class="ti ti-circle-minus" aria-hidden="true"></span>
             </button>

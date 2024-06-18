@@ -22,6 +22,12 @@ class TestsController extends Controller
         $listTags = Tags::all();
         return view('/test/index',compact('listTests','listTags'));
     }
+    public function search(Request $request)
+    {
+        $keyword = $request->input('data');
+        $listTests = Tests::withTrashed()->where('name', 'like', "%$keyword%")->get();
+        return view('test/results', compact('listTests'));
+    }
     public function edit(Request $request,$id){
         if(!$request->tag_data)
             return redirect()->route('test.index')->withError("Tags can't be empty");
@@ -46,33 +52,60 @@ class TestsController extends Controller
         $listTopics = Topics::all();
         $listTags = Tags::all();
         $listTypes = QuestionTypes::all();
-        $listQuestions = QuestionsAdmin::all();
-        return view('/test/create', compact('listTopics','listLevels','listTypes','listQuestions','listTags'));
+        return view('/test/create', compact('listTopics','listLevels','listTypes','listTags'));
     }
-    public function searchQuestion(Request $request)
+    public function getQuestion(Request $request)
     {
-        $topic_id = $request->input('topic_id');
-        $level_id = $request->input('level_id');
-        $listTypes = QuestionTypes::all();
-        $listTopics = Topics::all();
-        $listLevels = Levels::all();
-        $listQuestions = QuestionsAdmin::when($topic_id != 0, function ($query) use ($topic_id) {
-            return $query->where('topic_id', $topic_id)->orderBy('level_id');
-        })
-        ->when($level_id != 0, function ($query) use ($level_id) {
-            return $query->where('level_id', $level_id)->orderBy('topic_id');
-        })
-        ->when($topic_id == 0 && $level_id == 0, function ($query) {
-            return $query;
-        })
-        ->get();
-        return view('test/results', compact('listTopics','listLevels','listTypes','listQuestions'));
+        $topic_id = $request->has('topic_id') ? $request->input('topic_id') : null;
+        $level_id = $request->has('level_id') ? $request->input('level_id') : null;
+        $amount_question = $request->input('amount_question');
+        $selected_questions = $request->input('selected_questions', []);
+        $message = '';
+        if($topic_id != null && $level_id != null){
+            $listQuestions = QuestionsAdmin::when($topic_id != 0, function ($query) use ($topic_id) {
+                return $query->where('topic_id', $topic_id)->orderBy('level_id');
+            })
+            ->when($level_id != 0, function ($query) use ($level_id) {
+                return $query->where('level_id', $level_id)->orderBy('topic_id');
+            })
+            ->when($topic_id == 0 && $level_id == 0, function ($query) {
+                return $query;
+            })
+            ->when(!empty($selected_questions), function ($query) use ($selected_questions){
+                return $query->whereNotIn('id', $selected_questions);
+            })
+            ->inRandomOrder()
+            ->take($amount_question)
+            ->get();
+            if ($listQuestions->count() < $amount_question) {
+                if($listQuestions->count() == 0)
+                    $message = 'No more questions available to be added. ';
+                else
+                $message = 'Not enough questions available. Added ' . $listQuestions->count() . ' new questions. ';
+            }else{
+                $message = 'Added ' . $listQuestions->count() . ' new questions. ';
+            }
+            if(!empty($selected_questions)){
+            $selectedQuestions = QuestionsAdmin::whereIn('id', $selected_questions)->get();
+            $listQuestions = $listQuestions->concat($selectedQuestions);
+            }
+        }else{
+            // dd($selected_questions);
+            $listQuestions = QuestionsAdmin::whereIn('id', $selected_questions)->get();
+        }
+        $listQuestions = $listQuestions->sortBy('id');
+        $message = $message . ' Currently has ' . $listQuestions->count() . ' questions.';
+        return view('/test/create_results', compact('listQuestions'))->with('message', $message);
     }
     public function createHandle(TestsRequest $request){
         $test = new Tests();
         $test->name = $request->name;
         $test->question_data = json_encode(array_unique($request->question_data));
-        $test->topic_data = json_encode(array_unique($request->topic_data));
+        $topic_data = QuestionsAdmin::whereIn('id', $request->question_data)
+        ->distinct('topic_id')
+        ->pluck('topic_id')
+        ->toArray();
+        $test->topic_data = json_encode(array_unique($topic_data));
         $test->tag_data = json_encode(array_unique($request->tag_data));
         $test->done_count = 0;
         $test->privacy = 0;

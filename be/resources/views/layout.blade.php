@@ -14,6 +14,7 @@
     <script src="{{ asset('bootstrap-5.2.3/css/bootstrap.min.css') }}"></script>
     <!-- SweetAlert -->
     <link rel="stylesheet" href="{{ asset('sweetalert2/sweetalert2.min.css') }}">
+    <script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 </head>
 <style>
     .preview-img,
@@ -23,6 +24,7 @@
         margin-top: 10px;
     }
 </style>
+@auth
 <body>
     <!--  Body Wrapper -->
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
@@ -57,6 +59,16 @@
                             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                             <span class="hide-menu">UI COMPONENTS</span>
                         </li>
+                        @if(Auth::check() && Auth::user()->id == 1)
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="/admin" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-article"></i>
+                                </span>
+                                <span class="hide-menu">Admin</span>
+                            </a>
+                        </li>
+                        @endif
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="/user" aria-expanded="false">
                                 <span>
@@ -104,6 +116,79 @@
             <!-- End Sidebar scroll-->
         </aside>
         <!--  Sidebar End -->
+          <!-- Modal Edit User -->
+ <div class="modal fade" id="MyProfile" tabindex="-1" style="display: none;" aria-hidden="true">
+ <div class="modal-dialog " role="document">
+         <div class="modal-content">
+             <div class="modal-header">
+                 <h5 class="modal-title">Edit Profile</h5>
+                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+             </div>
+            <form action="{{ route('editProfile', ['id' => Auth::user()->id] )}}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                 <div class="row">
+                     <div class="col mb-3">
+                         <label for="editProfileUserName" class="form-label">Username</label>
+                         <div class="input-group">
+                             <input type="text" value="{{Auth::user()->username}}" id="editProfileUsername" name="username" class="form-control" placeholder="Enter username">
+                         </div>
+                     </div>
+                 </div>
+                 <div class="row">
+                     <div class="col mb-3">
+                         <label for="createProfileEmail" class="form-label">Email</label>
+                         <div class="input-group">
+                             <input type="email" value="{{Auth::user()->email}}" id="createProfileEmail" name="email" class="form-control" placeholder="Enter email">
+                         </div>
+                     </div>
+                 </div>
+                 <div class="row">
+                     <div class="col mb-3">
+                         <label for="oldPassword" class="form-label">Old Password</label>
+                         <div class="input-group">
+                             <input type="password" id="oldPassword" name="old_password" class="form-control" placeholder="Enter password">
+                         </div>
+                     </div>
+                 </div>
+                 <div class="row">
+                     <div class="col mb-3">
+                         <label for="createPassword" class="form-label">New Password</label>
+                         <div class="input-group">
+                             <input type="password" id="createPassword" name="password" class="form-control" placeholder="Enter password">
+                         </div>
+                     </div>
+                 </div>
+                 <div class="row">
+                     <div class="col mb-3">
+                         <label for="createRePassword" class="form-label">Confirm Password</label>
+                         <div class="input-group">
+                             <input type="password" id="createRePassword" name="password_confirmation" class="form-control" placeholder="Re-Enter password">
+                         </div>
+                     </div>
+                 </div>
+                 <div class="row">
+                     <div class="col mb-3">
+                         <label for="editProfileDateofbirth" class="form-label">Date of Birth</label>
+                         <div class="input-group">
+                             <input type="date" value="{{Auth::user()->date_of_birth}}" id="editProfileDateofbirth" name="date_of_birth" class="form-control">
+                         </div>
+                     </div>
+                 </div>
+                <label class="btn btn-outline-secondary mb-0" for="editProfileInputUser">
+                    <span class="ti ti-upload"></span>
+                </label>
+                <input type="file" name="image" class="form-control d-none" id="editProfileInputUser" onchange="previeweditProfile()">
+                <div id="editProfileFileUser" name="editProfileFileUser" class="mt-2"></div>
+            </div>
+            <div class="modal-footer">
+                 <button type="submit" class="btn btn-primary">Save changes</button>
+             </div>
+            </form>
+         </div>
+     </div>
+     </div>
+     <!--  Modal Ends -->
         <!--  Main wrapper -->
         <div class="body-wrapper">
             <!--  Header Start -->
@@ -127,14 +212,14 @@
 
                             <li class="nav-item dropdown">
                                 <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="{{asset('assets/images/profile/user-1.jpg')}}" alt="" width="35" height="35" class="rounded-circle">
+                                    <img src="{{ Auth::user()->image ? asset(Auth::user()->image) : asset('img/users/default.png') }}" alt="" width="35" height="35" class="rounded-circle">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                                     <div class="message-body">
-                                        <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
+                                        <button type="button" class="d-flex align-items-center gap-2 dropdown-item" data-bs-toggle="modal" data-bs-target="#MyProfile">
                                             <i class="ti ti-user fs-6"></i>
                                             <p class="mb-0 fs-3">My Profile</p>
-                                        </a>
+                                        </button>
                                         <a href="javascript:void(0)" class="d-flex align-items-center gap-2 dropdown-item">
                                             <i class="ti ti-mail fs-6"></i>
                                             <p class="mb-0 fs-3">My Account</p>
@@ -172,7 +257,25 @@
         Swal.fire("{{ session('alert') }}")
     </script>
     @endif
-
+    <script>
+        function previeweditProfile() {
+        const fileInput = document.getElementById(`editProfileInputUser`);
+        const fileUser = document.getElementById(`editProfileFileUser`);
+        const file = fileInput.files[0];
+        fileUser.innerHTML = '';
+        if (file) {
+            const fileName = document.createElement('p');
+            fileName.textContent = `Selected file: ${file.name}`;
+            fileUser.appendChild(fileName);
+            if (file.type.startsWith('image/')) {
+                const imgUser = document.createElement('img');
+                imgUser.classList.add('preview-img');
+                imgUser.src = URL.createObjectURL(file);
+                fileUser.appendChild(imgUser);
+                }
+            }
+        }
+    </script>
 </body>
-
+@endauth
 </html>

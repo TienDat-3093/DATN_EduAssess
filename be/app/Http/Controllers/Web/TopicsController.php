@@ -14,6 +14,12 @@ class TopicsController extends Controller
         $listTopics = Topics::withTrashed()->get();
         return view('/topic/index',compact('listTopics'));
     }
+    public function search(Request $request)
+    {
+        $keyword = $request->input('data');
+        $listTopics = Topics::withTrashed()->where('name', 'like', "%$keyword%")->get();
+        return view('topic/results', compact('listTopics'));
+    }
     public function createHandle(TopicsRequest $request){
         $topic = new Topics();
         $topic->name = $request->name;
