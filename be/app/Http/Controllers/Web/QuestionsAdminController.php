@@ -14,9 +14,43 @@ use App\Models\Topics;
 use App\Models\AnswersAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\ExportQuestionsAdmin;
+use App\Imports\ImportQuestionsAdmin;
+use App\Exports\ExportAnswersAdmin;
+use App\Imports\ImportAnswersAdmin;
+use Maatwebsite\Excel\Facades\Excel;
 
 class QuestionsAdminController extends Controller
 {
+    public function importQuestions(Request $re)
+    {
+        if($re->hasFile('importQuestions_file') && $re->hasFile('importAnswers_file')){
+            $questionsFile = $re->file('importQuestions_file');
+            $answersFile = $re->file('importAnswers_file');
+            $questionsExtension = strtolower($questionsFile->getClientOriginalExtension());
+            $answersExtension = strtolower($answersFile->getClientOriginalExtension());
+            if ($questionsExtension == 'xlsx' && $answersExtension == 'xlsx' ) {
+                try {
+                    Excel::import(new ImportQuestionsAdmin, $questionsFile);
+                    Excel::import(new ImportAnswersAdmin, $answersFile);
+                    return redirect()->back()->with('alert', "Import successful");
+                } catch (\Exception $e) {
+                    return redirect()->back()->with('alert', "Import failed. If your files are correct please make sure ['topics','users','levels','question_types'] have been imported!". $e->getMessage());
+                }
+            } else {
+                return redirect()->back()->with('alert', "Invalid file format. Please upload .xlsx files.");
+            }
+        }
+        return redirect()->back()->with('alert', "Missing files!");
+    }
+    public function exportQuestions() 
+    {
+        return Excel::download(new ExportQuestionsAdmin, 'questionsadmin.xlsx');
+    }
+    public function exportAnswers() 
+    {
+        return Excel::download(new ExportAnswersAdmin, 'answersadmin.xlsx');
+    }
     public function index(Request $request){
         $topic_id = $request->input('topics_id');
         $level_id = $request->input('levels_id');

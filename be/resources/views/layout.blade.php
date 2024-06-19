@@ -59,7 +59,7 @@
                             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                             <span class="hide-menu">UI COMPONENTS</span>
                         </li>
-                        @if(Auth::check() && Auth::user()->id == 1)
+                        @if(Auth::check() && Auth::user()->admin_role >= 2)
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="/admin" aria-expanded="false">
                                 <span>

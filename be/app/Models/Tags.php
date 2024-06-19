@@ -11,4 +11,10 @@ class Tags extends Model
     use HasFactory;
     protected $table = 'tags';
     use SoftDeletes;
+    protected $fillable = [
+        'name',
+        'deleted_at',
+        'created_at',
+        'updated_at',
+    ];
 }

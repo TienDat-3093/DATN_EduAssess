@@ -18,11 +18,11 @@ class UsersSeeder extends Seeder
     {
         $user = new Users();
         $user->id = 1;
-        $user->username = 'Lead Admin';
+        $user->username = 'LeadAdmin';
         $user->email = 'leadadmin@gmail.com';
         $user->password = Hash::make('123456');
         $user->date_of_birth = Carbon::parse('2003-10-10');
-        $user->is_admin = 1;
+        $user->admin_role = 2;
         $user->status = 1;
         $user->save();
         Users::factory()->count(10)->create();
