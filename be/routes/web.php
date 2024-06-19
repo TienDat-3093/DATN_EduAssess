@@ -32,6 +32,9 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('/question')->name('question.')->group(function(){
         Route::get('/',[QuestionsAdminController::class,'index'])->name('index');
+        Route::get('exportAnswers',[QuestionsAdminController::class,'exportAnswers'])->name('exportAnswers');
+        Route::get('exportQuestions',[QuestionsAdminController::class,'exportQuestions'])->name('exportQuestions');
+        Route::post('importQuestions',[QuestionsAdminController::class,'importQuestions'])->name('importQuestions');
         Route::post('/create',[QuestionsAdminController::class,'create'])->name('create');
         Route::get('edit/{id}',[QuestionsAdminController::class,'edit'])->name('edit');
         Route::post('edit/{id}',[QuestionsAdminController::class,'editHandle'])->name('editHandle');
@@ -40,6 +43,8 @@ Route::middleware('auth')->group(function () {
     });
     Route::prefix('/topic')->name('topic.')->group(function(){
         Route::get('/',[TopicsController::class,'index'])->name('index');
+        Route::get('exportTopics',[TopicsController::class,'exportTopics'])->name('exportTopics');
+        Route::post('importTopics',[TopicsController::class,'importTopics'])->name('importTopics');
         Route::post('/search', [TopicsController::class, 'search'])->name('search');
         Route::post('/create',[TopicsController::class,'createHandle'])->name('create');
         Route::post('/edit/{id}',[TopicsController::class,'editHandle'])->name('edit');
@@ -47,6 +52,8 @@ Route::middleware('auth')->group(function () {
     });
     Route::prefix('/tag')->name('tag.')->group(function(){
         Route::get('/',[TagsController::class,'index'])->name('index');
+        Route::get('exportTags',[TagsController::class,'exportTags'])->name('exportTags');
+        Route::post('importTags',[TagsController::class,'importTags'])->name('importTags');
         Route::post('/search', [TagsController::class, 'search'])->name('search');
         Route::post('/create',[TagsController::class,'createHandle'])->name('create');
         Route::post('/edit/{id}',[TagsController::class,'editHandle'])->name('edit');
@@ -56,6 +63,8 @@ Route::middleware('auth')->group(function () {
     Route::prefix('/test')->name('test.')->group(function(){
         Route::get('/',[TestsController::class,'index'])->name('index');
         Route::get('/create',[TestsController::class,'create'])->name('create');
+        Route::get('exportTests',[TestsController::class,'exportTests'])->name('exportTests');
+        Route::post('importTests',[TestsController::class,'importTests'])->name('importTests');
         Route::post('/search', [TestsController::class, 'search'])->name('search');
         Route::post('/getQuestion',[TestsController::class,'getQuestion'])->name('getQuestion');
         Route::post('/create',[TestsController::class,'createHandle'])->name('createHandle');
@@ -66,6 +75,8 @@ Route::middleware('auth')->group(function () {
     });
     Route::prefix('/admin')->name('admin.')->group(function () {
         Route::get('/', [AdminsController::class, 'index'])->name('index');
+        Route::get('exportAdmins',[AdminsController::class,'exportAdmins'])->name('exportAdmins');
+        Route::post('importAdmins',[AdminsController::class,'importAdmins'])->name('importAdmins');
         Route::post('/search', [AdminsController::class, 'search'])->name('search');
         Route::post('/create', [AdminsController::class, 'createHandle'])->name('createHandle');
         Route::get('/getUser/{id}', [AdminsController::class, 'getUser'])->name('getUser');
@@ -74,6 +85,8 @@ Route::middleware('auth')->group(function () {
     });
     Route::prefix('/user')->name('user.')->group(function () {
         Route::get('/', [UsersController::class, 'index'])->name('index');
+        Route::get('exportUsers',[UsersController::class,'exportUsers'])->name('exportUsers');
+        Route::post('importUsers',[UsersController::class,'importUsers'])->name('importUsers');
         Route::post('/search', [UsersController::class, 'search'])->name('search');
         Route::post('/create', [UsersController::class, 'createHandle'])->name('createHandle');
         Route::get('/getUser/{id}', [UsersController::class, 'getUser'])->name('getUser');

@@ -11,11 +11,30 @@
     }
 </style>
 <div class="mt-3">
-    <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createQuestion" onclick="checkType(null,'create_')">
-        <i class="ti ti-playlist-add"></i>
-        Create
-    </button>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createQuestion" onclick="checkType(null,'create_')">
+            <i class="ti ti-playlist-add"></i>
+            Create
+        </button>
+        <a href="{{route('question.exportQuestions')}}"><button class="btn btn-primary mb-4">
+            Export Questions
+        </button></a>
+        <a href="{{route('question.exportAnswers')}}"><button class="btn btn-primary mb-4">
+            Export Answers
+        </button></a>
+        <div class="card-body p-4">
+            <h5 class="card-title fw-semibold mb-4">Import Questions</h5>
+            <form action="{{ route('question.importQuestions') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <p class="form-label">Your questions file</p>
+                    <input type="file" name="importQuestions_file" class="form-control" accept=".xlsx">
+                <br>
+                    <p class="form-label">Your answers file</p>
+                    <input type="file" name="importAnswers_file" class="form-control" accept=".xlsx">
+                <br>
+                <button type="submit" class="btn btn-primary">Import Questions</button>
+            </form>
+        </div>
 
 
 </div>

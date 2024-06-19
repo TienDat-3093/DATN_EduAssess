@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TestsRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Exports\ExportTests;
+use App\Imports\ImportTests;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 use App\Models\Tests;
@@ -17,6 +20,28 @@ use App\Models\Tags;
 
 class TestsController extends Controller
 {
+    public function importTests(Request $re)
+    {
+        if($re->hasFile('importTests_file')){
+            $testsFile = $re->file('importTests_file');
+            $testsExtension = strtolower($testsFile->getClientOriginalExtension());
+            if ($testsExtension == 'xlsx') {
+                try {
+                    Excel::import(new ImportTests, $testsFile);
+                    return redirect()->back()->with('alert', "Import successful");
+                } catch (\Exception $e) {
+                    return redirect()->back()->with('alert', "Import failed! Please check if your files are correct.".$e->getMessage());
+                }
+            } else {
+                return redirect()->back()->with('alert', "Invalid file format. Please upload .xlsx files.");
+            }
+        }
+        return redirect()->back()->with('alert', "Missing files!");
+    }
+    public function exportTests() 
+    {
+        return Excel::download(new ExportTests, 'tests.xlsx');
+    }
     public function index(){
         $listTests = Tests::withTrashed()->get();
         $listTags = Tags::all();

@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             TopicsSeeder::class,
             QuestionTypesSeeder::class,
             UsersSeeder::class,
-            QuestionsAdminSeeder::class,
+            // QuestionsAdminSeeder::class,
             TagsSeeder::class,
         ]);
     }

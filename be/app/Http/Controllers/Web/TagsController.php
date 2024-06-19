@@ -5,11 +5,36 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\TagsRequest;
 use Illuminate\Http\Request;
+use App\Exports\ExportTags;
+use App\Imports\ImportTags;
+use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\Tags;
 
 class TagsController extends Controller
 {
+    public function importTags(Request $re)
+    {
+        if($re->hasFile('importTags_file')){
+            $tagsFile = $re->file('importTags_file');
+            $tagsExtension = strtolower($tagsFile->getClientOriginalExtension());
+            if ($tagsExtension == 'xlsx') {
+                try {
+                    Excel::import(new ImportTags, $tagsFile);
+                    return redirect()->back()->with('alert', "Import successful");
+                } catch (\Exception $e) {
+                    return redirect()->back()->with('alert', "Import failed! Please check if your files are correct.".$e->getMessage());
+                }
+            } else {
+                return redirect()->back()->with('alert', "Invalid file format. Please upload .xlsx files.");
+            }
+        }
+        return redirect()->back()->with('alert', "Missing files!");
+    }
+    public function exportTags() 
+    {
+        return Excel::download(new ExportTags, 'tags.xlsx');
+    }
     public function index(){
         $listTags = Tags::withTrashed()->get();
         return view('/tag/index',compact('listTags'));

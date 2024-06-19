@@ -19,7 +19,7 @@ return new class extends Migration
             $table->date('date_of_birth');
             $table->string('image')->nullable();
             $table->boolean('status')->default(true);
-            $table->boolean('is_admin')->default(false);
+            $table->integer('admin_role');
             $table->timestamps();
         });
     }
