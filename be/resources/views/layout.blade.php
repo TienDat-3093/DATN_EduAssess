@@ -179,7 +179,9 @@
                     <span class="ti ti-upload"></span>
                 </label>
                 <input type="file" name="image" class="form-control d-none" id="editProfileInputUser" onchange="previeweditProfile()">
-                <div id="editProfileFileUser" name="editProfileFileUser" class="mt-2"></div>
+                <div id="editProfileFileUser" name="editProfileFileUser" class="mt-2">
+                    <img class="preview-img" src="{{Auth::user()->image}}"></img>
+                </div>
             </div>
             <div class="modal-footer">
                  <button type="submit" class="btn btn-primary">Save changes</button>

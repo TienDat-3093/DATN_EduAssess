@@ -10,6 +10,7 @@ use App\Imports\ImportTopics;
 use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\Topics;
+use App\Models\QuestionsAdmin;
 
 class TopicsController extends Controller
 {
@@ -67,6 +68,9 @@ class TopicsController extends Controller
             return redirect()->route('topic.index')->with('alert','Successfully restored');
         }
         else{
+            if(QuestionsAdmin::isTopicUsedInQuestionAdmins($id)){
+                return redirect()->route('topic.index')->with('alert','Topic is already in use!');
+            }
             $topic->delete();
             return redirect()->route('topic.index')->with('alert','Successfully deleted');
         }

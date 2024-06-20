@@ -24,6 +24,26 @@ class Tests extends Model
         'updated_at',
         'user_id',
     ];
+    public static function isTagUsedInTests($tagId)
+    {
+        $tests = self::select('tag_data')->get();
+        foreach ($tests as $test) {
+            if (in_array($tagId, json_decode($test->tag_data))) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public static function isQuestionUsedInTests($questionId)
+    {
+        $tests = self::select('question_data')->get();
+        foreach ($tests as $test) {
+            if (in_array($questionId, json_decode($test->question_data))) {
+                return true;
+            }
+        }
+        return false;
+    }
     public function user()
     {
         return $this->belongsTo(Users::class);

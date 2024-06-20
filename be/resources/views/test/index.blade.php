@@ -114,6 +114,8 @@
                 url: "{{ route('test.getTags', ['id' => ':testID']) }}".replace(':testID', testID),
                 method: 'GET',
                 success: function(data) {
+                    const editTestName = document.getElementById('editTestName');
+                    editTestName.value = data.name
                     const tags = JSON.parse(data.tag_data);
                     tags.forEach(tagNumber => {
                         const input = document.getElementById('tag-' + tagNumber);
