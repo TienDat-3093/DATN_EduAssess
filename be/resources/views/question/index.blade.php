@@ -140,6 +140,19 @@
 
                                 </div>
                             </td>
+                            @if($question->deleted_at)
+                            <td class="border-bottom-0">
+                                <font class="badge bg-danger rounded-3 fw-semibol">
+                                    Deleted at: {{ \Carbon\Carbon::parse($question->deleted_at)->format('d/m/Y H:i:s') }}
+                                </font>
+                            </td>
+                            @else
+                            <td class="border-bottom-0">
+                                <font class="badge bg-success rounded-3 fw-semibol">
+                                    Active
+                                </font>
+                            </td>
+                            @endif
                             <td>
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-icon rounded-pill hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">

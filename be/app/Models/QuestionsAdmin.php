@@ -22,7 +22,14 @@ class QuestionsAdmin extends Model
         'topic_id',
     ];
     use SoftDeletes;
-
+    public static function isTopicUsedInQuestionAdmins($topicId)
+    {
+        $question = self::where('topic_id', $topicId)->withTrashed()->get();
+        if ($question) {
+            return true;
+        }
+        return false;
+    }
     public function user()
     {
         return $this->belongsTo(Users::class);

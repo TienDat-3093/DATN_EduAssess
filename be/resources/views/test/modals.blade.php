@@ -10,6 +10,12 @@
                 @csrf
              <div class="modal-body">
                  <div class="row">
+                    <div class="col mb-3">
+                         <label for="editTestName" class="form-label">Name</label>
+                         <div class="input-group">
+                             <input type="text" id="editTestName" name="name" class="form-control" placeholder="Enter Name">
+                         </div>
+                     </div>
                  <div class="card-body p-4">
                     <h5 class="card-title fw-semibold mb-4">Select Tags</h5>
                     <div>

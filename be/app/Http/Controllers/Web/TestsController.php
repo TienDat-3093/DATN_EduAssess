@@ -58,13 +58,15 @@ class TestsController extends Controller
             return redirect()->route('test.index')->withError("Tags can't be empty");
         $test = Tests::withTrashed()->find($id);
         $test->tag_data = json_encode(array_unique($request->tag_data));
+        $test->name = $request->name;
         $test->save();
         return redirect()->route('test.index')->with('alert','Successfully edited');
     }
     public function getTags($id){
         $test = Tests::withTrashed()->find($id);
         $tag_data = $test->tag_data;
-        return response()->json(['tag_data' => $tag_data]);
+        $name = $test->name;
+        return response()->json(['tag_data' => $tag_data,'name' => $name]);
     }
     public function detail($id){
         $test = Tests::withTrashed()->find($id);
@@ -144,6 +146,27 @@ class TestsController extends Controller
             return redirect()->route('test.index')->with('error','test not found');
         }
         if($test->trashed()){
+            //Check and unset soft deleted tags
+            $tagDataArray = [];
+            $tagDataArray = json_decode($test->tag_data);
+            foreach ($tagDataArray as $key => $tagId) {
+                $tag = Tags::withTrashed()->find($tagId);
+                if ($tag && $tag->trashed()) {
+                    unset($tagDataArray[$key]);
+                }
+            }
+            $topicDataArray = [];
+            $questionDataArray = json_decode($test->question_data);
+            foreach ($questionDataArray as $key => $questionId) {
+                $question = QuestionsAdmin::withTrashed()->find($questionId);
+                if(!$question){
+                    return redirect()->route('test.index')->with('alert','Error finding questions!');
+                }
+                if ($question->trashed()) {
+                    return redirect()->route('test.index')->with('alert','Question in test has been deleted. Please create another test instead!');
+                }
+            }
+            $test->tag_data = json_encode(array_values(array_unique($tagDataArray)));
             $test->restore();
             return redirect()->route('test.index')->with('alert','Successfully restored');
         }

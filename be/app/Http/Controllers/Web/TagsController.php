@@ -10,6 +10,7 @@ use App\Imports\ImportTags;
 use Maatwebsite\Excel\Facades\Excel;
 
 use App\Models\Tags;
+use App\Models\Tests;
 
 class TagsController extends Controller
 {
@@ -60,13 +61,16 @@ class TagsController extends Controller
     public function deleteHandle($id){
         $tag = Tags::withTrashed()->find($id);
         if (!$tag) {
-            return redirect()->route('tag.index')->with('error','Tag not found');
+            return redirect()->route('tag.index')->with('alert','Tag not found');
         }
         if($tag->trashed()){
             $tag->restore();
             return redirect()->route('tag.index')->with('alert','Successfully restored');
         }
         else{
+            if(Tests::isTagUsedInTests($id)){
+                return redirect()->route('tag.index')->with('alert','Tag is already in use!');
+            }
             $tag->delete();
             return redirect()->route('tag.index')->with('alert','Successfully deleted');
         }

@@ -75,6 +75,16 @@
 
                                 </div>
                             </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-icon rounded-pill hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><button data-question-id="{{$question->id}}" class="btnDetail dropdown-item" data-bs-toggle="modal" data-bs-target="#detailQuestion">Show Answers</button></li>
+                                    </ul>
+                                </div>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -83,4 +93,89 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="detailQuestion" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel1">Answer Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Img</th>
+                                <th>Text</th>
+                                <th>Answer Right</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-border-bottom-0">
+                            <tr>
+                                <td><img src="" alt="Avatar" class="preview-img"></td>
+                                <td class="text-wrap text-break"><p class="mb-0 fw-normal">Your long text here that needs to be wrapped properly within the table cell to ensure it doesn't overflow.</p></td>
+                                <td><span class="badge bg-secondary rounded-3 fw-semibold">Medium</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{{ asset('assets/jquery-3.7.1.min.js') }}"></script>
+<script>
+    var csrfToken = '{{ csrf_token() }}';
+    $(document).ready(function() {
+        $('.btnDetail').click(function() {
+            var questionID = $(this).data('question-id');
+            showAnswers(questionID);
+            console.log('detail', questionID);
+
+        })
+    })
+    function showAnswers(questionID) {
+        console.log('answer', questionID)
+        $.ajax({
+            url: '/question/edit/' + questionID,
+            type: "get",
+            success: function(data, answer) {
+
+                console.log('data', data)
+                if (data.answer) {
+                    const answers = data.answer[0].answer_data;
+                    const answersTableBody = $('#detailQuestion tbody');
+
+                    answersTableBody.empty();
+
+                    const answersData = JSON.parse(answers);
+
+                    for (const key in answersData) {
+                        if (answersData.hasOwnProperty(key)) {
+                            const answer = answersData[key];
+
+                            const answerRow = `
+                            <tr>
+                                <td><img src="img/answers/${answer.img}" alt="Answer Image" class="preview-img"></td>
+                                <td class="text-wrap text-break"><p class="mb-0 fw-normal">${answer.text}</p></td>
+                                <td><span class="badge ${answer.is_correct ? 'bg-primary' : 'bg-secondary'}">${answer.is_correct ? 'Correct' : 'Incorrect'}</span></td>
+                            </tr>
+                        `;
+                            answersTableBody.append(answerRow);
+                        }
+                    }
+
+                    $('#detailQuestion').modal('show'); // Show the modal
+                }
+            }
+        })
+    }
+</script>
 @endsection
