@@ -3,12 +3,40 @@ import Banner1 from "./Banner1";
 import Banner2 from "./Banner2";
 import React, { useState, useEffect } from "react";
 import { Dropdown } from "react-bootstrap";
-import { fetchLogout, fetchGetUser } from "../services/UserServices";
+import {
+  fetchLogout,
+  fetchGetUser,
+  fetchRefreshAccess,
+} from "../services/UserServices";
+//thu vien kiem tra token het han
+import { jwtDecode } from "jwt-decode";
 
 export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const token = localStorage.getItem("token");
+
+  const isTokenExpiringSoon = (beforeTime = 60) => {
+    if (!token) {
+      return false;
+    }
+    const decodedToken = jwtDecode(token);
+    const currentTime = Date.now();
+    return (decodedToken.exp - currentTime) < beforeTime;
+  };
+
+  const refreshToken = async () => {
+    if (isTokenExpiringSoon()) {
+      try {
+        const response = await fetchRefreshAccess(token);
+        const newToken = response.data.access_token;
+        localStorage.setItem("token", newToken);
+        console.log("refresh", response.data.access_token);
+      } catch (err) {
+        console.log("Failed to fetch refreshToken", err);
+      }
+    }
+  };
   useEffect(() => {
     const loggedStatus = localStorage.getItem("isLoggedIn");
     if (loggedStatus === "true") {
@@ -25,9 +53,18 @@ export default function Header() {
       }
     };
     handleGetUser();
-  }, []);
+    /* refreshToken(); */
+    //tu dong lam moi
+    const interval = setInterval(() => {
+      refreshToken();
+    }, 30000);
+    //xoa
+    return () => clearInterval(interval);
+
+  }, [token]);
   const handleLogin = () => {
     setIsLoggedIn(true);
+
     localStorage.setItem("isLoggedIn", "true");
   };
   const handleLogout = async () => {
@@ -35,29 +72,19 @@ export default function Header() {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("token"); */
 
-    console.log(token);
     if (token) {
       try {
         const response = await fetchLogout(token);
         setIsLoggedIn(false);
         localStorage.removeItem("isLoggedIn");
         localStorage.removeItem("token");
+        setUser(null);
         console.log("logout successful:", response.data);
       } catch (err) {
         console.error("Logout failed:", err);
       }
     } else {
       console.log("no token");
-    }
-  };
-  const handleGetUser = async () => {
-    if (token) {
-      try {
-        const response = await fetchGetUser(token);
-        setUser(response.data);
-      } catch (err) {
-        console.error("Failed to fetch user data", err);
-      }
     }
   };
 
@@ -104,11 +131,16 @@ export default function Header() {
                   Instructor
                 </NavLink>
               </li>
-              <li className="nav-item">
-                <a href="#" className="nav-link">
-                  Blog
-                </a>
-              </li>
+              {isLoggedIn ? (
+                <li className="nav-item">
+                  <NavLink to="/dashboard" className="nav-link">
+                    Create Test
+                  </NavLink>
+                </li>
+              ) : (
+                <li className="nav-item"></li>
+              )}
+
               {isLoggedIn ? (
                 <li className="nav-item">
                   <Dropdown>
@@ -121,9 +153,10 @@ export default function Header() {
                         <div
                           className="user-img"
                           style={{
-                            backgroundImage: user
-                              ? `url(${user.image})`
-                              : "url(/images/person_1.jpg)",
+                            backgroundImage:
+                              user && user.image
+                                ? `url(${user.image})`
+                                : "url(/images/person_1.jpg)",
                             width: "40px",
                             height: "40px",
                             backgroundSize: "cover",
@@ -133,7 +166,9 @@ export default function Header() {
                         />
                         <div className="pl-2 mt-2">
                           <p className="name">
-                            {user ? user.username : "Loading..."}
+                            {user && user.username
+                              ? user.username
+                              : "Loading..."}
                           </p>
                         </div>
                       </div>

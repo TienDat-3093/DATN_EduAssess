@@ -1,6 +1,7 @@
+
 import { fetchLogin } from "../services/UserServices";
 import React, { useState,useEffect } from "react";
-export default function Login({onLoginSuccess}) {
+export default function Login({onLoginSuccess,onRegisterClick}) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -78,7 +79,7 @@ export default function Login({onLoginSuccess}) {
                   </div>
                 </form>
                 <p className="text-center">
-                  Do not have an account? <a href="#signin">Register</a>
+                  Do not have an account? <button className="btn btn-link" onClick={onRegisterClick}>Register</button>
                 </p>
               </div>
             </div>

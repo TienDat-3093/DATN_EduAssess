@@ -13,6 +13,16 @@ class Users extends Authenticatable implements JWTSubject
 {
     use HasFactory,Notifiable;
     protected $table = 'users';
+
+
+
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
     public function getJWTIdentifier()
     {
         return $this->getKey();

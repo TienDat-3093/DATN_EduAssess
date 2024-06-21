@@ -1,7 +1,7 @@
 export default function Test() {
   return (
     <>
-      <div className="col-md-6 d-flex align-items-stretch ftco-animate fadeInUp ftco-animated">
+      <div className="col-md-4 d-flex align-items-stretch ftco-animate fadeInUp ftco-animated">
         <div className="project-wrap">
           <a
             href="#"

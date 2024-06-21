@@ -1,6 +1,17 @@
+import { useState } from "react";
 import Login from "./Login";
+import Register from "./Register";
 
-export default function Banner1({onLoginSuccess}) {
+export default function Banner1({ onLoginSuccess }) {
+  const [showRegister, setShowRegister] = useState(false);
+  
+
+  const handleRegisterClick = () => {
+    setShowRegister(true);
+  };
+  const handleLoginClick = () => {
+    setShowRegister(false);
+  };
   return (
     <>
       <div
@@ -33,7 +44,14 @@ export default function Banner1({onLoginSuccess}) {
           </div>
         </div>
       </div>
-      <Login onLoginSuccess ={onLoginSuccess}/>
+      {showRegister ? (
+        <Register onLoginClick={handleLoginClick}  />
+      ) : (
+        <Login
+          onLoginSuccess={onLoginSuccess}
+          onRegisterClick={handleRegisterClick}
+        />
+      )}
     </>
   );
 }
