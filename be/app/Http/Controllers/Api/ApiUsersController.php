@@ -23,6 +23,9 @@ class ApiUsersController extends Controller
         $user->email = $request['email'];
         $user->password = Hash::make($request['password']);
         $user->date_of_birth = $request['date_of_birth'];
+        $user->status = 1;
+        $user->admin_role = 0;
+
 
 
         if (request()->hasFile('avatar')) {
