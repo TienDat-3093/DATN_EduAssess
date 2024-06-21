@@ -8,6 +8,19 @@
         <i class="ti ti-playlist-add"></i>
         Create
     </button>
+    <a href="{{route('user.exportUsers')}}"><button class="btn btn-primary mb-4">
+        Export Users
+    </button></a>
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Import Users</h5>
+        <form action="{{ route('user.importUsers') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+                <p class="form-label">Your file</p>
+                <input type="file" name="importUsers_file" class="form-control" accept=".xlsx">
+            <br>
+            <button type="submit" class="btn btn-primary">Import Users</button>
+        </form>
+    </div>
 </div>
     @error('username')
     <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.<br></font>

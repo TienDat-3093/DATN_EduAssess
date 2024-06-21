@@ -22,7 +22,7 @@ class UsersFactory extends Factory
             'email' => $this->faker->email,
             'password' => Hash::make('123456'),
             'date_of_birth' => $this->faker->date(),
-            'is_admin' => $this->faker->numberBetween(0,1),
+            'admin_role' => $this->faker->numberBetween(0,2),
             'status' => $this->faker->numberBetween(0,1),
         ];
     }

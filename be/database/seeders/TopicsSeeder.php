@@ -13,7 +13,7 @@ class TopicsSeeder extends Seeder
      */
     public function run(): void
     {
-        $listTopic = ['php','c++','python'];
+        $listTopic = ['php','c++','python','math','frontend'];
         foreach($listTopic as $topic)
         {
             Topics::create([

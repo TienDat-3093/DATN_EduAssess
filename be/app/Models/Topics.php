@@ -11,4 +11,10 @@ class Topics extends Model
     use HasFactory;
     protected $table = 'topics';
     use SoftDeletes;
+    protected $fillable = [
+        'name',
+        'deleted_at',
+        'created_at',
+        'updated_at',
+    ];
 }

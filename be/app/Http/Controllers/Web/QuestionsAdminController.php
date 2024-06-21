@@ -12,11 +12,46 @@ use App\Models\QuestionTypes;
 use App\Models\Levels;
 use App\Models\Topics;
 use App\Models\AnswersAdmin;
+use App\Models\Tests;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Exports\ExportQuestionsAdmin;
+use App\Imports\ImportQuestionsAdmin;
+use App\Exports\ExportAnswersAdmin;
+use App\Imports\ImportAnswersAdmin;
+use Maatwebsite\Excel\Facades\Excel;
 
 class QuestionsAdminController extends Controller
 {
+    public function importQuestions(Request $re)
+    {
+        if($re->hasFile('importQuestions_file') && $re->hasFile('importAnswers_file')){
+            $questionsFile = $re->file('importQuestions_file');
+            $answersFile = $re->file('importAnswers_file');
+            $questionsExtension = strtolower($questionsFile->getClientOriginalExtension());
+            $answersExtension = strtolower($answersFile->getClientOriginalExtension());
+            if ($questionsExtension == 'xlsx' && $answersExtension == 'xlsx' ) {
+                try {
+                    Excel::import(new ImportQuestionsAdmin, $questionsFile);
+                    Excel::import(new ImportAnswersAdmin, $answersFile);
+                    return redirect()->back()->with('alert', "Import successful");
+                } catch (\Exception $e) {
+                    return redirect()->back()->with('alert', "Import failed. If your files are correct please make sure ['topics','users','levels','question_types'] have been imported!". $e->getMessage());
+                }
+            } else {
+                return redirect()->back()->with('alert', "Invalid file format. Please upload .xlsx files.");
+            }
+        }
+        return redirect()->back()->with('alert', "Missing files!");
+    }
+    public function exportQuestions() 
+    {
+        return Excel::download(new ExportQuestionsAdmin, 'questionsadmin.xlsx');
+    }
+    public function exportAnswers() 
+    {
+        return Excel::download(new ExportAnswersAdmin, 'answersadmin.xlsx');
+    }
     public function index(Request $request){
         $topic_id = $request->input('topics_id');
         $level_id = $request->input('levels_id');
@@ -132,7 +167,11 @@ class QuestionsAdminController extends Controller
                 }
                 $question->question_img = $path;
             }
-
+            if(Tests::isQuestionUsedInTests($id)){
+                if($question->level_id != $request->edit_level || $question->topic_id != $request->edit_topic){
+                    return redirect()->route('question.index')->with('alert','Question is already in use! Cannot change level or topic!');
+                }
+            }
             $question->level_id = $request->edit_level;
             $question->topic_id = $request->edit_topic;
             $question->question_type_id = $request->edit_typeRadio;
@@ -191,78 +230,6 @@ class QuestionsAdminController extends Controller
             $answersString = json_encode($answers);
             $answer->answer_data = $answersString;
             $answer->save();
-
-            /* $answer = AnswersAdmin::where('question_admin_id', $id)->first(); */
-            /* if ($answer) {
-                $oldAnswer = json_decode($answer->answer_data);
-                foreach ($request->edit_answerText as $index => $text) {
-                    $answerText = $text;
-                    $is_correct = isset($request->edit_answers[$index]) && $request->edit_answers[$index] ? 1 : 0;
-
-                    $answerCount = 'answer_' . $index + 1;
-                    if ($request->hasFile("edit_answerImg.$index")) {
-                        // Thêm hình ảnh mới
-                        $file = $request->file("edit_answerImg.$index");
-                        $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
-                        $path = $file->storeAs('img/answers', $fileName);
-                        //xoa hinh trong img/aswers
-                        if (isset($oldAnswer->$answerCount->img) && Storage::exists('img/answers/' . $oldAnswer->$answerCount->img)) {
-                            Storage::delete('img/answers/' . $oldAnswer->$answerCount->img);
-                        }
-
-                        $oldAnswer->$answerCount->img =  $fileName;
-                    }
-                    if (isset($oldAnswer->$answerCount)) {
-                        $oldAnswer->$answerCount->text = $answerText;
-                        $oldAnswer->$answerCount->is_correct = $is_correct;
-                    } else {
-                        $oldAnswer->$answerCount = (object)[
-                            'text' => $answerText,
-                            'img' =>  isset($fileName) ? $fileName : null,
-                            'is_correct' => $is_correct,
-                        ];
-                    }
-                }
-
-                $answersString = json_encode($oldAnswer);
-                $answer->answer_data = $answersString;
-                $answer->save();
-            } else {
-
-                $answer = new AnswersAdmin();
-                $answer->question_admin_id = $question->id;
-                $answers = [];
-                $i = 0;
-                foreach ($request->edit_answerText as $index => $text) {
-                    $i++;
-                    $answerText = $text;
-                    $is_correct = isset($request->edit_answers[$index]) && $request->edit_answers[$index] ? 1 : 0;
-
-                    if ($request->hasFile("edit_answerImg.$index")) {
-                        // Thêm hình ảnh mới
-                        $file = $request->file("edit_answerImg.$index");
-                        $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
-                        $path = $file->storeAs('img/answers', $fileName);
-                        // Xóa hình ảnh cũ tương ứng nếu có
-                        $answers["answer_$i"] = [
-                            'text' => $answerText,
-                            'img' => $fileName,
-                            'is_correct' => $is_correct
-                        ];
-                    } else {
-                        $answers["answer_$i"] = [
-                            'text' => $answerText,
-                            'img' => null,
-                            'is_correct' => $is_correct
-                        ];
-                    }
-                }
-
-                $answersString = json_encode($answers);
-                $answer->answer_data = $answersString;
-                $answer->save();
-            } */
-
             return redirect()->route('question.index')->with('alert', 'Successfully edited');
         }
     }
@@ -270,12 +237,19 @@ class QuestionsAdminController extends Controller
     {
         $question = QuestionsAdmin::withTrashed()->find($id);
         if (!$question) {
-            return redirect()->route('question.index')->with('error', 'Tag not found');
+            return redirect()->route('question.index')->with('error', 'Question not found');
         }
         if ($question->trashed()) {
+            $topic = Topics::withTrashed()->find($question->topic_id);
+            if($topic->trashed()){
+                return redirect()->route('question.index')->with('alert', "Question's topic has been deleted, cannot restore");
+            }
             $question->restore();
             return redirect()->route('question.index')->with('alert', 'Successfully restored');
         } else {
+            if(Tests::isQuestionUsedInTests($id)){
+                return redirect()->route('question.index')->with('alert','Question is already in use!');
+            }
             $question->delete();
             return redirect()->route('question.index')->with('alert', 'Successfully deleted');
         }

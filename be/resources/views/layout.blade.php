@@ -59,7 +59,7 @@
                             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
                             <span class="hide-menu">UI COMPONENTS</span>
                         </li>
-                        @if(Auth::check() && Auth::user()->id == 1)
+                        @if(Auth::check() && Auth::user()->admin_role >= 2)
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="/admin" aria-expanded="false">
                                 <span>
@@ -179,7 +179,9 @@
                     <span class="ti ti-upload"></span>
                 </label>
                 <input type="file" name="image" class="form-control d-none" id="editProfileInputUser" onchange="previeweditProfile()">
-                <div id="editProfileFileUser" name="editProfileFileUser" class="mt-2"></div>
+                <div id="editProfileFileUser" name="editProfileFileUser" class="mt-2">
+                    <img class="preview-img" src="{{Auth::user()->image}}"></img>
+                </div>
             </div>
             <div class="modal-footer">
                  <button type="submit" class="btn btn-primary">Save changes</button>

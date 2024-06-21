@@ -6,6 +6,19 @@
         <i class="ti ti-playlist-add"></i>
         Create
     </button></a>
+    <a href="{{route('test.exportTests')}}"><button class="btn btn-primary mb-4">
+        Export Tests
+    </button></a>
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Import Tests</h5>
+        <form action="{{ route('test.importTests') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+                <p class="form-label">Your file</p>
+                <input type="file" name="importTests_file" class="form-control" accept=".xlsx">
+            <br>
+            <button type="submit" class="btn btn-primary">Import Tests</button>
+        </form>
+    </div>
 </div>
 <font id="error">
 @if(Session::has('error'))
@@ -101,6 +114,8 @@
                 url: "{{ route('test.getTags', ['id' => ':testID']) }}".replace(':testID', testID),
                 method: 'GET',
                 success: function(data) {
+                    const editTestName = document.getElementById('editTestName');
+                    editTestName.value = data.name
                     const tags = JSON.parse(data.tag_data);
                     tags.forEach(tagNumber => {
                         const input = document.getElementById('tag-' + tagNumber);

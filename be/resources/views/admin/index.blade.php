@@ -8,6 +8,19 @@
         <i class="ti ti-playlist-add"></i>
         Create
     </button>
+    <a href="{{route('admin.exportAdmins')}}"><button class="btn btn-primary mb-4">
+        Export Admins
+    </button></a>
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Import Admins</h5>
+        <form action="{{ route('admin.importAdmins') }}" method="POST" enctype="multipart/form-data">
+            @csrf
+                <p class="form-label">Your file</p>
+                <input type="file" name="importAdmins_file" class="form-control" accept=".xlsx">
+            <br>
+            <button type="submit" class="btn btn-primary">Import Admins</button>
+        </form>
+    </div>
 </div>
     @error('username')
     <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.<br></font>
@@ -48,6 +61,9 @@
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Date of Birth</h6>
+                            </th>
+                            <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Admin Role</h6>
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Status</h6>

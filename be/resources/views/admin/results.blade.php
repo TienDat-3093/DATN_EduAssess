@@ -15,6 +15,9 @@
         <td class="border-bottom-0">
             <h6 class="fw-semibold mb-0">{{ \Carbon\Carbon::parse($user->date_of_birth)->format('d/m/Y') }}</h6>
         </td>
+        <td class="border-bottom-0">
+            <h6 class="fw-semibold mb-0">{{$user->admin_role}}</h6>
+        </td>
         @if($user->status == 0)
         <td class="border-bottom-0">
             <font class="badge bg-danger rounded-3 fw-semibol">
