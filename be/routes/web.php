@@ -31,6 +31,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/getMonthlyQuestions/{year}/{month}', [StatisticsController::class, 'getMonthlyQuestions'])->name('getMonthlyQuestions');
     Route::get('/getYears', [StatisticsController::class, 'getYears'])->name('getYears');
     Route::post('/getMonthlyUsers/{year}/{month}', [StatisticsController::class, 'getMonthlyUsers'])->name('getMonthlyUsers');
+    Route::get('/mostEngagedTests', [StatisticsController::class, 'mostEngagedTests'])->name('mostEngagedTests');
+    Route::get('/mostQuestionsAdded', [StatisticsController::class, 'mostQuestionsAdded'])->name('mostQuestionsAdded');
 
     Route::get('/logout', [UsersController::class, 'logout'])->name('logout');
     Route::get('/', [UsersController::class, 'dashboard'])->name('dashboard.index');
