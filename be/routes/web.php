@@ -7,6 +7,7 @@ use App\Http\Controllers\Web\TagsController;
 use App\Http\Controllers\Web\UsersController;
 use App\Http\Controllers\Web\AdminsController;
 use App\Http\Controllers\Web\TestsController;
+use App\Http\Controllers\Web\StatisticsController;
 use App\Models\QuestionsAdmin;
 
 // Route::get('/', function () {
@@ -25,6 +26,11 @@ Route::middleware('guest')->group(function () {
 });
 
 Route::middleware('auth')->group(function () {
+
+    //Statistics
+    Route::post('/getMonthlyQuestions/{year}/{month}', [StatisticsController::class, 'getMonthlyQuestions'])->name('getMonthlyQuestions');
+    Route::get('/getYears', [StatisticsController::class, 'getYears'])->name('getYears');
+    Route::post('/getMonthlyUsers/{year}/{month}', [StatisticsController::class, 'getMonthlyUsers'])->name('getMonthlyUsers');
 
     Route::get('/logout', [UsersController::class, 'logout'])->name('logout');
     Route::get('/', [UsersController::class, 'dashboard'])->name('dashboard.index');
