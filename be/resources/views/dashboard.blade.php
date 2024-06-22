@@ -2,17 +2,18 @@
 
 @section('content')
 
+<div class="row">
+    <div class="col-lg-6 d-flex align-items-stretch">
         <div class="card w-100">
             <div class="card-body">
                 <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
                     <div class="mb-3 mb-sm-0">
-                        <h5 class="card-title fw-semibold">Questions Created Overview</h5>
+                        <h5 class="card-title fw-semibold">New Questions Added Statistics</h5>
                     </div>
                 </div>
-                <select id="monthlyYear" aria-label="Default select example">
+                <select id="monthlyYear_question" aria-label="Default select example">
                 </select>
-                <canvas id="monthlyChart"></canvas>
-                <select id="weeklyMonth" aria-label="Default select example">
+                <select id="weeklyMonth_question" aria-label="Default select example">
                     <option value="1">January</option>
                     <option value="2">February</option>
                     <option value="3">March</option>
@@ -26,9 +27,41 @@
                     <option value="11">November</option>
                     <option value="12">December</option>
                 </select>
-                <canvas id="weeklyChart"></canvas>
+                <canvas id="monthlyChart_question"></canvas>
+                <canvas id="weeklyChart_question"></canvas>
             </div>
         </div>
+    </div>
+    <div class="col-lg-6 d-flex align-items-stretch">
+        <div class="card w-100">
+            <div class="card-body">
+                <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
+                    <div class="mb-3 mb-sm-0">
+                        <h5 class="card-title fw-semibold">New Accounts Created Statistics</h5>
+                    </div>
+                </div>
+                <select id="monthlyYear_user" aria-label="Default select example">
+                </select>
+                <canvas id="monthlyChart_user"></canvas>
+                <select id="weeklyMonth_user" aria-label="Default select example">
+                    <option value="1">January</option>
+                    <option value="2">February</option>
+                    <option value="3">March</option>
+                    <option value="4">April</option>
+                    <option value="5">May</option>
+                    <option value="6">June</option>
+                    <option value="7">July</option>
+                    <option value="8">August</option>
+                    <option value="9">September</option>
+                    <option value="10">October</option>
+                    <option value="11">November</option>
+                    <option value="12">December</option>
+                </select>
+                <canvas id="weeklyChart_user"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col-lg-4 d-flex align-items-stretch">
         <div class="card w-100">
@@ -299,20 +332,31 @@
     $(document).ready(function() {
 
         // Event listener for select element change
-        $('#monthlyYear').change(function() {
-            var selectedYear = $('#monthlyYear').val();
-            var selectedMonth = $('#weeklyMonth').val();
-            fetchMonthlyData(selectedYear,selectedMonth);
+        $('#monthlyYear_question').change(function() {
+            var selectedYear = $('#monthlyYear_question').val();
+            var selectedMonth = $('#weeklyMonth_question').val();
+            fetchMonthlyDataQuestion(selectedYear,selectedMonth);
         });
-        $('#weeklyMonth').change(function() {
-            var selectedYear = $('#monthlyYear').val();
-            var selectedMonth = $('#weeklyMonth').val();
-            fetchMonthlyData(selectedYear,selectedMonth);
+        $('#weeklyMonth_question').change(function() {
+            var selectedYear = $('#monthlyYear_question').val();
+            var selectedMonth = $('#weeklyMonth_question').val();
+            fetchMonthlyDataQuestion(selectedYear,selectedMonth);
+        });
+        $('#monthlyYear_user').change(function() {
+            var selectedYear = $('#monthlyYear_user').val();
+            var selectedMonth = $('#weeklyMonth_user').val();
+            fetchMonthlyDataUser(selectedYear,selectedMonth);
+        });
+        $('#weeklyMonth_user').change(function() {
+            var selectedYear = $('#monthlyYear_user').val();
+            var selectedMonth = $('#weeklyMonth_user').val();
+            fetchMonthlyDataUser(selectedYear,selectedMonth);
         });
 
         // Fetch monthly report for the current year on website start up
         var defaultYear = new Date().getFullYear();
-        fetchMonthlyData(defaultYear,1);
+        fetchMonthlyDataQuestion(defaultYear,1);
+        fetchMonthlyDataUser(defaultYear,1);
         $.ajax({
             url: 'getYears/',
             type: "get",
@@ -320,10 +364,17 @@
                     'X-CSRF-TOKEN': csrfToken,
                 },
             success: function(response) {
-                var years = response.years;
-                var selectElement = $('#monthlyYear');
+                var years_questions = response.years_questions;
+                var selectElement = $('#monthlyYear_question');
                 selectElement.empty();
-                years.forEach(function(year) {
+                years_questions.forEach(function(year) {
+                    var option = $('<option></option>').attr('value', year).text(year);
+                    selectElement.append(option);
+                });
+                var years_users = response.years_users;
+                selectElement = $('#monthlyYear_user');
+                selectElement.empty();
+                years_users.forEach(function(year) {
                     var option = $('<option></option>').attr('value', year).text(year);
                     selectElement.append(option);
                 });
@@ -334,23 +385,24 @@
         });
     });
     
-    function initializeMonthlyChart(xValues, yValues, year) {
-        var barColors = ["blue", "cyan", "blue", "cyan", "blue", "cyan", "blue", "cyan", "blue", "cyan", "blue", "cyan"];
-        var existingCanvas = document.querySelector('canvas[id="monthlyChart"]');
+    function initializeMonthlyChart(xValues, yValues, year, chart_name, value_name) {
+        var barColors = ["rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)", "rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)", "rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)", "rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)", "rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)", "rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)"];
+        var existingCanvas = document.querySelector('canvas[id="monthlyChart_'+chart_name+'"]');
         if (existingCanvas) {
             var parentElement = existingCanvas.parentElement;
             var newCanvas = document.createElement('canvas');
             newCanvas.setAttribute('style', 'max-width:900px;margin:auto;');
-            newCanvas.id = 'monthlyChart';
+            newCanvas.id = 'monthlyChart_'+chart_name+'';
             existingCanvas.remove();
             parentElement.append(newCanvas);
         }
-        new Chart("monthlyChart", {
+        new Chart("monthlyChart_"+ chart_name, {
             type: "bar",
             data: {
                 labels: xValues,
                 datasets: [{
                     backgroundColor: barColors,
+                    borderRadius: 5,
                     data: yValues
                 }]
             },
@@ -364,34 +416,35 @@
                         },
                         scaleLabel: {
                             display: true,
-                            labelString: 'Questions'
+                            labelString: value_name
                         },
                     }]
                 },
                 title: {
                     display: true,
-                    text: 'Questions added every month in ' + year
+                    text: value_name+' every month in ' + year
                 }
             }
         });
         }
-    function initializeWeeklyChart(xValues, yValues, month) {
-        var barColors = ["blue", "cyan", "blue", "cyan", "blue", "cyan", "blue", "cyan", "blue", "cyan", "blue", "cyan"];
-        var existingCanvas = document.querySelector('canvas[id="weeklyChart"]');
+    function initializeWeeklyChart(xValues, yValues, month, chart_name, value_name) {
+        var barColors = ["rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)", "rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)", "rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)", "rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)", "rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)", "rgba(93, 135, 255, 1.0)", "rgba(73, 190, 255, 1.0)"];
+        var existingCanvas = document.querySelector('canvas[id="weeklyChart_'+chart_name+'"]');
         if (existingCanvas) {
             var parentElement = existingCanvas.parentElement;
             var newCanvas = document.createElement('canvas');
             newCanvas.setAttribute('style', 'max-width:900px;margin:auto;');
-            newCanvas.id = 'weeklyChart';
+            newCanvas.id = 'weeklyChart_'+chart_name+'';
             existingCanvas.remove();
             parentElement.append(newCanvas);
         }
-        new Chart("weeklyChart", {
+        new Chart("weeklyChart_"+chart_name, {
             type: "bar",
             data: {
                 labels: xValues,
                 datasets: [{
                     backgroundColor: barColors,
+                    borderRadius: 5,
                     data: yValues
                 }]
             },
@@ -405,20 +458,20 @@
                         },
                         scaleLabel: {
                             display: true,
-                            labelString: 'Questions'
+                            labelString: value_name
                         },
                     }]
                 },
                 title: {
                     display: true,
-                    text: 'Questions added every week in '+month,
+                    text: value_name+' every week in '+month,
                 }
             }
         });
         }
-    function fetchMonthlyData(input_year,input_month) {
+    function fetchMonthlyDataQuestion(input_year,input_month) {
         $.ajax({
-            url: 'getMonthly/' + input_year + '/' + input_month,
+            url: 'getMonthlyQuestions/' + input_year + '/' + input_month,
             type: "POST",
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -441,9 +494,43 @@
                 var yValuesWeekly = response.weekly_data.map(function(item) {
                     return item.count;
                 });
-                initializeMonthlyChart(xValuesMonthly, yValuesMonthly, response.year);
-                var selectedMonthText = $('#weeklyMonth option:selected').text();
-                initializeWeeklyChart(xValuesWeekly, yValuesWeekly, selectedMonthText);
+                initializeMonthlyChart(xValuesMonthly, yValuesMonthly, response.year,"question","Added questions");
+                var selectedMonthText = $('#weeklyMonth_question option:selected').text();
+                initializeWeeklyChart(xValuesWeekly, yValuesWeekly, selectedMonthText,"question","Added questions");
+            },
+            error: function(xhr, status, error) {
+                console.error(xhr.responseText);
+            }
+        });
+    }
+    function fetchMonthlyDataUser(input_year,input_month) {
+        $.ajax({
+            url: 'getMonthlyUsers/' + input_year + '/' + input_month,
+            type: "POST",
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+            },
+            success: function(response) {
+                console.log(response);
+                //Get x,y for each month
+                var xValuesMonthly = response.monthly_data.map(function(item) {
+                    return item.month;
+                });
+
+                var yValuesMonthly = response.monthly_data.map(function(item) {
+                    return item.count;
+                });
+                //Get x,y for each week
+                var xValuesWeekly = response.weekly_data.map(function(item) {
+                    return "Week "+item.week;
+                });
+
+                var yValuesWeekly = response.weekly_data.map(function(item) {
+                    return item.count;
+                });
+                initializeMonthlyChart(xValuesMonthly, yValuesMonthly, response.year,"user","New users");
+                var selectedMonthText = $('#weeklyMonth_user option:selected').text();
+                initializeWeeklyChart(xValuesWeekly, yValuesWeekly, selectedMonthText,"user","New users");
             },
             error: function(xhr, status, error) {
                 console.error(xhr.responseText);

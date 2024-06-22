@@ -28,8 +28,9 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
 
     //Statistics
-    Route::post('/getMonthly/{year}/{month?}', [StatisticsController::class, 'getMonthly'])->name('getMonthly');
+    Route::post('/getMonthlyQuestions/{year}/{month}', [StatisticsController::class, 'getMonthlyQuestions'])->name('getMonthlyQuestions');
     Route::get('/getYears', [StatisticsController::class, 'getYears'])->name('getYears');
+    Route::post('/getMonthlyUsers/{year}/{month}', [StatisticsController::class, 'getMonthlyUsers'])->name('getMonthlyUsers');
 
     Route::get('/logout', [UsersController::class, 'logout'])->name('logout');
     Route::get('/', [UsersController::class, 'dashboard'])->name('dashboard.index');
