@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 use App\Models\QuestionsAdmin;
@@ -12,6 +13,7 @@ use App\Models\Levels;
 use App\Models\Topics;
 use App\Models\AnswersAdmin;
 use App\Models\Tests;
+use App\Models\Tags;
 
 class StatisticsController extends Controller
 {
@@ -163,5 +165,36 @@ class StatisticsController extends Controller
             'weekly_data' => $weeklyResult,
             'year' => $year,
         ]);
+    }
+    public function mostEngagedTests(){
+        $bestTests = Tests::orderBy('done_count', 'desc')
+                    ->take(5)
+                    ->get(['name','done_count','tag_data','user_id']);
+        $tagNames = [];
+        foreach ($bestTests as $test) {
+            $tagIds = json_decode($test->tag_data, true);
+            if (is_array($tagIds)) {
+                $names = Tags::whereIn('id', $tagIds)->pluck('name')->toArray();
+                $test->tag_data = $names;
+            }else{
+            $test->tag_data = [];
+            }
+
+            $test->user_id = $test->user->username;
+            // $tagNames[$test->name]=$names;
+        }
+        // dd($bestTests);
+        return response()->json([
+            'test_data' => $bestTests,
+        ]);
+    }
+    public function mostQuestionsAdded(){
+        $usersQuestions = QuestionsAdmin::select('users.username', DB::raw('count(*) as questions_added'))
+            ->join('users', 'users.id', '=', 'question_admins.user_id')
+            ->groupBy('users.username')
+            ->orderByDesc('questions_added')
+            ->pluck('questions_added','username')
+            ->toArray();
+        return response()->json($usersQuestions);
     }
 }
