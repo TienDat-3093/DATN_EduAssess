@@ -6,7 +6,7 @@
                  <h5 class="modal-title" id="editModalTest">Edit Test</h5>
                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
              </div>
-            <form action="" method="POST">
+            <form action="" method="POST"  enctype="multipart/form-data">
                 @csrf
              <div class="modal-body">
                  <div class="row">
@@ -15,6 +15,14 @@
                          <div class="input-group">
                              <input type="text" id="editTestName" name="name" class="form-control" placeholder="Enter Name">
                          </div>
+                         <label class="form-label">Test Banner</label><br>
+                            <label class="btn btn-outline-secondary mb-0" for="test_img">
+                                <span class="ti ti-upload"></span>
+                            </label>
+                            <input type="file" name="test_img" class="form-control d-none" id="test_img" onchange="previewTest()">
+                            <div id="test_imgPreview" name="test_imgPreview" class="mt-2">
+                            <img class="preview-img" id="editTestImg"></img>
+                            </div>
                      </div>
                  <div class="card-body p-4">
                     <h5 class="card-title fw-semibold mb-4">Select Tags</h5>

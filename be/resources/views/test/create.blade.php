@@ -13,7 +13,7 @@
     }
 </style>
 @section('content')
-<form action="{{route('test.createHandle')}}" method="POST" id="createTest">
+<form action="{{route('test.createHandle')}}" method="POST" id="createTest" enctype="multipart/form-data">
     @csrf
 <div class="col-lg-13 d-flex align-items-stretch">
     <div class="card w-100">
@@ -28,7 +28,14 @@
             </div>
             <div class="col mb-3">
                     <label class="form-label">Name</label>
-                    <input type="text" name="name" class="form-control" placeholder="Enter Name">
+                    <input type="text" name="name" class="form-control" placeholder="Enter Name"><br>
+                    <label class="form-label">Test Banner</label><br>
+                    <label class="btn btn-outline-secondary mb-0" for="test_img">
+                        <span class="ti ti-upload"></span>
+                    </label>
+                    <input type="file" name="test_img" class="form-control d-none" id="test_img" onchange="previewTest()">
+                    <div id="test_imgPreview" name="test_imgPreview" class="mt-2"></div>
+                    <br>
                 <button class="btn btn-primary">Create Test</button>
             </div>
         </div>
@@ -174,6 +181,23 @@
                     console.error(xhr.responseText);
                 }
             });
+        }
+        function previewTest() {
+        const fileInput = document.getElementById(`test_img`);
+        const fileUser = document.getElementById(`test_imgPreview`);
+        const file = fileInput.files[0];
+        fileUser.innerHTML = '';
+        if (file) {
+            const fileName = document.createElement('p');
+            fileName.textContent = `Selected file: ${file.name}`;
+            fileUser.appendChild(fileName);
+            if (file.type.startsWith('image/')) {
+                const imgUser = document.createElement('img');
+                imgUser.classList.add('preview-img');
+                imgUser.src = URL.createObjectURL(file);
+                fileUser.appendChild(imgUser);
+                }
+            }
         }
         function getQuestion() {
             let topic_id = $j('#topic').val();

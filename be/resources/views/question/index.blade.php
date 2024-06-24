@@ -9,6 +9,9 @@
         max-width: 100px;
         margin-top: 10px;
     }
+    td > h6 > p {
+    margin-bottom: 0;
+    }
 </style>
 <div class="mt-3">
         <!-- Button trigger modal -->
@@ -60,6 +63,7 @@
                             <option value="{{ $topic->id }}" {{ (request()->has('topics_id') && request('topics_id') == $topic->id) ? 'selected' : '' }}>{{ $topic->name }}</option>
                         @endforeach
                     </select>
+                    <br>
                     <button type="submit" class="btn btn-outline-secondary">
                         Search
                     </button>
@@ -81,7 +85,9 @@
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">User</h6>
                             </th>
-
+                            <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Text</h6>
+                            </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Image</h6>
                             </th>
@@ -93,6 +99,9 @@
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Type</h6>
+                            </th>
+                            <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Status</h6>
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Function</h6>
@@ -108,7 +117,9 @@
                             <td class="border-bottom-0">
                                 <h6 class="fw-semibold mb-1">{{$question->user->username}}</h6>
                             </td>
-
+                            <td class="border-bottom-0">
+                                <h6 class="fw-semibold mb-1">{!! $question->question_text !!}</h6>
+                            </td>
                             <td class="border-bottom-0">
                                 <img src="{{asset($question->question_img)}}" class="question-img" alt="">
                             </td>
@@ -165,7 +176,7 @@
                                         <li>
                                             <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST" class="restore-form">
                                                 @csrf
-                                                <button type="button" data-name="{{ $question->question_text }}" class="dropdown-item restore-link">Restore</button>
+                                                <button type="button" class="dropdown-item restore-link">Restore</button>
                                             </form>
                                         </li>
                                         @else
@@ -173,7 +184,7 @@
                                             <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST" class="delete-form">
                                                 @csrf
                                                 @method('POST')
-                                                <button type="button" data-name="{{ $question->question_text }}" class="dropdown-item delete-link">Delete</button>
+                                                <button type="button" class="dropdown-item delete-link">Delete</button>
                                             </form>
                                         </li>
                                         @endif
@@ -392,11 +403,10 @@
                 event.preventDefault();
 
                 var form = this.closest('form');
-                var name = this.getAttribute('data-name');
 
                 Swal.fire({
                     title: 'Xác Nhận Xóa?',
-                    text: 'Bạn có chắc muốn xóa câu hỏi: ' + name,
+                    text: 'Bạn có chắc muốn xóa câu hỏi ?',
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Đồng ý',

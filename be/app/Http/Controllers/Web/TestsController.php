@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Exports\ExportTests;
 use App\Imports\ImportTests;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Storage;
 
 
 use App\Models\Tests;
@@ -57,6 +58,15 @@ class TestsController extends Controller
         if(!$request->tag_data)
             return redirect()->route('test.index')->withError("Tags can't be empty");
         $test = Tests::withTrashed()->find($id);
+        if ($request->hasFile('test_img')) {
+            if (!empty($test->test_img) && Storage::exists($test->test_img)) {
+                Storage::delete($test->test_img);
+            }
+            $file = $request->file('test_img');
+            $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
+            $path = $request->file('test_img')->storeAs('img/exams', $fileName);
+            $test->test_img = $path;
+        }
         $test->tag_data = json_encode(array_unique($request->tag_data));
         $test->name = $request->name;
         $test->save();
@@ -66,7 +76,8 @@ class TestsController extends Controller
         $test = Tests::withTrashed()->find($id);
         $tag_data = $test->tag_data;
         $name = $test->name;
-        return response()->json(['tag_data' => $tag_data,'name' => $name]);
+        $test_img = $test->test_img;
+        return response()->json(['tag_data' => $tag_data,'name' => $name,'test_img' => $test_img]);
     }
     public function detail($id){
         $test = Tests::withTrashed()->find($id);
@@ -127,6 +138,12 @@ class TestsController extends Controller
     public function createHandle(TestsRequest $request){
         $test = new Tests();
         $test->name = $request->name;
+        if ($request->hasFile('test_img')) {
+            $file = $request->file('test_img');
+            $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
+            $path = $request->file('test_img')->storeAs('img/exams', $fileName);
+            $test->test_img = $path;
+        }
         $test->question_data = json_encode(array_unique($request->question_data));
         $topic_data = QuestionsAdmin::whereIn('id', $request->question_data)
         ->distinct('topic_id')
