@@ -12,7 +12,8 @@
                      <div class="row">
                          <div class="col mb-3">
                              <label for="create_questionText" class="form-label">Name</label>
-                                <textarea id="create_editor" name="create_questionText"></textarea>
+                                <textarea id="create_editor" name="create_questionText"></textarea><br>
+                                 <label class="form-label">Question Image</label><br>
                                  <label class="btn btn-outline-secondary mb-0" for="create_inputQuestion">
                                      <span class="ti ti-upload"></span>
                                  </label>
@@ -109,7 +110,8 @@
                      <div class="row">
                          <div class="col mb-3">
                              <label for="edit_questionText" class="form-label">Name</label>
-                                <textarea id="edit_editor" name="edit_questionText"></textarea>
+                                <textarea id="edit_editor" name="edit_questionText"></textarea><br>
+                                <label class="form-label">Question Image</label><br>
                                  <label class="btn btn-outline-secondary mb-0" for="edit_inputQuestion">
                                      <span class="ti ti-upload"></span>
                                  </label>

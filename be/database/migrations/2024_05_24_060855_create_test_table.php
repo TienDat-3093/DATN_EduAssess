@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('question_data');
             $table->string('name');
+            $table->string('test_img')->nullable();
             $table->string('password')->nullable();
             $table->string('topic_data');
             $table->string('tag_data');

@@ -14,6 +14,7 @@ class Tests extends Model
     protected $fillable = [
         'question_data',
         'name',
+        'test_img',
         'password',
         'topic_data',
         'tag_data',

@@ -45,6 +45,9 @@
                                 <h6 class="fw-semibold mb-0">Name</h6>
                             </th>
                             <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Banner</h6>
+                            </th>
+                            <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Author</h6>
                             </th>
                             <th class="border-bottom-0">
@@ -74,6 +77,23 @@
                 }
             });
         });
+    function previewTest() {
+    const fileInput = document.getElementById(`test_img`);
+    const fileUser = document.getElementById(`test_imgPreview`);
+    const file = fileInput.files[0];
+    fileUser.innerHTML = '';
+    if (file) {
+        const fileName = document.createElement('p');
+        fileName.textContent = `Selected file: ${file.name}`;
+        fileUser.appendChild(fileName);
+        if (file.type.startsWith('image/')) {
+            const imgUser = document.createElement('img');
+            imgUser.classList.add('preview-img');
+            imgUser.src = URL.createObjectURL(file);
+            fileUser.appendChild(imgUser);
+            }
+        }
+    }
     function search() {
             let keyword = $j('#searchInput').val();
             $j.ajax({
@@ -115,7 +135,9 @@
                 method: 'GET',
                 success: function(data) {
                     const editTestName = document.getElementById('editTestName');
-                    editTestName.value = data.name
+                    editTestName.value = data.name;
+                    const editTestImg = document.getElementById('editTestImg');
+                    editTestImg.src = data.test_img;
                     const tags = JSON.parse(data.tag_data);
                     tags.forEach(tagNumber => {
                         const input = document.getElementById('tag-' + tagNumber);

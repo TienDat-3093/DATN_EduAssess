@@ -93,7 +93,7 @@ class QuestionsAdminController extends Controller
         if ($request->hasFile('create_questionImg')) {
             $file = $request->file('create_questionImg');
             $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
-            $path = $request->file('create_questionImg')->storeAs('img', $fileName);
+            $path = $request->file('create_questionImg')->storeAs('img/questions', $fileName);
             $question->question_img = $path;
         }
         $question->level_id = $request->create_level;
@@ -160,7 +160,7 @@ class QuestionsAdminController extends Controller
                 // Thêm hình ảnh mới
                 $file = $request->file('edit_questionImg');
                 $fileName = now()->format('YmdHis') . '_' . $file->getClientOriginalName();
-                $path = $file->storeAs('img', $fileName);
+                $path = $file->storeAs('img/questions', $fileName);
                 // Xóa hình ảnh cũ nếu có
                 if (!empty($question->question_img) && Storage::exists($question->question_img)) {
                     Storage::delete($question->question_img);
