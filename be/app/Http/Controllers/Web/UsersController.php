@@ -46,6 +46,9 @@ class UsersController extends Controller
     {
         return view('dashboard');
     }
+    public function userDetail(){
+        return view('user_detail');
+    }
     public function login()
     {
         return view('login');
@@ -69,18 +72,23 @@ class UsersController extends Controller
         Auth::logout();
         return redirect()->route('login');
     }
-    public function editProfile(UsersRequest $request, $id)
+    public function editProfile(Request $request, $id)
     {
         if(Auth::user()->id != $id)
-            return back()->with('alert', 'Incorrect user id!');
+            return back()->with(['success' => false, 'alert' => 'Incorrect user id!']);
         $user = Users::find($id);
-        if (!Hash::check($request->old_password, $user->password)) {
-            return back()->with('alert', 'Incorrect password!');
+        if($request->filled(['password', 'password_confirmation', 'old_password'])){
+            if (!Hash::check($request->old_password, $user->password)) {
+                return back()->with(['success' => false, 'alert' => 'Incorrect password!']);
+            }
+            if ($request->password != $request->password_confirmation) {
+                return back()->with(['success' => false, 'alert' => 'Password confirmation failed!']);
+            }
+            $user->password = Hash::make($request->password);
         }
         $user->displayname = $request->displayname;
         $user->email = $request->email;
         $user->date_of_birth = $request->date_of_birth;
-        $user->password = Hash::make($request->password);
         if ($request->hasFile("image")) {
             if($user->image){
             $img = $user->image;
@@ -94,7 +102,7 @@ class UsersController extends Controller
             $user->image = $path;
         }
         $user->save();
-        return redirect()->route('user.index')->with(['success' => true, 'alert' => 'Successfully edited!']);
+        return back()->with(['success' => true, 'alert' => 'Successfully edited!']);
     }
     // public function getLoginUser()
     // {
@@ -110,7 +118,6 @@ class UsersController extends Controller
         $listUsers = Users::where('admin_role', 0)->get();
         return view('user/index', compact('listUsers'));
     }
-
     public function search(Request $request)
     {
         $keyword = $request->input('data');

@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/logout', [UsersController::class, 'logout'])->name('logout');
     Route::get('/', [UsersController::class, 'dashboard'])->name('dashboard.index');
+    Route::get('/userDetail', [UsersController::class, 'userDetail'])->name('userDetail');
     Route::post('/editProfile/{id}', [UsersController::class, 'editProfile'])->name('editProfile');
 
     Route::prefix('/question')->name('question.')->group(function(){
