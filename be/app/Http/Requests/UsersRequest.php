@@ -22,7 +22,7 @@ class UsersRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => 'required|max:20|min:1',
+            'displayname' => 'required|max:20|min:1',
             'email' => 'required|regex:/^.+@.+$/|max:20',
             'date_of_birth' => 'required',
             'password' => 'required|confirmed',
@@ -41,7 +41,7 @@ class UsersRequest extends FormRequest
     public function attributes()
     {
         return [
-            'username' => 'Username',
+            'displayname' => 'Displayname',
             'email' => 'Email',
             'date_of_birth' => 'Date of birth',
             'password' => 'Password',

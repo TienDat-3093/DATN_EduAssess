@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('/question')->name('question.')->group(function(){
         Route::get('/',[QuestionsAdminController::class,'index'])->name('index');
+        Route::post('findDupeQuestions/{id?}',[QuestionsAdminController::class,'findDupeQuestions'])->name('findDupeQuestions');
         Route::get('exportAnswers',[QuestionsAdminController::class,'exportAnswers'])->name('exportAnswers');
         Route::get('exportQuestions',[QuestionsAdminController::class,'exportQuestions'])->name('exportQuestions');
         Route::post('importQuestions',[QuestionsAdminController::class,'importQuestions'])->name('importQuestions');

@@ -29,15 +29,19 @@ class TestsController extends Controller
             if ($testsExtension == 'xlsx') {
                 try {
                     Excel::import(new ImportTests, $testsFile);
-                    return redirect()->back()->with('alert', "Import successful");
+                    return redirect()->back()->with(['success' => true, 'alert' => "Import successful"]);
                 } catch (\Exception $e) {
-                    return redirect()->back()->with('alert', "Import failed! Please check if your files are correct.".$e->getMessage());
+                    if (isset($e->errorInfo) && $e->errorInfo[1] == 1062) { // Error code for duplicate entry in MySQL
+                        return redirect()->back()->with(['success' => false, 'alert' => "Import failed! File contains duplicate entries which violates constraints."]);
+                    } else{
+                        return redirect()->back()->with(['success' => false, 'alert' => "Import failed! Please check if your files are correct.".$e->getMessage()]);
+                    }
                 }
             } else {
-                return redirect()->back()->with('alert', "Invalid file format. Please upload .xlsx files.");
+                return redirect()->back()->with(['success' => false, 'alert' => "Invalid file format. Please upload .xlsx files."]);
             }
         }
-        return redirect()->back()->with('alert', "Missing files!");
+        return redirect()->back()->with(['success' => false, 'alert' => "Missing files!"]);
     }
     public function exportTests() 
     {
@@ -51,7 +55,14 @@ class TestsController extends Controller
     public function search(Request $request)
     {
         $keyword = $request->input('data');
-        $listTests = Tests::withTrashed()->where('name', 'like', "%$keyword%")->get();
+        $listTests = Tests::withTrashed()
+        ->where('name', 'like', "%$keyword%")
+        ->orWhere(function ($query) use ($keyword) {
+            $query->whereHas('user', function ($userQuery) use ($keyword) {
+                $userQuery->where('displayname', 'like', "%$keyword%");
+            });
+        })
+        ->get();
         return view('test/results', compact('listTests'));
     }
     public function edit(Request $request,$id){
@@ -70,7 +81,7 @@ class TestsController extends Controller
         $test->tag_data = json_encode(array_unique($request->tag_data));
         $test->name = $request->name;
         $test->save();
-        return redirect()->route('test.index')->with('alert','Successfully edited');
+        return redirect()->route('test.index')->with(['success' => true, 'alert' => 'Successfully edited']);
     }
     public function getTags($id){
         $test = Tests::withTrashed()->find($id);
@@ -155,7 +166,7 @@ class TestsController extends Controller
         $test->privacy = 0;
         $test->user_id = Auth::id();
         $test->save();
-        return redirect()->route('test.index')->with('alert','Successfully created');
+        return redirect()->route('test.index')->with(['success' => true, 'alert' => 'Successfully created']);
     }
     public function deleteHandle($id){
         $test = Tests::withTrashed()->find($id);
@@ -177,19 +188,19 @@ class TestsController extends Controller
             foreach ($questionDataArray as $key => $questionId) {
                 $question = QuestionsAdmin::withTrashed()->find($questionId);
                 if(!$question){
-                    return redirect()->route('test.index')->with('alert','Error finding questions!');
+                    return redirect()->route('test.index')->with(['success' => false, 'alert' => 'Error finding questions!']);
                 }
                 if ($question->trashed()) {
-                    return redirect()->route('test.index')->with('alert','Question in test has been deleted. Please create another test instead!');
+                    return redirect()->route('test.index')->with(['success' => false, 'alert' => 'Question in test has been deleted. Please create another test instead!']);
                 }
             }
             $test->tag_data = json_encode(array_values(array_unique($tagDataArray)));
             $test->restore();
-            return redirect()->route('test.index')->with('alert','Successfully restored');
+            return redirect()->route('test.index')->with(['success' => true, 'alert' => 'Successfully restored']);
         }
         else{
             $test->delete();
-            return redirect()->route('test.index')->with('alert','Successfully deleted');
+            return redirect()->route('test.index')->with(['success' => true, 'alert' =>'Successfully deleted']);
         }
     }
 }

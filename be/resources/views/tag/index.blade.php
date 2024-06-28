@@ -8,19 +8,10 @@
         <i class="ti ti-playlist-add"></i>
         Create
     </button>
-    <a href="{{route('tag.exportTags')}}"><button class="btn btn-primary mb-4">
-        Export Tags
-    </button></a>
-    <div class="card-body p-4">
-        <h5 class="card-title fw-semibold mb-4">Import Tags</h5>
-        <form action="{{ route('tag.importTags') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-                <p class="form-label">Your file</p>
-                <input type="file" name="importTags_file" class="form-control" accept=".xlsx">
-            <br>
-            <button type="submit" class="btn btn-primary">Import Tags</button>
-        </form>
-    </div>
+    <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#importexportTag">
+        <i class="ti ti-playlist-add"></i>
+        Import/Export
+    </button>
 </div>
 <font id="errorName" style="vertical-align: inherit;">
     @error('name')
@@ -37,11 +28,11 @@
         <div class="card-body p-4">
             <h5 class="card-title fw-semibold mb-4">List Tags</h5>
             <div class="table-responsive">
-                <table id="lisTags" class="table text-nowrap mb-0 align-middle">
+                <table id="lisTags" class="table text-nowrap mb-0 align-middle text-center">
                     <thead class="text-dark fs-4">
                         <tr>
                             <th class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">Id</h6>
+                                <h6 class="fw-semibold mb-0">Order</h6>
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Name</h6>
@@ -54,7 +45,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="table-bordered">
                     @include('tag/results')
                     </tbody>
                 </table>

@@ -32,7 +32,7 @@ class Users extends Authenticatable implements JWTSubject
         return [];
     }
     protected $fillable = [
-        'username',
+        'displayname',
         'email',
         'password',
         'date_of_birth',

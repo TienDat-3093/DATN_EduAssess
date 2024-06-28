@@ -1,16 +1,28 @@
+@php
+    $order = 1;
+@endphp
 @foreach($listTests as $test)
                         <tr>
                             <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">{{$test->id}}</h6>
+                                <h6 class="fw-semibold mb-0">{{$order}}</h6>
                             </td>
+                            @php
+                                $order++;
+                            @endphp
                             <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-1">{{$test->name}}</h6>
+                                <h6 class="fw-semibold mb-1">
+                                @if (strlen($test->name) > 30)
+                                <span title="{{$test->name}}">{{ substr($test->name, 0, 30) }}...</span>
+                                @else
+                                    {{ $test->name }}
+                                @endif
+                                </h6>
                             </td>
                             <td class="border-bottom-0">
                                 <img src="{{asset($test->test_img)}}" class="preview-img" alt="">
                             </td>
                             <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-1">{{$test->user->username}}</h6>
+                                <h6 class="fw-semibold mb-1">{{$test->user->displayname}}</h6>
                             </td>
                             @if($test->deleted_at)
                             <td class="border-bottom-0">

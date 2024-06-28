@@ -23,6 +23,30 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class QuestionsAdminController extends Controller
 {
+    public function findDupeQuestions(Request $request,$id = null){
+        $input = $request->input('question_text');
+        $input_text = preg_replace('/[^\w+\-*\/^%]/', '', strip_tags(str_replace(['&nbsp;', ' '], '', $input)));
+        
+        if($id)
+        {
+            $listQuestions = QuestionsAdmin::withTrashed()->where('id', '!=', $id)->pluck('question_text')->toArray();
+        }
+        else{
+            $listQuestions = QuestionsAdmin::withTrashed()->pluck('question_text')->toArray();
+        }
+
+        $matching_questions = [];
+        foreach ($listQuestions as $question_text) {
+            $cleaned_question_text = preg_replace('/[^\w+\-*\/^%]/', '', strip_tags(str_replace(['&nbsp;', ' '], '', $question_text)));
+            if (strpos(mb_strtolower($cleaned_question_text), mb_strtolower($input_text)) !== false) {
+                $matching_questions[] = [
+                    'question_text' => $question_text,
+                ];
+            }
+        }
+    
+        return response()->json($matching_questions);
+    }
     public function importQuestions(Request $re)
     {
         if($re->hasFile('importQuestions_file') && $re->hasFile('importAnswers_file')){
@@ -34,15 +58,19 @@ class QuestionsAdminController extends Controller
                 try {
                     Excel::import(new ImportQuestionsAdmin, $questionsFile);
                     Excel::import(new ImportAnswersAdmin, $answersFile);
-                    return redirect()->back()->with('alert', "Import successful");
+                    return redirect()->back()->with(['success' => false, 'alert' => "Import successful"]);
                 } catch (\Exception $e) {
-                    return redirect()->back()->with('alert', "Import failed. If your files are correct please make sure ['topics','users','levels','question_types'] have been imported!". $e->getMessage());
+                    if (isset($e->errorInfo) && $e->errorInfo[1] == 1062) { // Error code for duplicate entry in MySQL
+                        return redirect()->back()->with(['success' => false, 'alert' => "Import failed! File contains duplicate entries which violates constraints."]);
+                    } else{
+                        return redirect()->back()->with(['success' => false, 'alert' => "Import failed. If your files are correct please make sure ['topics','users','levels','question_types'] have been imported!". $e->getMessage()]);
+                    }
                 }
             } else {
-                return redirect()->back()->with('alert', "Invalid file format. Please upload .xlsx files.");
+                return redirect()->back()->with(['success' => false, 'alert' => "Invalid file format. Please upload .xlsx files."]);
             }
         }
-        return redirect()->back()->with('alert', "Missing files!");
+        return redirect()->back()->with(['success' => false, 'alert' => "Missing files!"]);
     }
     public function exportQuestions() 
     {
@@ -55,7 +83,9 @@ class QuestionsAdminController extends Controller
     public function index(Request $request){
         $topic_id = $request->input('topics_id');
         $level_id = $request->input('levels_id');
-        if ($topic_id || $level_id) {
+        $question_text = $request->input('question_text');
+        $user_displayname = $request->input('user_displayname');
+        if ($topic_id || $level_id || $question_text || $user_displayname) {
             return $this->search($request);
         }
         $listTopics = Topics::all();
@@ -68,10 +98,23 @@ class QuestionsAdminController extends Controller
     {
         $topic_id = $request->input('topics_id');
         $level_id = $request->input('levels_id');
+        $question_text = $request->input('question_text');
+        $user_displayname = $request->input('user_displayname');
         $listTypes = QuestionTypes::all();
         $listTopics = Topics::all();
         $listLevels = Levels::all();
-        $listQuestions = QuestionsAdmin::withTrashed()->when($topic_id != 0, function ($query) use ($topic_id) {
+        $listQuestions = QuestionsAdmin::withTrashed()
+        ->when($user_displayname, function ($query) use ($user_displayname) {
+            $noSpaceDisplayname = preg_replace('/\s+/', '', $user_displayname); // Remove all spaces from input
+            return $query->whereHas('user', function ($userQuery) use ($noSpaceDisplayname) {
+                $userQuery->whereRaw("REPLACE(displayname, ' ', '') LIKE ?", ['%' . $noSpaceDisplayname . '%']);
+            });
+        })
+        ->when($question_text, function ($query) use ($question_text) {
+            $noSpaceQuestionText = preg_replace('/\s+/', '', $question_text);
+            return $query->whereRaw("REPLACE(question_text, ' ', '') LIKE ?", ['%' . $noSpaceQuestionText . '%']);
+        })
+        ->when($topic_id != 0, function ($query) use ($topic_id) {
             return $query->where('topic_id', $topic_id)->orderBy('level_id');
         })
         ->when($level_id != 0, function ($query) use ($level_id) {
@@ -136,7 +179,7 @@ class QuestionsAdminController extends Controller
 
         $answer->answer_data = $answersString;
         $answer->save();
-        return redirect()->route('question.index')->with('alert', 'Successfully created');
+        return redirect()->route('question.index')->with(['success' => true, 'alert' => 'Successfully created']);
     }
 
     public function edit($id)
@@ -169,7 +212,7 @@ class QuestionsAdminController extends Controller
             }
             if(Tests::isQuestionUsedInTests($id)){
                 if($question->level_id != $request->edit_level || $question->topic_id != $request->edit_topic){
-                    return redirect()->route('question.index')->with('alert','Question is already in use! Cannot change level or topic!');
+                    return redirect()->route('question.index')->with(['success' => false, 'alert' =>'Question is already in use! Cannot change level or topic!']);
                 }
             }
             $question->level_id = $request->edit_level;
@@ -187,7 +230,7 @@ class QuestionsAdminController extends Controller
                     }
                 }
             }
-            AnswersAdmin::where('question_admin_id', $id)->delete();
+            AnswersAdmin::where('question_admin_id', $id)->forceDelete();
             $answer = new AnswersAdmin();
             $answer->question_admin_id = $question->id;
             $answers = [];
@@ -230,7 +273,7 @@ class QuestionsAdminController extends Controller
             $answersString = json_encode($answers);
             $answer->answer_data = $answersString;
             $answer->save();
-            return redirect()->route('question.index')->with('alert', 'Successfully edited');
+            return redirect()->route('question.index')->with(['success' => true, 'alert' => 'Successfully edited']);
         }
     }
     public function deleteHandle($id)
@@ -242,16 +285,16 @@ class QuestionsAdminController extends Controller
         if ($question->trashed()) {
             $topic = Topics::withTrashed()->find($question->topic_id);
             if($topic->trashed()){
-                return redirect()->route('question.index')->with('alert', "Question's topic has been deleted, cannot restore");
+                return redirect()->route('question.index')->with(['success' => false, 'alert' => "Question's topic has been deleted, cannot restore"]);
             }
             $question->restore();
-            return redirect()->route('question.index')->with('alert', 'Successfully restored');
+            return redirect()->route('question.index')->with(['success' => true, 'alert' => 'Successfully restored']);
         } else {
             if(Tests::isQuestionUsedInTests($id)){
-                return redirect()->route('question.index')->with('alert','Question is already in use!');
+                return redirect()->route('question.index')->with(['success' => false, 'alert' =>'Question is already in use!']);
             }
             $question->delete();
-            return redirect()->route('question.index')->with('alert', 'Successfully deleted');
+            return redirect()->route('question.index')->with(['success' => true, 'alert' => 'Successfully deleted']);
         }
     }
 }

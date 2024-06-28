@@ -36,7 +36,7 @@
                     <input type="file" name="test_img" class="form-control d-none" id="test_img" onchange="previewTest()">
                     <div id="test_imgPreview" name="test_imgPreview" class="mt-2"></div>
                     <br>
-                <button class="btn btn-primary">Create Test</button>
+                <button type="submit" class="btn btn-primary">Create Test</button>
             </div>
         </div>
     </div>
@@ -53,9 +53,9 @@
             </font>
             </div>
             @foreach ($listTags as $tag)
-            <div style="display:inline; border:1px solid; margin:5px; padding:2px; border-radius: 10px;">
-                <label style="user-select: none;" for="tag-{{ $tag->id }}" class="tag-label">{{ $tag->name }}</label>
-                <input type="checkbox" name="tag_data[]" value="{{ $tag->id }}" id="tag-{{ $tag->id }}">
+            <div style="display:inline-block; margin:5px;">
+                <input class="btn-check" id="tag-{{ $tag->id }}" autocomplete="off" type="checkbox" name="tag_data[]" value="{{ $tag->id }}" id="tag-{{ $tag->id }}">
+                <label style="border-radius:25px;" class="btn btn-secondary" for="tag-{{ $tag->id }}" class="tag-label">{{ $tag->name }}</label>
             </div>
             @endforeach
         </div>
@@ -114,6 +114,9 @@
                         <tr>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Id</h6>
+                            </th>
+                            <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Text</h6>
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Image</h6>

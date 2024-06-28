@@ -22,15 +22,19 @@ class TagsController extends Controller
             if ($tagsExtension == 'xlsx') {
                 try {
                     Excel::import(new ImportTags, $tagsFile);
-                    return redirect()->back()->with('alert', "Import successful");
+                    return redirect()->back()->with(['success' => true, 'alert' => "Import successful"]);
                 } catch (\Exception $e) {
-                    return redirect()->back()->with('alert', "Import failed! Please check if your files are correct.".$e->getMessage());
+                    if (isset($e->errorInfo) && $e->errorInfo[1] == 1062) { // Error code for duplicate entry in MySQL
+                        return redirect()->back()->with(['success' => false, 'alert' => "Import failed! File contains duplicate entries which violates constraints."]);
+                    } else{
+                        return redirect()->back()->with(['success' => false, 'alert' => "Import failed! Please check if your files are correct.".$e->getMessage()]);
+                    }
                 }
             } else {
-                return redirect()->back()->with('alert', "Invalid file format. Please upload .xlsx files.");
+                return redirect()->back()->with(['success' => false, 'alert' => "Invalid file format. Please upload .xlsx files."]);
             }
         }
-        return redirect()->back()->with('alert', "Missing files!");
+        return redirect()->back()->with(['success' => false, 'alert' => "Missing files!"]);
     }
     public function exportTags() 
     {
@@ -50,29 +54,29 @@ class TagsController extends Controller
         $tag = new Tags();
         $tag->name = $request->name;
         $tag->save();
-        return redirect()->route('tag.index')->with('alert','Successfully created');
+        return redirect()->route('tag.index')->with(['success' => true, 'alert' => 'Successfully created']);
     }
     public function editHandle(TagsRequest $request, $id){
         $tag = Tags::find($id);
         $tag->name = $request->name;
         $tag->save();
-        return redirect()->route('tag.index')->with('alert','Successfully edited');
+        return redirect()->route('tag.index')->with(['success' => true, 'alert' => 'Successfully edited']);
     }
     public function deleteHandle($id){
         $tag = Tags::withTrashed()->find($id);
         if (!$tag) {
-            return redirect()->route('tag.index')->with('alert','Tag not found');
+            return redirect()->route('tag.index')->with(['success' => false, 'alert' => 'Tag not found']);
         }
         if($tag->trashed()){
             $tag->restore();
-            return redirect()->route('tag.index')->with('alert','Successfully restored');
+            return redirect()->route('tag.index')->with(['success' => true, 'alert' => 'Successfully restored']);
         }
         else{
             if(Tests::isTagUsedInTests($id)){
-                return redirect()->route('tag.index')->with('alert','Tag is already in use!');
+                return redirect()->route('tag.index')->with(['success' => false, 'alert' => 'Tag is already in use!']);
             }
             $tag->delete();
-            return redirect()->route('tag.index')->with('alert','Successfully deleted');
+            return redirect()->route('tag.index')->with(['success' => true, 'alert' => 'Successfully deleted']);
         }
     }
 }

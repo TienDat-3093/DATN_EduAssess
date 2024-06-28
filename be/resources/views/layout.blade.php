@@ -130,9 +130,9 @@
                 <div class="modal-body">
                  <div class="row">
                      <div class="col mb-3">
-                         <label for="editProfileUserName" class="form-label">Username</label>
+                         <label for="editProfileUserName" class="form-label">Displayname</label>
                          <div class="input-group">
-                             <input type="text" value="{{Auth::user()->username}}" id="editProfileUsername" name="username" class="form-control" placeholder="Enter username">
+                             <input type="text" value="{{Auth::user()->displayname}}" id="editProfileDisplayname" name="displayname" class="form-control" placeholder="Enter displayname">
                          </div>
                      </div>
                  </div>
@@ -257,7 +257,12 @@
     <script src="{{ asset('sweetalert2/sweetalert2.all.min.js') }}"></script>
     @if (session('alert'))
     <script>
-        Swal.fire("{{ session('alert') }}")
+        document.addEventListener('DOMContentLoaded', function () {
+            Swal.fire({
+                title: "{{ session('alert') }}",
+                icon: "{{ session('success') ? 'success' : 'error' }}"
+            });
+        });
     </script>
     @endif
     <script>

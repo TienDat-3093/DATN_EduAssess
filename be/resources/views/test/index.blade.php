@@ -6,19 +6,10 @@
         <i class="ti ti-playlist-add"></i>
         Create
     </button></a>
-    <a href="{{route('test.exportTests')}}"><button class="btn btn-primary mb-4">
-        Export Tests
-    </button></a>
-    <div class="card-body p-4">
-        <h5 class="card-title fw-semibold mb-4">Import Tests</h5>
-        <form action="{{ route('test.importTests') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-                <p class="form-label">Your file</p>
-                <input type="file" name="importTests_file" class="form-control" accept=".xlsx">
-            <br>
-            <button type="submit" class="btn btn-primary">Import Tests</button>
-        </form>
-    </div>
+    <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#importexportTest">
+        <i class="ti ti-playlist-add"></i>
+        Import/Export
+    </button>
 </div>
 <font id="error">
 @if(Session::has('error'))
@@ -35,11 +26,11 @@
         <div class="card-body p-4">
             <h5 class="card-title fw-semibold mb-4">List Tests</h5>
             <div class="table-responsive">
-                <table id="listTests" class="table text-nowrap mb-0 align-middle">
+                <table id="listTests" class="table text-nowrap mb-0 align-middle text-center">
                     <thead class="text-dark fs-4">
                         <tr>
                             <th class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">Id</h6>
+                                <h6 class="fw-semibold mb-0">Order</h6>
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Name</h6>
@@ -58,7 +49,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="table-bordered">
                     @include('test/results')
                     </tbody>
                 </table>

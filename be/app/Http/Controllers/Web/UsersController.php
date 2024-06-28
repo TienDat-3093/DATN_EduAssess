@@ -23,15 +23,19 @@ class UsersController extends Controller
             if ($usersExtension == 'xlsx') {
                 try {
                     Excel::import(new ImportUsers, $usersFile);
-                    return redirect()->back()->with('alert', "Import successful");
+                    return redirect()->back()->with(['success' => true, 'alert' => "Import successful"]);
                 } catch (\Exception $e) {
-                    return redirect()->back()->with('alert', "Import failed! Please check if your files are correct.".$e->getMessage());
+                    if (isset($e->errorInfo) && $e->errorInfo[1] == 1062) { // Error code for duplicate entry in MySQL
+                        return redirect()->back()->with(['success' => false, 'alert' => "Import failed! File contains duplicate entries which violates constraints."]);
+                    } else{
+                        return redirect()->back()->with(['success' => false, 'alert' => "Import failed! Please check if your files are correct.".$e->getMessage()]);
+                    }
                 }
             } else {
-                return redirect()->back()->with('alert', "Invalid file format. Please upload .xlsx files.");
+                return redirect()->back()->with(['success' => false, 'alert' => "Invalid file format. Please upload .xlsx files."]);
             }
         }
-        return redirect()->back()->with('alert', "Missing files!");
+        return redirect()->back()->with(['success' => false, 'alert' => "Missing files!"]);
     }
     public function exportUsers() 
     {
@@ -52,13 +56,13 @@ class UsersController extends Controller
             $user = Auth::user();
             if($user->admin_role == 0){
                 Auth::logout();
-                return redirect()->route('login')->with('alert', 'No admin permission!');
+                return redirect()->route('login')->with(['success' => false, 'alert' => 'No admin permission!']);
             }
             if ($user) {
                     return redirect()->route('dashboard.index');
                 }
             }
-        return redirect()->route('login')->with('alert', 'Access denied!');
+        return redirect()->route('login')->with(['success' => false, 'alert' => 'Access denied!']);
     }
     public function logout()
     {
@@ -73,7 +77,7 @@ class UsersController extends Controller
         if (!Hash::check($request->old_password, $user->password)) {
             return back()->with('alert', 'Incorrect password!');
         }
-        $user->username = $request->username;
+        $user->displayname = $request->displayname;
         $user->email = $request->email;
         $user->date_of_birth = $request->date_of_birth;
         $user->password = Hash::make($request->password);
@@ -90,13 +94,13 @@ class UsersController extends Controller
             $user->image = $path;
         }
         $user->save();
-        return redirect()->route('user.index')->with('alert', 'Successfully edited!');
+        return redirect()->route('user.index')->with(['success' => true, 'alert' => 'Successfully edited!']);
     }
     // public function getLoginUser()
     // {
     //     if (Auth::check()) {
-    //         $username = Auth::user()->username;
-    //         return $username;
+    //         $displayname = Auth::user()->displayname;
+    //         return $displayname;
     //     }
     // }
 
@@ -110,15 +114,18 @@ class UsersController extends Controller
     public function search(Request $request)
     {
         $keyword = $request->input('data');
-        $listUsers = Users::where('username', 'like', "%$keyword%")
-                        ->where('admin_role', 0)
-                        ->get();
+        $listUsers = Users::where(function ($query) use ($keyword) {
+            $query->where('displayname', 'like', "%$keyword%")
+                  ->orWhere('email', 'like', "%$keyword%");
+        })
+        ->where('admin_role', '==', 0)
+        ->get();
         return view('user/results', compact('listUsers'));
     }
     public function createHandle(UsersRequest $request)
     {
         $user = new Users();
-        $user->username = $request->username;
+        $user->displayname = $request->displayname;
         $user->email = $request->email;
         $user->date_of_birth = $request->date_of_birth;
         $user->password = Hash::make($request->password);
@@ -129,7 +136,7 @@ class UsersController extends Controller
             $user->image = $path;
         }
         $user->save();
-        return redirect()->route('user.index')->with('alert', 'Successfully created!');
+        return redirect()->route('user.index')->with(['success' => true, 'alert' => 'Successfully created!']);
     }
     public function getUser($id){
         $user = Users::where('admin_role', 0)->find($id);
@@ -138,7 +145,7 @@ class UsersController extends Controller
     public function editHandle(Request $request, $id)
     {
         $user = Users::where('admin_role', 0)->find($id);
-        $user->username = $request->username;
+        $user->displayname = $request->displayname;
         $user->date_of_birth = $request->date_of_birth;
         if ($request->hasFile("image")) {
             if($user->image){
@@ -153,23 +160,23 @@ class UsersController extends Controller
             $user->image = $path;
         }
         $user->save();
-        return redirect()->route('user.index')->with('alert', 'Successfully edited!');
+        return redirect()->route('user.index')->with(['success' => true, 'alert' => 'Successfully edited!']);
     }
     public function delete($id)
     {
         $user = Users::where('admin_role', 0)->find($id);
         if (!$user) {
-            return redirect()->route('user.index')->with('error','User not found');
+            return redirect()->route('user.index')->with(['success' => false, 'alert' => 'User not found']);
         }
         if($user->status == 0){
             $user->status = 1;
             $user->save();
-            return redirect()->route('user.index')->with('alert','Successfully unlocked');
+            return redirect()->route('user.index')->with(['success' => true, 'alert' => 'Successfully unlocked']);
         }
         else{
             $user->status = 0;
             $user->save();
-            return redirect()->route('user.index')->with('alert','Successfully locked');
+            return redirect()->route('user.index')->with(['success' => true, 'alert' => 'Successfully locked']);
         }
     }
 }

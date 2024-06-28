@@ -22,15 +22,19 @@ class TopicsController extends Controller
             if ($topicsExtension == 'xlsx') {
                 try {
                     Excel::import(new ImportTopics, $topicsFile);
-                    return redirect()->back()->with('alert', "Import successful");
+                    return redirect()->back()->with(['success' => true, 'alert' => "Import successful"]);
                 } catch (\Exception $e) {
-                    return redirect()->back()->with('alert', "Import failed! Please check if your files are correct.".$e->getMessage());
+                    if (isset($e->errorInfo) && $e->errorInfo[1] == 1062) { // Error code for duplicate entry in MySQL
+                        return redirect()->back()->with(['success' => false, 'alert' => "Import failed! File contains duplicate entries which violates constraints."]);
+                    } else{
+                        return redirect()->back()->with(['success' => false, 'alert' => "Import failed! Please check if your files are correct.".$e->getMessage()]);
+                    }
                 }
             } else {
-                return redirect()->back()->with('alert', "Invalid file format. Please upload .xlsx files.");
+                return redirect()->back()->with(['success' => false, 'alert' => "Invalid file format. Please upload .xlsx files."]);
             }
         }
-        return redirect()->back()->with('alert', "Missing files!");
+        return redirect()->back()->with(['success' => false, 'alert' => "Missing files!"]);
     }
     public function exportTopics() 
     {
@@ -50,29 +54,29 @@ class TopicsController extends Controller
         $topic = new Topics();
         $topic->name = $request->name;
         $topic->save();
-        return redirect()->route('topic.index')->with('alert','Successfully created');
+        return redirect()->route('topic.index')->with(['success' => true, 'alert' => 'Successfully created']);
     }
     public function editHandle(TopicsRequest $request, $id){
         $topic = Topics::find($id);
         $topic->name = $request->name;
         $topic->save();
-        return redirect()->route('topic.index')->with('alert','Successfully edited');
+        return redirect()->route('topic.index')->with(['success' => true, 'alert' => 'Successfully edited']);
     }
     public function deleteHandle($id){
         $topic = Topics::withTrashed()->find($id);
         if (!$topic) {
-            return redirect()->route('topic.index')->with('error','Topic not found');
+            return redirect()->route('topic.index')->with(['success' => false, 'alert' => 'Topic not found']);
         }
         if($topic->trashed()){
             $topic->restore();
-            return redirect()->route('topic.index')->with('alert','Successfully restored');
+            return redirect()->route('topic.index')->with(['success' => true, 'alert' => 'Successfully restored']);
         }
         else{
             if(QuestionsAdmin::isTopicUsedInQuestionAdmins($id)){
-                return redirect()->route('topic.index')->with('alert','Topic is already in use!');
+                return redirect()->route('topic.index')->with(['success' => false, 'alert' => 'Topic is already in use!']);
             }
             $topic->delete();
-            return redirect()->route('topic.index')->with('alert','Successfully deleted');
+            return redirect()->route('topic.index')->with(['success' => false, 'alert' => 'Successfully deleted']);
         }
     }
 }

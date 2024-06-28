@@ -180,7 +180,7 @@ class StatisticsController extends Controller
             $test->tag_data = [];
             }
 
-            $test->user_id = $test->user->username;
+            $test->user_id = $test->user->displayname;
             // $tagNames[$test->name]=$names;
         }
         // dd($bestTests);
@@ -189,11 +189,11 @@ class StatisticsController extends Controller
         ]);
     }
     public function mostQuestionsAdded(){
-        $usersQuestions = QuestionsAdmin::select('users.username', DB::raw('count(*) as questions_added'))
+        $usersQuestions = QuestionsAdmin::select('users.displayname', DB::raw('count(*) as questions_added'))
             ->join('users', 'users.id', '=', 'question_admins.user_id')
-            ->groupBy('users.username')
+            ->groupBy('users.displayname')
             ->orderByDesc('questions_added')
-            ->pluck('questions_added','username')
+            ->pluck('questions_added','displayname')
             ->toArray();
         return response()->json($usersQuestions);
     }

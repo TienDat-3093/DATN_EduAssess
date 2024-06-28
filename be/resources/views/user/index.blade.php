@@ -8,21 +8,12 @@
         <i class="ti ti-playlist-add"></i>
         Create
     </button>
-    <a href="{{route('user.exportUsers')}}"><button class="btn btn-primary mb-4">
-        Export Users
-    </button></a>
-    <div class="card-body p-4">
-        <h5 class="card-title fw-semibold mb-4">Import Users</h5>
-        <form action="{{ route('user.importUsers') }}" method="POST" enctype="multipart/form-data">
-            @csrf
-                <p class="form-label">Your file</p>
-                <input type="file" name="importUsers_file" class="form-control" accept=".xlsx">
-            <br>
-            <button type="submit" class="btn btn-primary">Import Users</button>
-        </form>
-    </div>
+    <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#importexportUser">
+        <i class="ti ti-playlist-add"></i>
+        Import/Export
+    </button>
 </div>
-    @error('username')
+    @error('displayname')
     <font id="error" style="vertical-align: inherit;color:red">{{ $message }}.<br></font>
     @enderror
     @error('email')
@@ -36,7 +27,7 @@
     @enderror
 <div class="input-group input-group-merge">
     <span class="input-group-text" id="basic-addon-search31"><i class="bx bx-search"></i></span>
-    <input type="text" id="searchInput" class="form-control" placeholder="Search..." aria-label="Search..."
+    <input type="text" id="searchInput" class="form-control" placeholder="Search by displayname or email" aria-label="Search by displayname or email"
         aria-describedby="basic-addon-search31">
 </div>
 <div class="col-lg-13 d-flex align-items-stretch">
@@ -44,14 +35,14 @@
         <div class="card-body p-4">
             <h5 class="card-title fw-semibold mb-4">List Users</h5>
             <div class="table-responsive">
-                <table id="listUsers" class="table text-nowrap mb-0 align-middle">
+                <table id="listUsers" class="table text-nowrap mb-0 align-middle text-center">
                     <thead class="text-dark fs-4">
                         <tr>
                             <th class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">Id</h6>
+                                <h6 class="fw-semibold mb-0">Order</h6>
                             </th>
                             <th class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">Username</h6>
+                                <h6 class="fw-semibold mb-0">Displayname</h6>
                             </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Avatar</h6>
@@ -70,7 +61,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="table-border-bottom-0">
+                    <tbody class="table-bordered">
                         @include('user/results')
                     </tbody>
                 </table>
@@ -101,10 +92,10 @@
         });
     })
     function resetModalUser(modalType) {
-        document.getElementById(`${modalType}Username`).value = '';
-        document.getElementById(`${modalType}Email`).value = '';
+        document.getElementById(`${modalType}Displayname`).value = '';
         document.getElementById(`${modalType}Dateofbirth`).value = '';
         if(modalType == "create"){
+        document.getElementById(`${modalType}Email`).value = '';
         document.getElementById(`${modalType}Password`).value = '';
         document.getElementById(`${modalType}RePassword`).value = '';
         }
@@ -171,7 +162,7 @@
                 url: "{{ route('user.getUser', ['id' => ':userID']) }}".replace(':userID', userID),
                 method: 'GET',
                 success: function(data) {
-                    document.getElementById('editUsername').value = data.username;
+                    document.getElementById('editDisplayname').value = data.displayname;
                     document.getElementById('editDateofbirth').value = data.date_of_birth;
                     const imgElement = document.createElement('img');
                     const newFilePreview = document.getElementById('editFileUser');
