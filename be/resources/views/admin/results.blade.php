@@ -1,10 +1,13 @@
+@php
+    $order = 1;
+@endphp
 @foreach ($listUsers as $user)
     <tr>
         <td class="border-bottom-0">
-            <h6 class="fw-semibold mb-0">{{$user->id}}</h6>
+            <h6 class="fw-semibold mb-0">{{$order}}</h6>
         </td>
         <td class="border-bottom-0">
-            <h6 class="fw-semibold mb-0">{{$user->username}}</h6>
+            <h6 class="fw-semibold mb-0">{{$user->displayname}}</h6>
         </td>
         <td class="border-bottom-0">
             <img src="{{ $user->image ? asset($user->image) : asset('img/users/default.png') }}" class="preview-img" alt="">
@@ -16,7 +19,11 @@
             <h6 class="fw-semibold mb-0">{{ \Carbon\Carbon::parse($user->date_of_birth)->format('d/m/Y') }}</h6>
         </td>
         <td class="border-bottom-0">
-            <h6 class="fw-semibold mb-0">{{$user->admin_role}}</h6>
+            @if($user->admin_role == 1)
+            <h6 class="fw-semibold mb-0">Admin</h6>
+            @elseif($user->admin_role == 2)
+            <h6 class="fw-semibold mb-0">Lead Admin</h6>
+            @endif
         </td>
         @if($user->status == 0)
         <td class="border-bottom-0">
@@ -47,4 +54,7 @@
             </div>
         </td>
     </tr>
+@php
+    $order++;
+@endphp
 @endforeach

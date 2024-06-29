@@ -11,9 +11,9 @@
              <div class="modal-body">
                  <div class="row">
                      <div class="col mb-3">
-                         <label for="createUserName" class="form-label">Username</label>
+                         <label for="createUserName" class="form-label">Displayname</label>
                          <div class="input-group">
-                             <input type="text" id="createUsername" name="username" class="form-control" placeholder="Enter username">
+                             <input type="text" id="createDisplayname" name="displayname" class="form-control" placeholder="Enter displayname">
                          </div>
                      </div>
                  </div>
@@ -80,9 +80,9 @@
                 <div class="modal-body">
                  <div class="row">
                      <div class="col mb-3">
-                         <label for="editUserName" class="form-label">Username</label>
+                         <label for="editUserName" class="form-label">Displayname</label>
                          <div class="input-group">
-                             <input type="text" id="editUsername" name="username" class="form-control" placeholder="Enter username">
+                             <input type="text" id="editDisplayname" name="displayname" class="form-control" placeholder="Enter displayname">
                          </div>
                      </div>
                  </div>
@@ -110,3 +110,27 @@
          </div>
      </div>
      </div>
+<!-- Import Export -->
+<div class="modal fade" id="importexportUser" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">    
+            <div class="modal-header">
+                <h5 class="modal-title" id="importexportModalUser">Import Export User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body p-4">
+                <a href="{{route('user.exportUsers')}}"><button class="btn btn-primary mb-4">
+                    Export Users
+                </button></a>
+                <h5 class="card-title fw-semibold mb-4">Import Users</h5>
+                <form action="{{ route('user.importUsers') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                        <p class="form-label">Your file</p>
+                        <input type="file" name="importUsers_file" class="form-control" accept=".xlsx">
+                    <br>
+                    <button type="submit" class="btn btn-primary">Import Users</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

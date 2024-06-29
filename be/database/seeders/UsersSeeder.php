@@ -18,7 +18,7 @@ class UsersSeeder extends Seeder
     {
         $user = new Users();
         $user->id = 1;
-        $user->username = 'LeadAdmin';
+        $user->displayname = 'LeadAdmin';
         $user->email = 'leadadmin@gmail.com';
         $user->password = Hash::make('123456');
         $user->date_of_birth = Carbon::parse('2003-10-10');

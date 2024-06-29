@@ -6,24 +6,25 @@
                  <h5 class="modal-title" id="create_modalQuestion">Add Question</h5>
                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
              </div>
-             <form id="create_questionForm" action="{{route('question.create')}}" method="post" enctype="multipart/form-data" onsubmit="return validateForm('create_')">
+             <form id="create_questionForm" action="{{route('question.create')}}" onsubmit="return validateForm('create_')" method="post" enctype="multipart/form-data">
                  @csrf
                  <div class="modal-body">
                      <div class="row">
                          <div class="col mb-3">
                              <label for="create_questionText" class="form-label">Name</label>
+                             <font id="create_errorName" style="vertical-align: inherit;">
+                             </font>
                                 <textarea id="create_editor" name="create_questionText"></textarea><br>
+                                <div id="create_name_duplicate_error" class="alert alert-danger alert-dismissible d-none">
+                                    <h4 class="alert-heading">Possible duplicates!</h4>
+                                    <button type="button" class="create-btn-close btn-close" onclick=hideAlert(this) aria-label="Close"></button>
+                                </div>
                                  <label class="form-label">Question Image</label><br>
                                  <label class="btn btn-outline-secondary mb-0" for="create_inputQuestion">
                                      <span class="ti ti-upload"></span>
                                  </label>
                                  <input type="file" name="create_questionImg" class="form-control d-none" id="create_inputQuestion" onchange="previewQuestion('create_')">
                              
-                             <font id="errorName" style="vertical-align: inherit;">
-                                 @error('questionText')
-                                 <font style="vertical-align: inherit;color:red">{{ $message }}</font>
-                                 @enderror
-                             </font>
                              <div id="create_fileQuestion" name="create_fileQuestion" class="mt-2"></div>
                          </div>
 
@@ -75,7 +76,7 @@
 
                      </div>
                      <button id="create_btnAnswer" type="button" class="btn rounded-pill btn-icon" onclick="addAnswer('checkbox','create_')">
-                         <span class="ti ti-circle-plus"> Add answer</span>
+                         <span class="ti ti-circle-plus" style="font-size: 20px;"></span>
 
                      </button>
 
@@ -102,15 +103,20 @@
                  <h5 class="modal-title" id="modalQuestion">Edit Question</h5>
                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
              </div>
-             <form id="edit_questionForm" action="" method="post" enctype="multipart/form-data" onsubmit="return validateForm('edit_')">
+             <form id="edit_questionForm" action="" onsubmit="return validateForm('edit_')" method="post" enctype="multipart/form-data">
                  @csrf
                  <div class="modal-body">
-
-
                      <div class="row">
                          <div class="col mb-3">
                              <label for="edit_questionText" class="form-label">Name</label>
-                                <textarea id="edit_editor" name="edit_questionText"></textarea><br>
+                                <font id="edit_errorName" style="vertical-align: inherit;">
+                                </font>
+                                <textarea id="edit_editor" name="edit_questionText"></textarea>
+                                <br>
+                                <div id="edit_name_duplicate_error" class="alert alert-danger alert-dismissible d-none">
+                                    <h4 class="alert-heading">Possible duplicates!</h4>
+                                    <button type="button" class="edit-btn-close btn-close" onclick=hideAlert(this) aria-label="Close"></button>
+                                </div>
                                 <label class="form-label">Question Image</label><br>
                                  <label class="btn btn-outline-secondary mb-0" for="edit_inputQuestion">
                                      <span class="ti ti-upload"></span>
@@ -171,17 +177,13 @@
 
                      </div>
                      <button id="edit_btnAnswer" type="button" class="btn rounded-pill btn-icon" onclick="addAnswer('checkbox','edit_')">
-                         <span class="ti ti-circle-plus"> Add answer</span>
+                        <span class="ti ti-circle-plus" style="font-size: 20px;"></span>
 
                      </button>
 
 
                  </div>
                  <div class="modal-footer">
-                     <button type="button" class="btn btn-outline-secondary" onclick="resetModalQuestion('edit_')">
-                         Delete
-                     </button>
-
                      <button type="submit" class="edit-question-btn btn btn-primary" data-id="">Save changes</button>
                  </div>
              </form>
@@ -225,3 +227,34 @@
     </div>
 </div>
 
+<!-- Import Export -->
+<div class="modal fade" id="importexportQuestion" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importexportModalQuestion">Import/Export Question</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body p-4">
+            <h5 class="card-title fw-semibold mb-4">Export Questions</h5>
+            <a href="{{route('question.exportQuestions')}}"><button class="btn btn-primary mb-4">
+                Export Questions
+            </button></a>
+            <a href="{{route('question.exportAnswers')}}"><button class="btn btn-primary mb-4">
+                Export Answers
+            </button></a>
+            <h5 class="card-title fw-semibold mb-4">Import Questions</h5>
+            <form action="{{ route('question.importQuestions') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <p class="form-label">Your questions file</p>
+                    <input type="file" name="importQuestions_file" class="form-control" accept=".xlsx">
+                <br>
+                    <p class="form-label">Your answers file</p>
+                    <input type="file" name="importAnswers_file" class="form-control" accept=".xlsx">
+                <br>
+                <button type="submit" class="btn btn-primary">Import Questions</button>
+            </form>
+            </div>
+        </div>
+    </div>
+</div>

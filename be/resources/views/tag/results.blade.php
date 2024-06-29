@@ -1,8 +1,14 @@
+@php
+    $order = 1;
+@endphp
 @foreach($listTags as $tag)
                         <tr>
                             <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">{{$tag->id}}</h6>
+                                <h6 class="fw-semibold mb-0">{{$order}}</h6>
                             </td>
+                            @php
+                                $order++;
+                            @endphp
                             <td class="border-bottom-0">
                                 <h6 class="fw-semibold mb-1">{{$tag->name}}</h6>
                             </td>

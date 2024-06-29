@@ -1,10 +1,16 @@
+@php
+    $order = 1;
+@endphp
 @foreach ($listUsers as $user)
     <tr>
         <td class="border-bottom-0">
-            <h6 class="fw-semibold mb-0">{{$user->id}}</h6>
+            <h6 class="fw-semibold mb-0">{{$order}}</h6>
         </td>
+        @php
+            $order++;
+        @endphp
         <td class="border-bottom-0">
-            <h6 class="fw-semibold mb-0">{{$user->username}}</h6>
+            <h6 class="fw-semibold mb-0">{{$user->displayname}}</h6>
         </td>
         <td class="border-bottom-0">
             <img src="{{ $user->image ? asset($user->image) : asset('img/users/default.png') }}" class="preview-img" alt="">

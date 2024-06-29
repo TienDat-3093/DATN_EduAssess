@@ -1,8 +1,14 @@
+@php
+    $order = 1;
+@endphp
 @foreach($listTopics as $topic)
                         <tr>
                             <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">{{$topic->id}}</h6>
+                                <h6 class="fw-semibold mb-0">{{$order}}</h6>
                             </td>
+                            @php
+                                $order++;
+                            @endphp
                             <td class="border-bottom-0">
                                 <h6 class="fw-semibold mb-1">{{$topic->name}}</h6>
                             </td>

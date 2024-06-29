@@ -60,3 +60,29 @@
          </div>
      </div>
      </div>
+
+<!-- Import Export -->
+<div class="modal fade" id="importexportTopic" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">    
+            <div class="modal-header">
+                <h5 class="modal-title" id="importexportModalTopic">Import/Export Topic</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body p-4">
+                <h5 class="card-title fw-semibold mb-4">Export Topics</h5>
+                <a href="{{route('topic.exportTopics')}}"><button class="btn btn-primary mb-4">
+                    Export Topics
+                </button></a>
+                <h5 class="card-title fw-semibold mb-4">Import Topics</h5>
+                <form action="{{ route('topic.importTopics') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                        <p class="form-label">Your file</p>
+                        <input type="file" name="importTopics_file" class="form-control" accept=".xlsx">
+                    <br>
+                    <button type="submit" class="btn btn-primary">Import Topics</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

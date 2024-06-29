@@ -22,9 +22,6 @@
                     <thead class="text-dark fs-4">
                         <tr>
                             <th class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">Image</h6>
-                            </th>
-                            <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Text</h6>
                             </th>
                             <th class="border-bottom-0">
@@ -42,10 +39,16 @@
                         @foreach($listQuestions as $question)
                         <tr>
                             <td class="border-bottom-0">
-                                <img src="{{asset($question->question_img)}}" class="question-img" alt="">
-                            </td>
-                            <td class="border-bottom-0">
-                                <p class="mb-0 fw-normal text-wrap ">{{$question->question_text}}</p>
+                                @php
+                                    $textWithoutTags = strip_tags($question->question_text);
+                                @endphp
+                                <h6 class="fw-semibold mb-1">
+                                @if (strlen($textWithoutTags) > 30)
+                                    <span title="{{$textWithoutTags}}">{!! substr($textWithoutTags, 0, 30) !!}...</span>
+                                @else
+                                    {!! $question->question_text !!}
+                                @endif
+                                </h6>
                             </td>
                             <td class="border-bottom-0">
                                 <div class="d-flex align-items-center gap-2">

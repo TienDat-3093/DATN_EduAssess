@@ -264,6 +264,7 @@
         getMostQuestionsAdded();
         getBestTest();
     });
+
     function getMostQuestionsAdded(){
         $.ajax({
             url: 'mostQuestionsAdded/',
@@ -279,7 +280,7 @@
                                     <h6 class="fw-semibold mb-0">${key}</h6>
                                 </td>
                                 <td class="border-bottom-0">
-                                    <h6 class="fw-semibold mb-1">${response[key]}</h6>
+                                    <h6 class="fw-semibold mb-1" >${response[key]}</h6>
                                 </td>
                             </tr>`
                 selectElement.find('tbody').append(row);
@@ -289,6 +290,21 @@
             console.error(xhr.responseText);
         }
         });
+    }
+    
+    // Function to strip HTML tags
+    function stripHTML(html) {
+        var tmp = document.createElement("DIV");
+        tmp.innerHTML = html;
+        return tmp.textContent || tmp.innerText || "";
+    }
+
+    // Function to truncate text to a specified length and add ellipsis
+    function truncate(text, length) {
+        if (text.length > length) {
+            return text.substring(0, length) + "...";
+        }
+        return text;
     }
     function getBestTest(){
         $.ajax({
@@ -308,7 +324,7 @@
                                     <h6 class="fw-semibold mb-1">${test.user_id}</h6>
                                 </td>
                                 <td class="border-bottom-0">
-                                    <p class="mb-0 fw-normal">${test.name}</p>
+                                    <p class="fw-semibold mb-1" title="${stripHTML(test.name)}">${truncate(stripHTML(test.name), 25)}</p>
                                 </td>
                                 <td class="border-bottom-0">
                                     <div class="row">

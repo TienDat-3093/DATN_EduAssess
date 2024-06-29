@@ -16,7 +16,7 @@ class ImportAdmins implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         return new Users([
-            'username' => $row['username'],
+            'displayname' => $row['displayname'],
             'email' => $row['email'],
             'password' => $row['password'],
             'date_of_birth' => $row['date_of_birth'],

@@ -36,10 +36,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/logout', [UsersController::class, 'logout'])->name('logout');
     Route::get('/', [UsersController::class, 'dashboard'])->name('dashboard.index');
+    Route::get('/userDetail', [UsersController::class, 'userDetail'])->name('userDetail');
     Route::post('/editProfile/{id}', [UsersController::class, 'editProfile'])->name('editProfile');
 
     Route::prefix('/question')->name('question.')->group(function(){
         Route::get('/',[QuestionsAdminController::class,'index'])->name('index');
+        Route::post('findDupeQuestions/{id?}',[QuestionsAdminController::class,'findDupeQuestions'])->name('findDupeQuestions');
         Route::get('exportAnswers',[QuestionsAdminController::class,'exportAnswers'])->name('exportAnswers');
         Route::get('exportQuestions',[QuestionsAdminController::class,'exportQuestions'])->name('exportQuestions');
         Route::post('importQuestions',[QuestionsAdminController::class,'importQuestions'])->name('importQuestions');

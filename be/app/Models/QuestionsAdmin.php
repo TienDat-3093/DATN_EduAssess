@@ -25,7 +25,7 @@ class QuestionsAdmin extends Model
     public static function isTopicUsedInQuestionAdmins($topicId)
     {
         $question = self::where('topic_id', $topicId)->withTrashed()->get();
-        if ($question) {
+        if ($question->isNotEmpty()) {
             return true;
         }
         return false;
