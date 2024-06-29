@@ -125,8 +125,8 @@
                                     $textWithoutTags = strip_tags($question->question_text);
                                 @endphp
                                 <h6 class="fw-semibold mb-1">
-                                @if (strlen($textWithoutTags) > 30)
-                                    <span title="{{$textWithoutTags}}">{!! substr($textWithoutTags, 0, 30) !!}...</span>
+                                @if (strlen($textWithoutTags) > 25)
+                                    <span title="{{$textWithoutTags}}">{!! substr($textWithoutTags, 0, 25) !!}...</span>
                                 @else
                                     {!! $question->question_text !!}
                                 @endif
@@ -365,13 +365,43 @@
                         if (answersData.hasOwnProperty(key)) {
                             const answer = answersData[key];
 
-                            const answerRow = `
-                            <tr>
-                                <td><img src="img/answers/${answer.img}" alt="Answer Image" class="preview-img"></td>
-                                <td class="text-wrap text-break"><p class="mb-0 fw-normal">${answer.text}</p></td>
-                                <td><span class="badge ${answer.is_correct ? 'bg-primary' : 'bg-secondary'}">${answer.is_correct ? 'Correct' : 'Incorrect'}</span></td>
-                            </tr>
-                        `;
+                            // Create a new row
+                            const answerRow = document.createElement('tr');
+
+                            // Img cell
+                            let imgCell = document.createElement('td');
+                            if (answer.img) {
+                                const img = document.createElement('img');
+                                img.src = `img/answers/${answer.img}`;
+                                img.alt = 'Answer Image';
+                                img.classList.add('preview-img');
+                                imgCell.appendChild(img);
+                            }else{
+                                const textParagraph = document.createElement('p');
+                                textParagraph.textContent = "No Image";
+                                imgCell.appendChild(textParagraph);
+                            }
+                            answerRow.appendChild(imgCell);
+
+                            // Text cell
+                            const textCell = document.createElement('td');
+                            textCell.className = 'text-wrap text-break';
+                            const textParagraph = document.createElement('p');
+                            textParagraph.className = 'mb-0 fw-normal';
+                            textParagraph.textContent = answer.text;
+                            textCell.appendChild(textParagraph);
+                            answerRow.appendChild(textCell);
+
+                            // Badge cell
+                            const badgeCell = document.createElement('td');
+                            const badge = document.createElement('span');
+                            badge.className = `badge ${answer.is_correct ? 'bg-primary' : 'bg-secondary'}`;
+                            badge.textContent = answer.is_correct ? 'Correct' : 'Incorrect';
+                            badgeCell.appendChild(badge);
+                            answerRow.appendChild(badgeCell);
+
+                            // Append row to the table body
+                            console.log(answerRow);
                             answersTableBody.append(answerRow);
                         }
                     }
