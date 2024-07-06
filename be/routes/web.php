@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/',[TopicsController::class,'index'])->name('index');
         Route::get('exportTopics',[TopicsController::class,'exportTopics'])->name('exportTopics');
         Route::post('importTopics',[TopicsController::class,'importTopics'])->name('importTopics');
-        Route::post('/search', [TopicsController::class, 'search'])->name('search');
+        Route::get('/search', [TopicsController::class, 'search'])->name('search');
         Route::post('/create',[TopicsController::class,'createHandle'])->name('create');
         Route::post('/edit/{id}',[TopicsController::class,'editHandle'])->name('edit');
         Route::get('/delete/{id}',[TopicsController::class,'deleteHandle'])->name('delete');
@@ -64,7 +64,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/',[TagsController::class,'index'])->name('index');
         Route::get('exportTags',[TagsController::class,'exportTags'])->name('exportTags');
         Route::post('importTags',[TagsController::class,'importTags'])->name('importTags');
-        Route::post('/search', [TagsController::class, 'search'])->name('search');
+        Route::get('/search', [TagsController::class, 'search'])->name('search');
         Route::post('/create',[TagsController::class,'createHandle'])->name('create');
         Route::post('/edit/{id}',[TagsController::class,'editHandle'])->name('edit');
         Route::get('/delete/{id}',[TagsController::class,'deleteHandle'])->name('delete');
@@ -75,7 +75,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/create',[TestsController::class,'create'])->name('create');
         Route::get('exportTests',[TestsController::class,'exportTests'])->name('exportTests');
         Route::post('importTests',[TestsController::class,'importTests'])->name('importTests');
-        Route::post('/search', [TestsController::class, 'search'])->name('search');
+        Route::get('/search', [TestsController::class, 'search'])->name('search');
         Route::post('/getQuestion',[TestsController::class,'getQuestion'])->name('getQuestion');
         Route::post('/create',[TestsController::class,'createHandle'])->name('createHandle');
         Route::get('/getTags/{id}',[TestsController::class,'getTags'])->name('getTags');
@@ -87,7 +87,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [AdminsController::class, 'index'])->name('index');
         Route::get('exportAdmins',[AdminsController::class,'exportAdmins'])->name('exportAdmins');
         Route::post('importAdmins',[AdminsController::class,'importAdmins'])->name('importAdmins');
-        Route::post('/search', [AdminsController::class, 'search'])->name('search');
+        // Route::get('/search', [AdminsController::class, 'search'])->name('search');
         Route::post('/create', [AdminsController::class, 'createHandle'])->name('createHandle');
         Route::get('/getUser/{id}', [AdminsController::class, 'getUser'])->name('getUser');
         Route::post('/edit/{id}', [AdminsController::class, 'editHandle'])->name('editHandle');
@@ -97,7 +97,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [UsersController::class, 'index'])->name('index');
         Route::get('exportUsers',[UsersController::class,'exportUsers'])->name('exportUsers');
         Route::post('importUsers',[UsersController::class,'importUsers'])->name('importUsers');
-        Route::post('/search', [UsersController::class, 'search'])->name('search');
+        Route::get('/search', [UsersController::class, 'search'])->name('search');
         Route::post('/create', [UsersController::class, 'createHandle'])->name('createHandle');
         Route::get('/getUser/{id}', [UsersController::class, 'getUser'])->name('getUser');
         Route::post('/edit/{id}', [UsersController::class, 'editHandle'])->name('editHandle');

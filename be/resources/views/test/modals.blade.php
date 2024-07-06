@@ -50,26 +50,56 @@
      </div>
 </div>
 
-<!-- Import Export -->
-<div class="modal fade" id="importexportTest" tabindex="-1" style="display: none;" aria-hidden="true">
+<!-- Import -->
+<div class="modal fade" id="importTest" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">    
             <div class="modal-header">
-                <h5 class="modal-title" id="importexportModalTest">Import/Export Test</h5>
+                <h5 class="modal-title" id="importexportModalTest">Import Test</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="card-body p-4">
-                <a href="{{route('test.exportTests')}}"><button class="btn btn-primary mb-4">
-                    Export Tests
-                </button></a>
-                <h5 class="card-title fw-semibold mb-4">Import Tests</h5>
                 <form action="{{ route('test.importTests') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    <li><span class="ck-list-bogus-paragraph">File must have the extension “.<strong>xlsx</strong>”.</span></li>
+                    <li><span>Columns in the file must have:<br>
+                    - question_data<br>
+                    - name<br>
+                    - test_img<br>
+                    - password<br>
+                    - topic_data<br>
+                    - tag_data<br>
+                    - done_count<br>
+                    - privacy<br>
+                    - deleted_at</br>
+                    - created_at</br>
+                    - updated_at</br>
+                    - user_id</br>
+                    <span>
+                    </li>
                         <p class="form-label">Your file</p>
                         <input type="file" name="importTests_file" class="form-control" accept=".xlsx">
                     <br>
                     <button type="submit" class="btn btn-primary">Import Tests</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Export -->
+<div class="modal fade" id="exportTest" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="importexportModalTest">Export Test</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body p-4">
+                <p>For security reasons, please <b>do not</b> alter and/or edit the exported file.</p>
+                <p>Exports an .<b>xlsx</b> file</p>
+                <a href="{{route('test.exportTests')}}"><button class="btn btn-primary mb-4">
+                    Export Tests
+                </button></a>
             </div>
         </div>
     </div>

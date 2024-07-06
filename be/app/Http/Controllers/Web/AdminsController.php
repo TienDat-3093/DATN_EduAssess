@@ -42,26 +42,43 @@ class AdminsController extends Controller
         return Excel::download(new ExportAdmins, 'admins.xlsx');
     }
     //Manage User
-    public function index()
+    public function index(Request $request)
     {
         if(Auth::user()->admin_role < 2)
             return redirect()->route('dashboard.index')->with(['success' => false, 'alert' => 'No permission!']);
-        $listUsers = Users::where('admin_role','!=', 0)->get();
+        $searchInput = $request->input('searchInput');
+        $active = $request->input('active');
+        $admin_role = $request->input('admin_role');
+        $show = $request->input('show', 10);
+        if ($searchInput != null || $active != null || $admin_role != null) {
+            return $this->search($request);
+        }
+        $listUsers = Users::where('admin_role','!=', 0)->where('id',"!=",Auth::user()->id)->paginate($show);
         return view('admin/index', compact('listUsers'));
     }
 
-    public function search(Request $request)
-    {
+    public function search(Request $request){
         if(Auth::user()->admin_role < 2)
             return redirect()->route('dashboard.index')->with(['success' => false, 'alert' => 'No permission!']);
-        $keyword = $request->input('data');
-        $listUsers = Users::where(function ($query) use ($keyword) {
-            $query->where('displayname', 'like', "%$keyword%")
-                  ->orWhere('email', 'like', "%$keyword%");
+        $searchInput = $request->input('searchInput');
+        $active = $request->input('active');
+        $admin_role = $request->input('admin_role');
+        $show = $request->input('show', 10);
+        $listUsers = Users::where(function ($query) use ($searchInput) {
+            $query->where('displayname', 'like', "%$searchInput%")
+                  ->orWhere('email', 'like', "%$searchInput%");
         })
-        ->where('admin_role', '!=', 0)
-        ->get();
-        return view('admin/results', compact('listUsers'));
+        ->when($admin_role != null, function ($query) use ($admin_role) {
+            $query->where('admin_role', $admin_role);
+        }, function ($query) {
+            $query->where('admin_role', '!=', 0);
+        })
+        ->where('id',"!=",Auth::user()->id)
+        ->when($active != null, function ($query) use ($active) {
+            $query->where('status', $active);
+        })
+        ->paginate($show);
+        return view('admin/index', compact('listUsers'));
     }
     public function createHandle(UsersRequest $request)
     {
@@ -80,7 +97,7 @@ class AdminsController extends Controller
             $user->image = $path;
         }
         $user->save();
-        return redirect()->route('admin.index')->with(['success' => true, 'alert' => 'Successfully created!']);
+        return back()->with(['success' => true, 'alert' => 'Successfully created!']);
     }
     public function getUser($id){
         if(Auth::user()->admin_role < 2)
@@ -93,51 +110,58 @@ class AdminsController extends Controller
         if(Auth::user()->admin_role < 2)
             return redirect()->route('dashboard.index')->with(['success' => false, 'alert' => 'No permission!']);
         if(Auth::user()->id == $id)
-            return redirect()->route('admin.index')->with(['success' => false, 'alert' => 'Can not edit self with management board!']);
+            return back()->with(['success' => false, 'alert' => 'Can not edit self with management board!']);
         $user = Users::where('admin_role', '!=', 0)->find($id);
         if(Auth::user()->admin_role <= $user->admin_role){
-            return redirect()->route('admin.index')->with(['success' => false, 'alert' =>'Can not edit other same or higher rank admins!']);
+            return back()->with(['success' => false, 'alert' =>'Can not edit other same or higher rank admins!']);
         }
         $user = Users::where('admin_role', '!=', 0)->find($id);
-        $user->displayname = $request->displayname;
-        $user->date_of_birth = $request->date_of_birth;
-        if ($request->hasFile("image")) {
-            if($user->image){
-            $img = $user->image;
-                if (Storage::exists($img)) {
-                    Storage::delete($img);
+        if (is_null($request->displayname) || is_null($request->date_of_birth)) {
+            return back()->with([
+                'success' => false,
+                'alert' => 'Not enough data!',
+            ]);
+        }else{
+            $user->displayname = $request->displayname;
+            $user->date_of_birth = $request->date_of_birth;
+            if ($request->hasFile("image")) {
+                if($user->image){
+                $img = $user->image;
+                    if (Storage::exists($img)) {
+                        Storage::delete($img);
+                    }
                 }
+                $file = $request->file("image");
+                $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('img/users', $fileName);
+                $user->image = $path;
             }
-            $file = $request->file("image");
-            $fileName = now()->format('YmdHis')  . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('img/users', $fileName);
-            $user->image = $path;
+            $user->save();
         }
-        $user->save();
-        return redirect()->route('admin.index')->with(['success' => true, 'alert' => 'Successfully edited!']);
+        return back()->with(['success' => true, 'alert' => 'Successfully edited!']);
     }
     public function delete($id)
     {
         if(Auth::user()->admin_role < 2)
             return redirect()->route('dashboard.index')->with(['success' => false, 'alert' => 'No permission!']);
         if(Auth::user()->id == $id)
-            return redirect()->route('admin.index')->with(['success' => false, 'alert' => 'Can not lock self!']);
+            return back()->with(['success' => false, 'alert' => 'Can not lock self!']);
         $user = Users::where('admin_role', '!=', 0)->find($id);
         if(Auth::user()->admin_role <= $user->admin_role){
-            return redirect()->route('admin.index')->with(['success' => false, 'alert' => 'Can not unlock/lock other same or higher rank admins!']);
+            return back()->with(['success' => false, 'alert' => 'Can not unlock/lock other same or higher rank admins!']);
         }
         if (!$user) {
-            return redirect()->route('admin.index')->with(['success' => false, 'alert' => 'User not found']);
+            return back()->with(['success' => false, 'alert' => 'User not found']);
         }
         if($user->status == 0){
             $user->status = 1;
             $user->save();
-            return redirect()->route('admin.index')->with(['success' => true, 'alert' => 'Successfully unlocked']);
+            return back()->with(['success' => true, 'alert' => 'Successfully unlocked']);
         }
         else{
             $user->status = 0;
             $user->save();
-            return redirect()->route('admin.index')->with(['success' => true, 'alert' => 'Successfully locked']);
+            return back()->with(['success' => true, 'alert' => 'Successfully locked']);
         }
     }
 }

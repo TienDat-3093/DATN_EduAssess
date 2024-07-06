@@ -47,23 +47,39 @@ class TestsController extends Controller
     {
         return Excel::download(new ExportTests, 'tests.xlsx');
     }
-    public function index(){
-        $listTests = Tests::withTrashed()->get();
+    public function index(Request $request){
+        $searchInput = $request->input('searchInput');
+        $active = $request->input('active');
+        $show = $request->input('show', 10);
+        if ($searchInput != null || $active != null) {
+            return $this->search($request);
+        }
+        $listTests = Tests::withTrashed()->paginate($show);
         $listTags = Tags::all();
         return view('/test/index',compact('listTests','listTags'));
     }
     public function search(Request $request)
     {
-        $keyword = $request->input('data');
+        $searchInput = $request->input('searchInput');
+        $active = $request->input('active');
+        $show = $request->input('show', 10);
+        $listTags = Tags::all();
         $listTests = Tests::withTrashed()
-        ->where('name', 'like', "%$keyword%")
-        ->orWhere(function ($query) use ($keyword) {
-            $query->whereHas('user', function ($userQuery) use ($keyword) {
-                $userQuery->where('displayname', 'like', "%$keyword%");
-            });
+        ->where(function ($query) use ($searchInput) {
+            $query->where('name', 'like', "%$searchInput%")
+                ->orWhereHas('user', function ($userQuery) use ($searchInput) {
+                    $userQuery->where('displayname', 'like', "%$searchInput%");
+                });
         })
-        ->get();
-        return view('test/results', compact('listTests'));
+        ->when($active !== null, function ($query) use ($active) {
+            if ($active) {
+                $query->whereNull('deleted_at');
+            } else {
+                $query->whereNotNull('deleted_at');
+            }
+        })
+        ->paginate($show);
+        return view('/test/index', compact('listTests','listTags'));
     }
     public function edit(Request $request,$id){
         if(!$request->tag_data)
@@ -93,7 +109,7 @@ class TestsController extends Controller
     public function detail($id){
         $test = Tests::withTrashed()->find($id);
         $question_ids = json_decode($test->question_data);
-        $listQuestions = QuestionsAdmin::whereIn('id', $question_ids)->get();
+        $listQuestions = QuestionsAdmin::whereIn('id', $question_ids)->orderby('topic_id')->orderby('level_id')->get();
         return view('/test/details',compact('listQuestions'));
     }
     public function create(){
@@ -105,28 +121,39 @@ class TestsController extends Controller
     }
     public function getQuestion(Request $request)
     {
-        $topic_id = $request->has('topic_id') ? $request->input('topic_id') : null;
-        $level_id = $request->has('level_id') ? $request->input('level_id') : null;
-        $amount_question = $request->input('amount_question');
+        $topic_ids = $request->input('topic_id', []);
+        $level_ids = $request->input('level_id', []);
+        $amount_questions = $request->input('amount_question', []);
         $selected_questions = $request->input('selected_questions', []);
+        foreach ($amount_questions as $amount) {
+            if ($amount == 0) {
+                return back()->with(['success' => false, 'alert' => 'Amount of questions cannot be zero.']);
+            }
+        }
+        $listQuestions = collect();
         $message = '';
-        if($topic_id != null && $level_id != null){
-            $listQuestions = QuestionsAdmin::when($topic_id != 0, function ($query) use ($topic_id) {
-                return $query->where('topic_id', $topic_id)->orderBy('level_id');
-            })
-            ->when($level_id != 0, function ($query) use ($level_id) {
-                return $query->where('level_id', $level_id)->orderBy('topic_id');
-            })
-            ->when($topic_id == 0 && $level_id == 0, function ($query) {
-                return $query;
-            })
-            ->when(!empty($selected_questions), function ($query) use ($selected_questions){
-                return $query->whereNotIn('id', $selected_questions);
-            })
-            ->inRandomOrder()
-            ->take($amount_question)
-            ->get();
-            if ($listQuestions->count() < $amount_question) {
+        if(!empty($topic_ids) && !empty($level_ids)){
+            foreach ($topic_ids as $index => $topic_id) {
+                $level_id = $level_ids[$index];
+                $amount_question = $amount_questions[$index];
+                $newQuestions = QuestionsAdmin::when($topic_id != 0, function ($query) use ($topic_id) {
+                    return $query->where('topic_id', $topic_id)->orderBy('level_id');
+                })
+                ->when($level_id != 0, function ($query) use ($level_id) {
+                    return $query->where('level_id', $level_id)->orderBy('topic_id');
+                })
+                ->when($topic_id == 0 && $level_id == 0, function ($query) {
+                    return $query;
+                })
+                ->when(!empty($selected_questions), function ($query) use ($selected_questions) {
+                    return $query->whereNotIn('id', $selected_questions);
+                })
+                ->inRandomOrder()
+                ->take($amount_question)
+                ->get();
+                $listQuestions = $listQuestions->concat($newQuestions);
+            }
+            if ($listQuestions->count() < array_sum($amount_questions)) {
                 if($listQuestions->count() == 0)
                     $message = 'No more questions available to be added. ';
                 else
@@ -142,7 +169,9 @@ class TestsController extends Controller
             // dd($selected_questions);
             $listQuestions = QuestionsAdmin::whereIn('id', $selected_questions)->get();
         }
-        $listQuestions = $listQuestions->sortBy('id');
+        $listQuestions = $listQuestions->unique('id')->sortBy(function ($item) {
+            return [ $item->topic_id, $item->level_id];
+        });
         $message = $message . ' Currently has ' . $listQuestions->count() . ' questions.';
         return view('/test/create_results', compact('listQuestions'))->with('message', $message);
     }

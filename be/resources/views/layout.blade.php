@@ -64,7 +64,7 @@
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="/admin" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-article"></i>
+                                    <i class="ti ti-user-exclamation"></i>
                                 </span>
                                 <span class="hide-menu">Admin</span>
                             </a>
@@ -73,7 +73,7 @@
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="/user" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-article"></i>
+                                    <i class="ti ti-users"></i>
                                 </span>
                                 <span class="hide-menu">Users</span>
                             </a>
@@ -81,7 +81,7 @@
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="/question" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-article"></i>
+                                    <i class="ti ti-notes"></i>
                                 </span>
                                 <span class="hide-menu">Question</span>
                             </a>
@@ -89,7 +89,7 @@
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="/topic" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-article"></i>
+                                    <i class="ti ti-tags"></i>
                                 </span>
                                 <span class="hide-menu">Topic</span>
                             </a>
@@ -97,7 +97,7 @@
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="/tag" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-article"></i>
+                                    <i class="ti ti-bookmarks"></i>
                                 </span>
                                 <span class="hide-menu">Tags</span>
                             </a>
@@ -126,12 +126,6 @@
                         <li class="nav-item d-block d-xl-none">
                             <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse" href="javascript:void(0)">
                                 <i class="ti ti-menu-2"></i>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link nav-icon-hover" href="javascript:void(0)">
-                                <i class="ti ti-bell-ringing"></i>
-                                <div class="notification bg-primary rounded-circle"></div>
                             </a>
                         </li>
                     </ul>

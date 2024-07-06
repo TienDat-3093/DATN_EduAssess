@@ -113,21 +113,32 @@ class UsersController extends Controller
     // }
 
     //Manage User
-    public function index()
+    public function index(Request $request)
     {
-        $listUsers = Users::where('admin_role', 0)->get();
+        $searchInput = $request->input('searchInput');
+        $active = $request->input('active');
+        $show = $request->input('show', 10);
+        if ($searchInput != null || $active != null) {
+            return $this->search($request);
+        }
+        $listUsers = Users::where('admin_role', 0)->paginate($show);
         return view('user/index', compact('listUsers'));
     }
     public function search(Request $request)
     {
-        $keyword = $request->input('data');
-        $listUsers = Users::where(function ($query) use ($keyword) {
-            $query->where('displayname', 'like', "%$keyword%")
-                  ->orWhere('email', 'like', "%$keyword%");
+        $searchInput = $request->input('searchInput');
+        $active = $request->input('active');
+        $show = $request->input('show', 10);
+        $listUsers = Users::where(function ($query) use ($searchInput) {
+            $query->where('displayname', 'like', "%$searchInput%")
+                  ->orWhere('email', 'like', "%$searchInput%");
         })
-        ->where('admin_role', '==', 0)
-        ->get();
-        return view('user/results', compact('listUsers'));
+        ->where('admin_role', 0)
+        ->when($active != null, function ($query) use ($active) {
+            $query->where('status', $active);
+        })
+        ->paginate($show);
+        return view('user/index', compact('listUsers'));
     }
     public function createHandle(UsersRequest $request)
     {
@@ -143,7 +154,7 @@ class UsersController extends Controller
             $user->image = $path;
         }
         $user->save();
-        return redirect()->route('user.index')->with(['success' => true, 'alert' => 'Successfully created!']);
+        return back()->with(['success' => true, 'alert' => 'Successfully created!']);
     }
     public function getUser($id){
         $user = Users::where('admin_role', 0)->find($id);
@@ -167,23 +178,23 @@ class UsersController extends Controller
             $user->image = $path;
         }
         $user->save();
-        return redirect()->route('user.index')->with(['success' => true, 'alert' => 'Successfully edited!']);
+        return back()->with(['success' => true, 'alert' => 'Successfully edited!']);
     }
     public function delete($id)
     {
         $user = Users::where('admin_role', 0)->find($id);
         if (!$user) {
-            return redirect()->route('user.index')->with(['success' => false, 'alert' => 'User not found']);
+            return back()->with(['success' => false, 'alert' => 'User not found']);
         }
         if($user->status == 0){
             $user->status = 1;
             $user->save();
-            return redirect()->route('user.index')->with(['success' => true, 'alert' => 'Successfully unlocked']);
+            return back()->with(['success' => true, 'alert' => 'Successfully unlocked']);
         }
         else{
             $user->status = 0;
             $user->save();
-            return redirect()->route('user.index')->with(['success' => true, 'alert' => 'Successfully locked']);
+            return back()->with(['success' => true, 'alert' => 'Successfully locked']);
         }
     }
 }
