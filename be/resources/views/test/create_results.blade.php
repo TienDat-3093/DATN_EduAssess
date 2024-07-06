@@ -25,7 +25,9 @@
             </h6>
         </td>
         <td class="border-bottom-0">
-            <img src="{{asset($question->question_img)}}" class="question-img" style="width: 50px; height: 50px;" alt="">
+            @if($question->question_img)
+                <img src="{{ asset($question->question_img) }}" class="question-img" style="width: 50px; height: 50px;" alt="">
+            @endif
         </td>
         <td class="border-bottom-0">
             <div class="d-flex align-items-center gap-2">

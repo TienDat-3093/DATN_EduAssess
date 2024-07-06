@@ -110,20 +110,26 @@
          </div>
      </div>
      </div>
-<!-- Import Export -->
-<div class="modal fade" id="importexportUser" tabindex="-1" style="display: none;" aria-hidden="true">
+<!-- Import -->
+<div class="modal fade" id="importUser" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">    
             <div class="modal-header">
-                <h5 class="modal-title" id="importexportModalUser">Import/Export Admins</h5>
+                <h5 class="modal-title" id="importUser">Import Admins</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+            <ol><li><span class="ck-list-bogus-paragraph">File must have the extension “.<strong>xlsx</strong>”.</span></li>
+            <li><span>Columns in the file must have:<br>
+            - displayname<br>
+            - email<br>
+            - password<br>
+            - date_of_birth<br>
+            - image<br>- status<br>
+            - admin_role<br>
+            - created_at<br>
+            - updated_at</span>
+            </li></ol>
             <div class="card-body p-4">
-                <h5 class="card-title fw-semibold mb-4">Export Admins</h5>
-                <a href="{{route('admin.exportAdmins')}}"><button class="btn btn-primary mb-4">
-                    Export Admins
-                </button></a>
-                <h5 class="card-title fw-semibold mb-4">Import Admins</h5>
                 <form action="{{ route('admin.importAdmins') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                         <p class="form-label">Your file</p>
@@ -131,6 +137,24 @@
                     <br>
                     <button type="submit" class="btn btn-primary">Import Admins</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Export -->
+<div class="modal fade" id="exportUser" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">    
+            <div class="modal-header">
+                <h5 class="modal-title" id="exportUser">Export Admins</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body p-4">
+                <p>For security reasons, please <b>do not</b> alter and/or edit the exported file.</p>
+                <p>Exports an .<b>xlsx</b> file</p>
+                <a href="{{route('admin.exportAdmins')}}"><button class="btn btn-primary mb-4">
+                    Export Admins
+                </button></a>
             </div>
         </div>
     </div>

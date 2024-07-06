@@ -19,48 +19,95 @@
             <i class="ti ti-playlist-add"></i>
             Create
         </button>
-        <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#importexportQuestion">
-            <i class="ti ti-playlist-add"></i>
-            Import/Export
-        </button>
+    <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#importQuestion">
+        <i class="ti ti-file-import"></i>
+        Import
+    </button>
+    <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#exportQuestion">
+        <i class="ti ti-file-export"></i>
+        Export
+    </button>
 </div>
 <div class="col-lg-13 d-flex align-items-stretch">
     <div class="card w-100">
         <div class="card-body p-4">
             <h5 class="card-title fw-semibold mb-4">Select Questions</h5>
-            <div>
-            </div>
                 <form action="/question" method="GET">
                     <div class="d-flex mb-4">
                         <div class="flex-fill me-2">
                             <label for="searchQuestionText" class="form-label">Question Text</label>
-                            <input type="text" id="searchQuestionText" name="question_text" class="form-control" placeholder="Enter Question" value="{{ request('question_text', old('question_text')) }}">
-                        </div>
-                        <div class="flex-fill me-2">
-                            <label for="searchUser" class="form-label">User</label>
-                            <input type="text" id="searchUser" name="user_displayname" class="form-control" placeholder="Enter User" value="{{ request('user_displayname', old('user_displayname')) }}">
+                            <textarea type="text" id="searchQuestionText" name="question_text" class="form-control" placeholder="Enter Question">{{ request('question_text', old('question_text')) }}</textarea>
                         </div>
                     </div>
-                    <div class="d-flex mb-4">
-                        <div class="flex-fill me-2">
-                        <label class="form-label">Level</label>
-                        <select id="level" name="levels_id" class="form-select" aria-label="Default select example">
-                            <option value="0" {{ (request()->has('levels_id') && request('levels_id') == 0) ? 'selected' : '' }}>All</option>
-                            @foreach ($listLevels as $level)
-                                <option value="{{ $level->id }}" {{ (request()->has('levels_id') && request('levels_id') == $level->id) ? 'selected' : '' }}>{{ $level->name }}</option>
-                            @endforeach
-                        </select>
-                        </div>
-                        <div class="flex-fill me-2">
-                        <label class="form-label">Topic</label>
-                        <select id="topic" name="topics_id" class="form-select" aria-label="Default select example">
-                            <option value="0" {{ (request()->has('topics_id') && request('topics_id') == 0) ? 'selected' : '' }}>All</option>
-                            @foreach ($listTopics as $topic)
-                                <option value="{{ $topic->id }}" {{ (request()->has('topics_id') && request('topics_id') == $topic->id) ? 'selected' : '' }}>{{ $topic->name }}</option>
-                            @endforeach
-                        </select>
+                <div class="d-flex mb-4">
+                    <div class="flex-fill me-2">
+                    <label class="form-label">Topic</label>
+                        @foreach ($listLevels as $level)
+                            <div style="display:inline-block; margin:5px;">
+                            <input 
+                            @if (in_array($level->id, $level_data)) checked 
+                            @endif
+                            class="btn-check" id="level-{{ $level->id }}" autocomplete="off" type="checkbox" name="level_data[]" value="{{ $level->id }}" id="level-{{ $level->id }}">
+                            <label 
+                            class="
+                            @if ($level->name == 'Difficult') btn btn-danger 
+                            @elseif ($level->name == 'Medium') btn btn-secondary 
+                            @elseif ($level->name == 'Easy') btn btn-primary 
+                            @endif
+                            " 
+                            style="border-radius:25px;" for="level-{{ $level->id }}" class="level-label">{{ $level->name }}</label>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="flex-fill me-2">
+                    <label class="form-label">Topic</label>
+                        @foreach ($listTopics as $topic)
+                            <div style="display:inline-block; margin:5px;">
+                            <input @if (in_array($topic->id, $topic_data)) checked @endif class="btn-check" id="topic-{{ $topic->id }}" autocomplete="off" type="checkbox" name="topic_data[]" value="{{ $topic->id }}" id="topic-{{ $topic->id }}">
+                            <label style="border-radius:25px;" class="btn btn-secondary" for="topic-{{ $topic->id }}" class="topic-label">{{ $topic->name }}</label>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="d-flex mb-4 justify-content-between align-items-center">
+                    <div class="mx-2">
+                        <label>Status:</label>
+                        <div class="d-flex align-middle">
+                            <div class="form-check m-2">
+                                <input class="form-check-input" type="radio" name="active" id="active_all" value=""{{ request('active') == '' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="active_all"><h6>All</h6></label>
+                            </div>
+                            <div class="form-check m-2">
+                                <input class="form-check-input" type="radio" name="active" id="active" value="1" {{ request('active') == '1' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="active"><h6>Active</h6></label>
+                            </div>
+                            <div class="form-check m-2">
+                                <input class="form-check-input" type="radio" name="active" id="inactive" value="0" {{ request('active') == '0' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="inactive"><h6>Inactive</h6></label>
+                            </div>
                         </div>
                     </div>
+                    <div class="flex-grow-1 mx-2">
+                        <label>User</label>
+                        <select id="user" name="user_id" class="form-select" aria-label="Default select example">
+                            <option value="0" {{ (request()->has('user_id') && request('user_id') == '') ? 'selected' : '' }}>All</option>
+                            @foreach ($listUsers as $user)
+                                <option value="{{ $user->id }}" {{ (request()->has('user_id') && request('user_id') == $user->id) ? 'selected' : '' }}>{{ $user->displayname }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex-grow-1 mx-2">
+                        <label>Show amount:</label>
+                        <select name="show" class="form-select">
+                            <option value="10" {{ request('show') == '10' ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ request('show') == '20' ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ request('show') == '50' ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('show') == '100' ? 'selected' : '' }}>100</option>
+                        </select>
+                    </div>
+                </div>
                     <button type="submit" class="btn btn-outline-secondary">
                         Search
                     </button>
@@ -73,12 +120,9 @@
         <div class="card-body p-4">
             <h5 class="card-title fw-semibold mb-4">List Questions</h5>
             <div class="table-responsive">
-                <table class="table text-nowrap mb-0 align-middle text-center">
+                <table class="table text-nowrap mb-0 align-middle text-center table-hover">
                     <thead class="text-dark fs-4">
                         <tr>
-                            <th class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">Order</h6>
-                            </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">User</h6>
                             </th>
@@ -106,25 +150,31 @@
                         </tr>
                     </thead>
                     <tbody class="table-bordered">
-                    @php
-                        $order = 1;
-                    @endphp
                     @foreach($listQuestions as $question)
                         <tr>
-                            <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">{{$order}}</h6>
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
+                                <h6 class="fw-semibold mb-0" class="fw-semibold mb-1">{{$question->user->displayname}}</h6>
                             </td>
-                            @php
-                                $order++;
-                            @endphp
-                            <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-1">{{$question->user->displayname}}</h6>
-                            </td>
-                            <td class="border-bottom-0">
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
                                 @php
                                     $textWithoutTags = strip_tags($question->question_text);
                                 @endphp
-                                <h6 class="fw-semibold mb-1">
+                                <h6 class="fw-semibold mb-1"
+                                >
                                 @if (strlen($textWithoutTags) > 25)
                                     <span title="{{$textWithoutTags}}">{!! substr($textWithoutTags, 0, 25) !!}...</span>
                                 @else
@@ -132,10 +182,24 @@
                                 @endif
                                 </h6>
                             </td>
-                            <td class="border-bottom-0">
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
                                 <img src="{{asset($question->question_img)}}" class="question-img" alt="">
                             </td>
-                            <td class="border-bottom-0">
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
                                 @if($question->level->name == 'Difficult')
                                 <span class="badge bg-danger rounded-3 fw-semibold">{{$question->level->name}}</span>
                                 @elseif($question->level->name == 'Medium')
@@ -144,12 +208,26 @@
                                 <span class="badge bg-success rounded-3 fw-semibold">{{$question->level->name}}</span>
                                 @endif
                             </td>
-                            <td class="border-bottom-0">
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="badge text-info rounded-3 fw-semibold">{{$question->topic->name}}</span>
                                 </div>
                             </td>
-                            <td class="border-bottom-0">
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
                                 @if($question->question_type->name == 'one answer')
                                 <span class="badge bg-dark rounded-3 fw-semibold">{{$question->question_type->name}}</span>
                                 @elseif($question->question_type->name == 'many answers')
@@ -158,19 +236,24 @@
                                 <span class="badge bg-info rounded-3 fw-semibold">{{$question->question_type->name}}</span>
                                 @endif
                             </td>
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
                             @if($question->deleted_at)
-                            <td class="border-bottom-0">
                                 <font class="badge bg-danger rounded-3 fw-semibol">
                                     Inactive
                                 </font>
-                            </td>
                             @else
-                            <td class="border-bottom-0">
                                 <font class="badge bg-success rounded-3 fw-semibol">
                                     Active
                                 </font>
-                            </td>
                             @endif
+                            </td>
                             <td>
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-icon rounded-pill hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
@@ -182,7 +265,7 @@
                                         <li>
                                             <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST" class="restore-form">
                                                 @csrf
-                                                <button type="button" class="dropdown-item restore-link">Restore</button>
+                                                <button type="button" class="dropdown-item restore-link">Set to Active</button>
                                             </form>
                                         </li>
                                         @else
@@ -192,12 +275,10 @@
                                             <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST" class="delete-form">
                                                 @csrf
                                                 @method('POST')
-                                                <button type="button" class="dropdown-item delete-link">Delete</button>
+                                                <button type="button" class="dropdown-item delete-link">Set to Inactive</button>
                                             </form>
                                         </li>
                                         @endif
-
-
                                     </ul>
                                 </div>
                             </td>
@@ -205,7 +286,7 @@
                         @endforeach
                     </tbody>
                 </table>
-
+                {{ $listQuestions->appends(request()->query())->links() }}
             </div>
 
         </div>
@@ -227,17 +308,14 @@
             .catch(error => {
                 console.error(error);
             });
-        // ClassicEditor
-        //     .create(document.querySelector( '#edit_editor' ) )
-        //     .then(  newEditor => {
-        //         edit_editor = newEditor;
-        //         newEditor.model.document.on('change:data', () => {
-        //         handleInput(newEditor.getData(), 'edit');
-        //     });
-        //     } )
-        //     .catch(error => {
-        //         console.error(error);
-        //     });
+        ClassicEditor
+            .create(document.querySelector( '#searchQuestionText' ) )
+            .then(  newEditor => {
+                searchQuestion = newEditor;
+            })
+            .catch(error => {
+                console.error(error);
+            });
             
     let typingTimer;
     const doneTypingInterval = 500; // 1 second
@@ -261,7 +339,10 @@
                     question_text: question_text,
                     _token: '{{ csrf_token() }}'
                 },
-            success: function(matching_questions) {
+            success: function(response) {
+                var matching_questions = response.matching_questions;
+                var matching_answers = response.matching_answers;
+                var questionCount = matching_questions.length;
                 //Remove old lines
                 var alertElement = document.getElementById(editorType+'_name_duplicate_error')
                 var children = Array.from(alertElement.children);
@@ -270,16 +351,56 @@
                             child.remove();
                         }
                     });
-                if (matching_questions.length > 0) {
-                    //Add new lines
-                    for (const question of matching_questions) {
-                        alertElement.innerHTML += question.question_text;
-                    };
-                    alertElement.classList.remove('d-none');
-                }else{
-                    var alertElement = document.getElementById(editorType+'_name_duplicate_error')
-                    alertElement.classList.add('d-none');
-                }
+                    if (matching_questions.length > 0) {
+                        // Add new lines
+                        matching_questions.forEach((question, index) => {
+                            //Add question line
+                            var questionTextDiv = document.createElement('div');
+                            questionTextDiv.innerHTML += question.question_text;
+                            if(question.question_img){
+                                var questionImg = document.createElement('img');
+                                questionImg.src = question.question_img;
+                                questionImg.style.maxWidth = '50px';
+                                questionImg.style.maxHeight = '50px';
+                                questionImg.style.width = 'auto';
+                                questionTextDiv.appendChild(questionImg);
+                            }
+                            questionTextDiv.style.marginBottom = '20px';
+                            alertElement.appendChild(questionTextDiv);
+                            //Add answer lines
+                            if (matching_answers[question.id]) {
+                                var answers = matching_answers[question.id];
+                                for (const key in answers) {
+                                    if (answers.hasOwnProperty(key)) {
+                                        var answer = answers[key];
+                                        var answerText = document.createElement('div');
+                                        if(answer.is_correct == 1){
+                                            answerText.textContent = key + ': ' + answer.text + ' (correct)';
+                                        }else{
+                                            answerText.textContent = key + ': ' + answer.text;
+                                        }
+                                        alertElement.appendChild(answerText);
+                                        if(answer.img){
+                                            var answerImg = document.createElement('img');
+                                            answerImg.src = '/img/answers/' + answer.img;
+                                            answerImg.style.maxWidth = '50px';
+                                            answerImg.style.maxHeight = '50px';
+                                            answerImg.style.width = 'auto';
+                                            alertElement.appendChild(answerImg);
+                                        }
+                                    }
+                                }
+                            }
+                            //Add hr
+                            if (index < questionCount - 1) {
+                                var lineBreak = document.createElement('hr');
+                                alertElement.appendChild(lineBreak);
+                            }
+                        })
+                        alertElement.classList.remove('d-none');
+                    } else {
+                        alertElement.classList.add('d-none');
+                    }
             }
         })
     }
@@ -531,12 +652,11 @@
                 var form = this.closest('form');
 
                 Swal.fire({
-                    title: 'Xác Nhận Xóa?',
-                    text: 'Bạn có chắc muốn xóa câu hỏi ?',
+                    title: 'Confirm deletion?',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Đồng ý',
-                    cancelButtonText: 'Hủy bỏ',
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
                 }).then(function(result) {
                     if (result.isConfirmed) {
                         form.submit();
@@ -553,12 +673,11 @@
                 var name = this.getAttribute('data-name');
 
                 Swal.fire({
-                    title: 'Xác Nhận Khôi Phục?',
-                    text: 'Bạn có chắc muốn khôi phục câu hỏi: ' + name,
+                    title: 'Confirm restoration?',
                     icon: 'info',
                     showCancelButton: true,
-                    confirmButtonText: 'Đồng ý',
-                    cancelButtonText: 'Hủy bỏ',
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
                 }).then(function(result) {
                     if (result.isConfirmed) {
                         form.submit();

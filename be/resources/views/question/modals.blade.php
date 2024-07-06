@@ -1,6 +1,6 @@
  <!-- Modal Create Question -->
  <div class="modal fade" id="createQuestion" tabindex="-1" style="display: none;" aria-hidden="true">
-     <div class="modal-dialog " role="document">
+     <div class="modal-dialog modal-lg" role="document">
          <div class="modal-content">
              <div class="modal-header">
                  <h5 class="modal-title" id="create_modalQuestion">Add Question</h5>
@@ -97,7 +97,7 @@
 
  <!-- Modal Edit Question -->
  <div class="modal fade" id="editQuestion" tabindex="-1" style="display: none;" aria-hidden="true">
-     <div class="modal-dialog " role="document">
+     <div class="modal-dialog modal-lg" role="document">
          <div class="modal-content">
              <div class="modal-header">
                  <h5 class="modal-title" id="modalQuestion">Edit Question</h5>
@@ -227,33 +227,66 @@
     </div>
 </div>
 
-<!-- Import Export -->
-<div class="modal fade" id="importexportQuestion" tabindex="-1" style="display: none;" aria-hidden="true">
+<!-- Import -->
+<div class="modal fade" id="importQuestion" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="importexportModalQuestion">Import/Export Question</h5>
+                <h5 class="modal-title" id="importexportModalQuestion">Import Question</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="card-body p-4">
-            <h5 class="card-title fw-semibold mb-4">Export Questions</h5>
+            <form action="{{ route('question.importQuestions') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <li><span class="ck-list-bogus-paragraph">Both files must have the extension “.<strong>xlsx</strong>”.</span></li>
+                <li><span>Columns in the file must have:<br>
+                - question_text<br>
+                - question_img<br>
+                - deleted_at<br>
+                - created_at<br>
+                - updated_at<br>
+                - user_id<br>
+                - question_type_id<br>
+                - level_id<br>
+                - topic_id</span>
+                </li>
+                <p class="form-label">Your questions file</p>
+                <input type="file" name="importQuestions_file" class="form-control" accept=".xlsx">
+                <br>
+                <li><span>Columns in the file must have:<br>
+                - answer_data<br>
+                - deleted_at<br>
+                - created_at<br>
+                - updated_at<br>
+                - question_admin_id<br>
+                </li>
+                    <p class="form-label">Your answers file</p>
+                    <input type="file" name="importAnswers_file" class="form-control" accept=".xlsx">
+                <br>
+                <p>Upload both files and then press this button.</p>
+                <button type="submit" class="btn btn-primary">Import Questions</button>
+            </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Export -->
+<div class="modal fade" id="exportQuestion" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="card-title fw-semibold mb-4">Export Questions</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body p-4">
+            <p>For security reasons, please <b>do not</b> alter and/or edit the exported file.</p>
+            <p>Exports an .<b>xlsx</b> file</p>
             <a href="{{route('question.exportQuestions')}}"><button class="btn btn-primary mb-4">
                 Export Questions
             </button></a>
             <a href="{{route('question.exportAnswers')}}"><button class="btn btn-primary mb-4">
                 Export Answers
             </button></a>
-            <h5 class="card-title fw-semibold mb-4">Import Questions</h5>
-            <form action="{{ route('question.importQuestions') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <p class="form-label">Your questions file</p>
-                    <input type="file" name="importQuestions_file" class="form-control" accept=".xlsx">
-                <br>
-                    <p class="form-label">Your answers file</p>
-                    <input type="file" name="importAnswers_file" class="form-control" accept=".xlsx">
-                <br>
-                <button type="submit" class="btn btn-primary">Import Questions</button>
-            </form>
             </div>
         </div>
     </div>

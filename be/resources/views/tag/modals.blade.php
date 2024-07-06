@@ -60,20 +60,22 @@
          </div>
      </div>
      </div>
-
-<!-- Import Export -->
-<div class="modal fade" id="importexportTag" tabindex="-1" style="display: none;" aria-hidden="true">
+<!-- Import -->
+<div class="modal fade" id="importTag" tabindex="-1" style="display: none;" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">    
             <div class="modal-header">
-                <h5 class="modal-title" id="importexportModalTag">Import/Export Tag</h5>
+                <h5 class="modal-title">Import Tag</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="card-body p-4">
-                <a href="{{route('tag.exportTags')}}"><button class="btn btn-primary mb-4">
-                    Export Tags
-                </button></a>
-                <h5 class="card-title fw-semibold mb-4">Import Tags</h5>
+                <li><span class="ck-list-bogus-paragraph">File must have the extension “.<strong>xlsx</strong>”.</span></li>
+                <li><span>Columns in the file must have:<br>
+                - name<br>
+                - deleted_at<br>
+                - created_at<br>
+                - updated_at<br>
+                </li>
                 <form action="{{ route('tag.importTags') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                         <p class="form-label">Your file</p>
@@ -81,6 +83,24 @@
                     <br>
                     <button type="submit" class="btn btn-primary">Import Tags</button>
                 </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Export -->
+<div class="modal fade" id="exportTag" tabindex="-1" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">    
+            <div class="modal-header">
+                <h5 class="modal-title">Export Tag</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="card-body p-4">
+                <p>For security reasons, please <b>do not</b> alter and/or edit the exported file.</p>
+                <p>Exports an .<b>xlsx</b> file</p>
+                <a href="{{route('tag.exportTags')}}"><button class="btn btn-primary mb-4">
+                    Export Tags
+                </button></a>
             </div>
         </div>
     </div>

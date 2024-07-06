@@ -13,6 +13,7 @@ use App\Models\Levels;
 use App\Models\Topics;
 use App\Models\AnswersAdmin;
 use App\Models\Tests;
+use App\Models\Users;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Exports\ExportQuestionsAdmin;
@@ -29,23 +30,51 @@ class QuestionsAdminController extends Controller
         
         if($id)
         {
-            $listQuestions = QuestionsAdmin::withTrashed()->where('id', '!=', $id)->pluck('question_text')->toArray();
+            $listQuestions = QuestionsAdmin::withTrashed()->where('id', '!=', $id)->select('question_text', 'id', 'question_img')->get()->toArray();
         }
         else{
-            $listQuestions = QuestionsAdmin::withTrashed()->pluck('question_text')->toArray();
+            $listQuestions = QuestionsAdmin::withTrashed()->select('question_text', 'id', 'question_img')->get()->toArray();
         }
 
         $matching_questions = [];
-        foreach ($listQuestions as $question_text) {
+        $matching_questions_id = [];
+        foreach ($listQuestions as $question) {
+            $id = $question['id'];
+            $question_text = $question['question_text'];
+            $question_img = $question['question_img'];
             $cleaned_question_text = preg_replace('/[^\w+\-*\/^%]/', '', strip_tags(str_replace(['&nbsp;', ' '], '', $question_text)));
             if (strpos(mb_strtolower($cleaned_question_text), mb_strtolower($input_text)) !== false) {
                 $matching_questions[] = [
+                    'id' => $id,
                     'question_text' => $question_text,
+                    'question_img' => $question_img,
+                ];
+                $matching_questions_id[] = $id;
+            }
+        }
+
+        // Retrieve answers based on matching question IDs
+        $answers = AnswersAdmin::whereIn('question_admin_id', $matching_questions_id)->get();
+
+        $matching_answers = [];
+
+        foreach ($answers as $answer) {
+            $answerData = json_decode($answer->answer_data, true);
+
+            // Extract text, img, and is_correct for each answer
+            foreach ($answerData as $key => $data) {
+                $matching_answers[$answer->question_admin_id][$key] = [
+                    'text' => $data['text'],
+                    'img' => $data['img'],
+                    'is_correct' => $data['is_correct'],
                 ];
             }
         }
     
-        return response()->json($matching_questions);
+        return response()->json([
+            'matching_questions' => $matching_questions,
+            'matching_answers' => $matching_answers,
+        ]);
     }
     public function importQuestions(Request $re)
     {
@@ -81,54 +110,67 @@ class QuestionsAdminController extends Controller
         return Excel::download(new ExportAnswersAdmin, 'answersadmin.xlsx');
     }
     public function index(Request $request){
-        $topic_id = $request->input('topics_id');
-        $level_id = $request->input('levels_id');
+        $topic_data = $request->input('topic_data',[]);
+        $level_data = $request->input('level_data',[]);
         $question_text = $request->input('question_text');
-        $user_displayname = $request->input('user_displayname');
-        if ($topic_id || $level_id || $question_text || $user_displayname) {
+        $user_id = $request->input('user_id');
+        $show = $request->input('show', 10);
+        $active = $request->input('active');
+        if (!empty($topic_data) || !empty($level_data) || $question_text || $user_id || $show || $active) {
             return $this->search($request);
         }
         $listTopics = Topics::all();
         $listLevels = Levels::all();
         $listTypes = QuestionTypes::all();
-        $listQuestions = QuestionsAdmin::withTrashed()->get();
-        return view('question/index', compact('listTopics', 'listLevels', 'listTypes', 'listQuestions'));
+        $listUsers = Users::where('admin_role','!=',0)->get();
+        $listQuestions = QuestionsAdmin::withTrashed()->paginate($show);
+        return view('question/index', compact('listTopics', 'listLevels', 'listTypes', 'listQuestions', 'listUsers'));
     }
     public function search(Request $request)
     {
-        $topic_id = $request->input('topics_id');
-        $level_id = $request->input('levels_id');
+        $topic_data = $request->input('topic_data',[]);
+        $level_data = $request->input('level_data',[]);
         $question_text = $request->input('question_text');
-        $user_displayname = $request->input('user_displayname');
+        $user_id = $request->input('user_id');
+        $show = $request->input('show', 10);
+        $active = $request->input('active');
         $listTypes = QuestionTypes::all();
         $listTopics = Topics::all();
         $listLevels = Levels::all();
+        $listUsers = Users::where('admin_role','!=',0)->get();
         $listQuestions = QuestionsAdmin::withTrashed()
-        ->when($user_displayname, function ($query) use ($user_displayname) {
-            $noSpaceDisplayname = preg_replace('/\s+/', '', $user_displayname); // Remove all spaces from input
-            return $query->whereHas('user', function ($userQuery) use ($noSpaceDisplayname) {
-                $userQuery->whereRaw("REPLACE(displayname, ' ', '') LIKE ?", ['%' . $noSpaceDisplayname . '%']);
-            });
-        })
         ->when($question_text, function ($query) use ($question_text) {
-            $noSpaceQuestionText = preg_replace('/\s+/', '', $question_text);
+            $noSpaceQuestionText = preg_replace('/\s+/', '', strip_tags($question_text));
             return $query->whereRaw("REPLACE(question_text, ' ', '') LIKE ?", ['%' . $noSpaceQuestionText . '%']);
         })
-        ->when($topic_id != 0, function ($query) use ($topic_id) {
-            return $query->where('topic_id', $topic_id)->orderBy('level_id');
+        ->when($user_id != 0, function ($query) use ($user_id) {
+            return $query->where('user_id', $user_id)->orderBy('user_id');
         })
-        ->when($level_id != 0, function ($query) use ($level_id) {
-            return $query->where('level_id', $level_id)->orderBy('topic_id');
+        ->when(!empty($topic_data), function ($query) use ($topic_data) {
+            return $query->whereIn('topic_id', $topic_data)->orderBy('level_id');
         })
-        ->when($topic_id == 0 && $level_id == 0, function ($query) {
+        ->when(!empty($level_data), function ($query) use ($level_data) {
+            return $query->whereIn('level_id', $level_data)->orderBy('topic_id');
+        })
+        ->when($active !== null, function ($query) use ($active) {
+            if ($active == 1) {
+                $query->whereNull('deleted_at');
+            } elseif ($active == 0) {
+                $query->whereNotNull('deleted_at');
+            }
+        })
+        ->when(!empty($topic_data) && !empty($level_data), function ($query) {
             return $query;
         })
-        ->get();
-        return view('question/index', compact('listTopics','listLevels','listTypes','listQuestions'));
+        ->paginate($show);
+        return view('question/index', compact('listTopics','listLevels','listTypes','listQuestions', 'listUsers', 'topic_data', 'level_data'));
     }
     public function create(Request $request)
     {
         // dd($request->all());
+        if (empty($request->create_answers) && empty($request->create_questionText)) {
+            return redirect()->route('question.index')->with(['success' => false, 'alert'=> 'Not enough data']);
+        }
         $question = new QuestionsAdmin();
         $question->user_id = Auth::user()->id;
         $question->question_text = $request->create_questionText;
@@ -192,6 +234,9 @@ class QuestionsAdminController extends Controller
     public function editHandle(Request $request, $id)
     {
         // dd($request->all());
+        if (empty($request->edit_answers) && empty($request->edit_questionText)) {
+            return redirect()->route('question.index')->with(['success' => false, 'alert'=> 'Not enough data']);
+        }
         $question = QuestionsAdmin::find($id);
 
         if (!empty($question)) {
@@ -280,7 +325,7 @@ class QuestionsAdminController extends Controller
     {
         $question = QuestionsAdmin::withTrashed()->find($id);
         if (!$question) {
-            return redirect()->route('question.index')->with('error', 'Question not found');
+            return redirect()->route('question.index')->with(['success' => false, 'alert'=> 'Question not found']);
         }
         if ($question->trashed()) {
             $topic = Topics::withTrashed()->find($question->topic_id);
