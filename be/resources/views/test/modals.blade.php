@@ -63,7 +63,8 @@
                     @csrf
                     <li><span class="ck-list-bogus-paragraph">File must have the extension “.<strong>xlsx</strong>”.</span></li>
                     <li><span>Columns in the file must have:<br>
-                    - question_data<br>
+                    - question_admin<br>
+                    - question_user<br>
                     - name<br>
                     - test_img<br>
                     - password<br>

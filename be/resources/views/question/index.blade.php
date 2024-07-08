@@ -41,7 +41,7 @@
                     </div>
                 <div class="d-flex mb-4">
                     <div class="flex-fill me-2">
-                    <label class="form-label">Topic</label>
+                    <label class="form-label">Level</label>
                         @foreach ($listLevels as $level)
                             <div style="display:inline-block; margin:5px;">
                             <input 

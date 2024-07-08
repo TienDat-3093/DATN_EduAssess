@@ -4,10 +4,10 @@
 @include('user.modals')
 <div class="mt-3">
     <!-- Button trigger modal -->
-    <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createUser">
+    <!-- <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#createUser">
         <i class="ti ti-playlist-add"></i>
         Create
-    </button>
+    </button> -->
     <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#importUser">
         <i class="ti ti-file-import"></i>
         Import

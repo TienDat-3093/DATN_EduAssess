@@ -12,7 +12,8 @@ class Tests extends Model
     protected $table = 'tests';
     use SoftDeletes;
     protected $fillable = [
-        'question_data',
+        'question_admin',
+        'question_user',
         'name',
         'test_img',
         'password',
@@ -37,9 +38,9 @@ class Tests extends Model
     }
     public static function isQuestionUsedInTests($questionId)
     {
-        $tests = self::select('question_data')->get();
+        $tests = self::select('question_admin')->get();
         foreach ($tests as $test) {
-            if (in_array($questionId, json_decode($test->question_data))) {
+            if (in_array($questionId, json_decode($test->question_admin))) {
                 return true;
             }
         }

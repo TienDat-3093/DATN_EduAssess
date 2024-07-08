@@ -124,7 +124,7 @@
                     @foreach ($listUsers as $user)
                         <tr>
                             <td class="border-bottom-0"
-                            @if($user->status) 
+                            @if($user->status && Auth::user()->admin_role > $user->admin_role) 
                                 style="cursor: pointer;" 
                                 data-bs-toggle="modal"
                                 data-bs-target="#editUser"
@@ -134,7 +134,7 @@
                                 <h6 class="fw-semibold mb-0 pe-auto">{{$user->displayname}}</h6>
                             </td>
                             <td class="border-bottom-0"
-                            @if($user->status) 
+                            @if($user->status && Auth::user()->admin_role > $user->admin_role) 
                                 style="cursor: pointer;" 
                                 data-bs-toggle="modal"
                                 data-bs-target="#editUser"
@@ -144,7 +144,7 @@
                                 <img src="{{ $user->image ? asset($user->image) : asset('img/users/default.png') }}" class="preview-img" alt="">
                             </td>
                             <td class="border-bottom-0"
-                            @if($user->status) 
+                            @if($user->status && Auth::user()->admin_role > $user->admin_role) 
                                 style="cursor: pointer;" 
                                 data-bs-toggle="modal"
                                 data-bs-target="#editUser"
@@ -154,7 +154,7 @@
                                 <h6 class="fw-semibold mb-0">{{$user->email}}</h6>
                             </td>
                             <td class="border-bottom-0"
-                            @if($user->status) 
+                            @if($user->status && Auth::user()->admin_role > $user->admin_role) 
                                 style="cursor: pointer;" 
                                 data-bs-toggle="modal"
                                 data-bs-target="#editUser"
@@ -164,7 +164,7 @@
                                 <h6 class="fw-semibold mb-0">{{ \Carbon\Carbon::parse($user->date_of_birth)->format('d/m/Y') }}</h6>
                             </td>
                             <td class="border-bottom-0"
-                            @if($user->status) 
+                            @if($user->status && Auth::user()->admin_role > $user->admin_role) 
                                 style="cursor: pointer;" 
                                 data-bs-toggle="modal"
                                 data-bs-target="#editUser"
@@ -178,7 +178,7 @@
                                 @endif
                             </td>
                             <td class="border-bottom-0"
-                            @if($user->status) 
+                            @if($user->status && Auth::user()->admin_role > $user->admin_role) 
                                 style="cursor: pointer;" 
                                 data-bs-toggle="modal"
                                 data-bs-target="#editUser"
@@ -196,19 +196,23 @@
                             @endif
                             </td>
                             <td>
+                                @if(Auth::user()->admin_role > $user->admin_role)
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-icon rounded-pill hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="ti ti-dots-vertical"></i>
                                     </button>
-                                    <ul class="dropdown-menu dropdown-menu-end">
                                         @if($user->status == 0)
-                                        <li><a data-action-name="setting account to Active" href="{{ route('admin.delete', ['id' => $user->id] )}}" class="dropdown-item delete-link">Set to Active</a></li>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><a data-action-name="setting account to Active" href="{{ route('admin.delete', ['id' => $user->id] )}}" class="dropdown-item delete-link">Set to Active</a></li>
+                                        </ul>
                                         @else
-                                        <li><button id="edit-user" type="button" class="edit-user-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editUser" onclick='getUser({{$user->id}})'>Edit</button></li>
-                                        <li><a data-action-name="setting account to Inactive" href="{{ route('admin.delete', ['id' => $user->id] )}}" class="dropdown-item delete-link">Set to Inactive</a></li>
+                                        <ul class="dropdown-menu dropdown-menu-end">
+                                            <li><button id="edit-user" type="button" class="edit-user-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editUser" onclick='getUser({{$user->id}})'>Edit</button></li>
+                                            <li><a data-action-name="setting account to Inactive" href="{{ route('admin.delete', ['id' => $user->id] )}}" class="dropdown-item delete-link">Set to Inactive</a></li>
+                                        </ul>
                                         @endif
-                                    </ul>
                                 </div>
+                                @endif
                             </td>
                         </tr>
                     @endforeach

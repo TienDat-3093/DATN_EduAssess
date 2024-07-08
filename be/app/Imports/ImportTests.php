@@ -16,7 +16,8 @@ class ImportTests implements ToModel, WithHeadingRow
     public function model(array $row)
     {
         return new Tests([
-            'question_data' => $row['question_data'],
+            'question_data' => $row['question_admin'],
+            'question_data' => $row['question_user'],
             'name' => $row['name'],
             'test_img' => $row['test_img'],
             'password' => $row['password'],
