@@ -108,7 +108,7 @@ class TestsController extends Controller
     }
     public function detail($id){
         $test = Tests::withTrashed()->find($id);
-        $question_ids = json_decode($test->question_data);
+        $question_ids = json_decode($test->question_admin);
         $listQuestions = QuestionsAdmin::whereIn('id', $question_ids)->orderby('topic_id')->orderby('level_id')->get();
         return view('/test/details',compact('listQuestions'));
     }
@@ -184,8 +184,8 @@ class TestsController extends Controller
             $path = $request->file('test_img')->storeAs('img/exams', $fileName);
             $test->test_img = $path;
         }
-        $test->question_data = json_encode(array_unique($request->question_data));
-        $topic_data = QuestionsAdmin::whereIn('id', $request->question_data)
+        $test->question_admin = json_encode(array_unique($request->question_admin));
+        $topic_data = QuestionsAdmin::whereIn('id', $request->question_admin)
         ->distinct('topic_id')
         ->pluck('topic_id')
         ->toArray();
@@ -213,7 +213,7 @@ class TestsController extends Controller
                 }
             }
             $topicDataArray = [];
-            $questionDataArray = json_decode($test->question_data);
+            $questionDataArray = json_decode($test->question_admin);
             foreach ($questionDataArray as $key => $questionId) {
                 $question = QuestionsAdmin::withTrashed()->find($questionId);
                 if(!$question){

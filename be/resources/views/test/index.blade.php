@@ -152,10 +152,10 @@
                                         <ul class="dropdown-menu dropdown-menu-end">
                                             <li><a href="{{route('test.detail', ['id' => $test->id] )}}"><button id="edit-test" type="button" class="edit-test-btn dropdown-item"  >Detail</button></a></li>
                                             @if($test->deleted_at)
-                                            <li><a data-action-name="setting test to Active" href="{{ route('test.delete', ['id' => $test->id] )}}" class="dropdown-item delete-link">Restore</a></li>
+                                            <!-- <li><a data-action-name="setting test to Active" href="{{ route('test.delete', ['id' => $test->id] )}}" class="dropdown-item delete-link">Restore</a></li> -->
                                             @else
                                             <li><button onclick="getTags({{$test->id}})" id="edit-test" type="button" class="edit-test-btn dropdown-item" data-bs-toggle="modal" data-bs-target="#editTest">Edit</button></li>
-                                            <li><a data-action-name="setting account to Inactive" href="{{ route('test.delete', ['id' => $test->id] )}}" class="dropdown-item delete-link">Delete</a></li>
+                                            <li><a data-action-name="deleting test? This cannot be undone." href="{{ route('test.delete', ['id' => $test->id] )}}" class="dropdown-item delete-link">Delete</a></li>
                                             @endif
                                         </ul>
                                     </div>
@@ -201,7 +201,7 @@
                 event.preventDefault();
                 const actionName = event.target.getAttribute('data-action-name');
                 Swal.fire({
-                    title: 'Confirm ' + actionName + '?',
+                    title: 'Confirm ' + actionName,
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonText: 'Confirm',

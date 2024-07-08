@@ -23,7 +23,7 @@ class UsersRequest extends FormRequest
     {
         return [
             'displayname' => 'required|max:20|min:1',
-            'email' => 'required|regex:/^.+@.+$/|max:20',
+            'email' => 'required|regex:/^.+@.+$/|max:30',
             'date_of_birth' => 'required',
             'password' => 'required|confirmed',
         ];

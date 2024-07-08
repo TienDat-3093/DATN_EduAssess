@@ -87,7 +87,7 @@ class QuestionsAdminController extends Controller
                 try {
                     Excel::import(new ImportQuestionsAdmin, $questionsFile);
                     Excel::import(new ImportAnswersAdmin, $answersFile);
-                    return redirect()->back()->with(['success' => false, 'alert' => "Import successful"]);
+                    return redirect()->back()->with(['success' => true, 'alert' => "Import successful"]);
                 } catch (\Exception $e) {
                     if (isset($e->errorInfo) && $e->errorInfo[1] == 1062) { // Error code for duplicate entry in MySQL
                         return redirect()->back()->with(['success' => false, 'alert' => "Import failed! File contains duplicate entries which violates constraints."]);

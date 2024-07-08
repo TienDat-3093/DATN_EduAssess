@@ -23,7 +23,7 @@ class TestsRequest extends FormRequest
     {
         return [
             'name' => 'required',
-            'question_data' => 'required',
+            'question_admin' => 'required',
             'tag_data' => 'required',
         ];
     }
@@ -37,7 +37,7 @@ class TestsRequest extends FormRequest
     {
         return [
             'name' => 'Test name',
-            'question_data' => 'Questions',
+            'question_admin' => 'Questions',
             'tag_data' => 'Tags',
         ];
     }

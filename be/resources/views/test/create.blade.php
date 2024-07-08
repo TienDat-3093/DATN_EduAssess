@@ -61,7 +61,7 @@
         </div>
     </div>
 </div>
-<div id="question_data">
+<div id="question_admin">
 </div>
 </form>
 <div class="col-lg-13 d-flex align-items-stretch">
@@ -70,7 +70,7 @@
             <h5 class="card-title fw-semibold mb-4">Automatic Questions Selector</h5>
             <div>
             <font id="error">
-                @error('question_data')
+                @error('question_admin')
                 <font style="vertical-align: inherit;color:red">{{ $message }}</font>
                 @enderror
             </font>
@@ -214,13 +214,13 @@
                 success: function(data) {
                     $j('#listSelectedQuestions tbody').html(data);
                     var hiddenInputs = $j('#listSelectedQuestions tbody').find('input[type="hidden"]');
-                    $j('#question_data').empty();
+                    $j('#question_admin').empty();
                     hiddenInputs.each(function(index, element) {
                         var hiddenInput = document.createElement('input'); // Create a new hidden input element
                         hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'question_data[]'; // Set the name attribute to question_data[]
+                        hiddenInput.name = 'question_admin[]'; // Set the name attribute to question_admin[]
                         hiddenInput.value = $j(element).val();
-                        $j('#question_data').append(hiddenInput);
+                        $j('#question_admin').append(hiddenInput);
                     });
                 },
                 error: function(xhr) {
@@ -288,13 +288,13 @@
                 success: function(data) {
                     $j('#listSelectedQuestions tbody').html(data);
                     var hiddenInputs = $j('#listSelectedQuestions tbody').find('input[type="hidden"]');
-                    $j('#question_data').empty();
+                    $j('#question_admin').empty();
                     hiddenInputs.each(function(index, element) {
                         var hiddenInput = document.createElement('input'); // Create a new hidden input element
                         hiddenInput.type = 'hidden';
-                        hiddenInput.name = 'question_data[]'; // Set the name attribute to question_data[]
+                        hiddenInput.name = 'question_admin[]'; // Set the name attribute to question_admin[]
                         hiddenInput.value = $j(element).val();
-                        $j('#question_data').append(hiddenInput);
+                        $j('#question_admin').append(hiddenInput);
                     });
                 },
                 error: function(xhr) {
