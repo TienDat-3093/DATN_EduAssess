@@ -3,9 +3,9 @@ export default function Banner2() {
     <>
       <section
         className="hero-wrap hero-wrap-2"
-        style={{ backgroundImage: 'url("images/bg_2.jpg")' }}
+        style={{ backgroundImage: 'url("../../images/bg_2.jpg")',height:'30px' }}
       >
-        <div className="overlay" />
+        {/* <div className="overlay" />
         <div className="container">
           <div className="row no-gutters slider-text align-items-end justify-content-center">
             <div className="col-md-9 ftco-animate pb-5 text-center fadeInUp ftco-animated">
@@ -22,7 +22,7 @@ export default function Banner2() {
               <h1 className="mb-0 bread">Course Lists</h1>
             </div>
           </div>
-        </div>
+        </div> */}
       </section>
     </>
   );

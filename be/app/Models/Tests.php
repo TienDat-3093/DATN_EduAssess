@@ -36,16 +36,34 @@ class Tests extends Model
     }
     public static function isQuestionUsedInTests($questionId)
     {
-        $tests = self::select('question_data')->get();
-        foreach ($tests as $test) {
-            if (in_array($questionId, json_decode($test->question_data))) {
-                return true;
+
+            $tests = self::select('question_user')->get();
+            foreach ($tests as $test) {
+                if (in_array($questionId, json_decode($test->question_data))) {
+                    return true;
+                }
             }
-        }
-        return false;
+            return false;
+
+
+    }
+    public static function isQuestionUserUsedInTests($questionId)
+    {
+
+            $tests = Tests::select('question_user')->get();
+            foreach ($tests as $test) {
+                if (in_array($questionId, json_decode($test->question_user))) {
+                    return true;
+                }
+            }
+            return false;
     }
     public function user()
     {
         return $this->belongsTo(Users::class);
+    }
+    public function topic()
+    {
+        return $this->belongsTo(Topics::class, 'id');
     }
 }

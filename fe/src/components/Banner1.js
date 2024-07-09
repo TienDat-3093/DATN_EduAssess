@@ -16,9 +16,9 @@ export default function Banner1({ onLoginSuccess }) {
     <>
       <div
         className="hero-wrap js-fullheight"
-        style={{ backgroundImage: 'url("images/bg_1.jpg")', height: 730 }}
+        style={{ backgroundImage: `url("../images/bg_1.jpg")`, height: 700 }}
       >
-        <div className="overlay" />
+        
         <div className="container">
           <div
             className="row no-gutters slider-text js-fullheight align-items-center"

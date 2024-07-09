@@ -44,11 +44,11 @@ class QuestionsAdminController extends Controller
         }
         return redirect()->back()->with('alert', "Missing files!");
     }
-    public function exportQuestions() 
+    public function exportQuestions()
     {
         return Excel::download(new ExportQuestionsAdmin, 'questionsadmin.xlsx');
     }
-    public function exportAnswers() 
+    public function exportAnswers()
     {
         return Excel::download(new ExportAnswersAdmin, 'answersadmin.xlsx');
     }
