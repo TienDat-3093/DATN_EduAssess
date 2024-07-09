@@ -9,6 +9,9 @@
         max-width: 100px;
         margin-top: 10px;
     }
+    td > h6 > p {
+    margin-bottom: 0;
+    }
 </style>
 <div class="mt-3">
         <!-- Button trigger modal -->
@@ -16,50 +19,95 @@
             <i class="ti ti-playlist-add"></i>
             Create
         </button>
-        <a href="{{route('question.exportQuestions')}}"><button class="btn btn-primary mb-4">
-            Export Questions
-        </button></a>
-        <a href="{{route('question.exportAnswers')}}"><button class="btn btn-primary mb-4">
-            Export Answers
-        </button></a>
-        <div class="card-body p-4">
-            <h5 class="card-title fw-semibold mb-4">Import Questions</h5>
-            <form action="{{ route('question.importQuestions') }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                <p class="form-label">Your questions file</p>
-                    <input type="file" name="importQuestions_file" class="form-control" accept=".xlsx">
-                <br>
-                    <p class="form-label">Your answers file</p>
-                    <input type="file" name="importAnswers_file" class="form-control" accept=".xlsx">
-                <br>
-                <button type="submit" class="btn btn-primary">Import Questions</button>
-            </form>
-        </div>
-
-
+    <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#importQuestion">
+        <i class="ti ti-file-import"></i>
+        Import
+    </button>
+    <button type="button" class="btn btn-primary mb-4" data-bs-toggle="modal" data-bs-target="#exportQuestion">
+        <i class="ti ti-file-export"></i>
+        Export
+    </button>
 </div>
 <div class="col-lg-13 d-flex align-items-stretch">
     <div class="card w-100">
         <div class="card-body p-4">
             <h5 class="card-title fw-semibold mb-4">Select Questions</h5>
-            <div>
-            </div>
                 <form action="/question" method="GET">
+                    <div class="d-flex mb-4">
+                        <div class="flex-fill me-2">
+                            <label for="searchQuestionText" class="form-label">Question Text</label>
+                            <textarea type="text" id="searchQuestionText" name="question_text" class="form-control" placeholder="Enter Question">{{ request('question_text', old('question_text')) }}</textarea>
+                        </div>
+                    </div>
+                <div class="d-flex mb-4">
+                    <div class="flex-fill me-2">
                     <label class="form-label">Level</label>
-                    <select id="level" name="levels_id" class="form-select" aria-label="Default select example">
-                        <option value="0" {{ (request()->has('levels_id') && request('levels_id') == 0) ? 'selected' : '' }}>All</option>
                         @foreach ($listLevels as $level)
-                            <option value="{{ $level->id }}" {{ (request()->has('levels_id') && request('levels_id') == $level->id) ? 'selected' : '' }}>{{ $level->name }}</option>
+                            <div style="display:inline-block; margin:5px;">
+                            <input 
+                            @if (in_array($level->id, $level_data)) checked 
+                            @endif
+                            class="btn-check" id="level-{{ $level->id }}" autocomplete="off" type="checkbox" name="level_data[]" value="{{ $level->id }}" id="level-{{ $level->id }}">
+                            <label 
+                            class="
+                            @if ($level->name == 'Difficult') btn btn-danger 
+                            @elseif ($level->name == 'Medium') btn btn-secondary 
+                            @elseif ($level->name == 'Easy') btn btn-primary 
+                            @endif
+                            " 
+                            style="border-radius:25px;" for="level-{{ $level->id }}" class="level-label">{{ $level->name }}</label>
+                            </div>
                         @endforeach
-                    </select>
-
+                    </div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="flex-fill me-2">
                     <label class="form-label">Topic</label>
-                    <select id="topic" name="topics_id" class="form-select" aria-label="Default select example">
-                        <option value="0" {{ (request()->has('topics_id') && request('topics_id') == 0) ? 'selected' : '' }}>All</option>
                         @foreach ($listTopics as $topic)
-                            <option value="{{ $topic->id }}" {{ (request()->has('topics_id') && request('topics_id') == $topic->id) ? 'selected' : '' }}>{{ $topic->name }}</option>
+                            <div style="display:inline-block; margin:5px;">
+                            <input @if (in_array($topic->id, $topic_data)) checked @endif class="btn-check" id="topic-{{ $topic->id }}" autocomplete="off" type="checkbox" name="topic_data[]" value="{{ $topic->id }}" id="topic-{{ $topic->id }}">
+                            <label style="border-radius:25px;" class="btn btn-secondary" for="topic-{{ $topic->id }}" class="topic-label">{{ $topic->name }}</label>
+                            </div>
                         @endforeach
-                    </select>
+                    </div>
+                </div>
+                <div class="d-flex mb-4 justify-content-between align-items-center">
+                    <div class="mx-2">
+                        <label>Status:</label>
+                        <div class="d-flex align-middle">
+                            <div class="form-check m-2">
+                                <input class="form-check-input" type="radio" name="active" id="active_all" value=""{{ request('active') == '' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="active_all"><h6>All</h6></label>
+                            </div>
+                            <div class="form-check m-2">
+                                <input class="form-check-input" type="radio" name="active" id="active" value="1" {{ request('active') == '1' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="active"><h6>Active</h6></label>
+                            </div>
+                            <div class="form-check m-2">
+                                <input class="form-check-input" type="radio" name="active" id="inactive" value="0" {{ request('active') == '0' ? 'checked' : '' }}>
+                                <label class="form-check-label" for="inactive"><h6>Inactive</h6></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 mx-2">
+                        <label>User</label>
+                        <select id="user" name="user_id" class="form-select" aria-label="Default select example">
+                            <option value="0" {{ (request()->has('user_id') && request('user_id') == '') ? 'selected' : '' }}>All</option>
+                            @foreach ($listUsers as $user)
+                                <option value="{{ $user->id }}" {{ (request()->has('user_id') && request('user_id') == $user->id) ? 'selected' : '' }}>{{ $user->displayname }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="flex-grow-1 mx-2">
+                        <label>Show amount:</label>
+                        <select name="show" class="form-select">
+                            <option value="10" {{ request('show') == '10' ? 'selected' : '' }}>10</option>
+                            <option value="20" {{ request('show') == '20' ? 'selected' : '' }}>20</option>
+                            <option value="50" {{ request('show') == '50' ? 'selected' : '' }}>50</option>
+                            <option value="100" {{ request('show') == '100' ? 'selected' : '' }}>100</option>
+                        </select>
+                    </div>
+                </div>
                     <button type="submit" class="btn btn-outline-secondary">
                         Search
                     </button>
@@ -72,16 +120,15 @@
         <div class="card-body p-4">
             <h5 class="card-title fw-semibold mb-4">List Questions</h5>
             <div class="table-responsive">
-                <table class="table text-nowrap mb-0 align-middle">
+                <table class="table text-nowrap mb-0 align-middle text-center table-hover">
                     <thead class="text-dark fs-4">
                         <tr>
                             <th class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">Id</h6>
-                            </th>
-                            <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">User</h6>
                             </th>
-
+                            <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Text</h6>
+                            </th>
                             <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Image</h6>
                             </th>
@@ -95,64 +142,118 @@
                                 <h6 class="fw-semibold mb-0">Type</h6>
                             </th>
                             <th class="border-bottom-0">
+                                <h6 class="fw-semibold mb-0">Status</h6>
+                            </th>
+                            <th class="border-bottom-0">
                                 <h6 class="fw-semibold mb-0">Function</h6>
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="table-bordered">
                     @foreach($listQuestions as $question)
                         <tr>
-                            <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">{{$question->id}}</h6>
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
+                                <h6 class="fw-semibold mb-0" class="fw-semibold mb-1">{{$question->user->displayname}}</h6>
                             </td>
-                            <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-1">{{$question->user->username}}</h6>
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
+                                @php
+                                    $textWithoutTags = strip_tags($question->question_text);
+                                @endphp
+                                <h6 class="fw-semibold mb-1"
+                                >
+                                @if (strlen($textWithoutTags) > 25)
+                                    <span title="{{$textWithoutTags}}">{!! substr($textWithoutTags, 0, 25) !!}...</span>
+                                @else
+                                    {!! $question->question_text !!}
+                                @endif
+                                </h6>
                             </td>
-
-                            <td class="border-bottom-0">
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
                                 <img src="{{asset($question->question_img)}}" class="question-img" alt="">
                             </td>
-                            <td class="border-bottom-0">
-                                <div class="d-flex align-items-center gap-2">
-                                    @if($question->level->name == 'Difficult')
-                                    <span class="badge bg-danger rounded-3 fw-semibold">{{$question->level->name}}</span>
-                                    @elseif($question->level->name == 'Medium')
-                                    <span class="badge bg-secondary rounded-3 fw-semibold">{{$question->level->name}}</span>
-                                    @else
-                                    <span class="badge bg-success rounded-3 fw-semibold">{{$question->level->name}}</span>
-                                    @endif
-                                </div>
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
+                                @if($question->level->name == 'Difficult')
+                                <span class="badge bg-danger rounded-3 fw-semibold">{{$question->level->name}}</span>
+                                @elseif($question->level->name == 'Medium')
+                                <span class="badge bg-secondary rounded-3 fw-semibold">{{$question->level->name}}</span>
+                                @else
+                                <span class="badge bg-success rounded-3 fw-semibold">{{$question->level->name}}</span>
+                                @endif
                             </td>
-                            <td class="border-bottom-0">
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
                                 <div class="d-flex align-items-center gap-2">
                                     <span class="badge text-info rounded-3 fw-semibold">{{$question->topic->name}}</span>
                                 </div>
                             </td>
-                            <td class="border-bottom-0">
-                                <div class="d-flex align-items-center gap-2">
-                                    @if($question->question_type->name == 'one answer')
-                                    <span class="badge bg-dark rounded-3 fw-semibold">{{$question->question_type->name}}</span>
-                                    @elseif($question->question_type->name == 'many answers')
-                                    <span class="badge bg-warning rounded-3 fw-semibold">{{$question->question_type->name}}</span>
-                                    @else
-                                    <span class="badge bg-info rounded-3 fw-semibold">{{$question->question_type->name}}</span>
-                                    @endif
-
-                                </div>
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
+                                @if($question->question_type->name == 'one answer')
+                                <span class="badge bg-dark rounded-3 fw-semibold">{{$question->question_type->name}}</span>
+                                @elseif($question->question_type->name == 'many answers')
+                                <span class="badge bg-warning rounded-3 fw-semibold">{{$question->question_type->name}}</span>
+                                @else
+                                <span class="badge bg-info rounded-3 fw-semibold">{{$question->question_type->name}}</span>
+                                @endif
                             </td>
+                            <td class="border-bottom-0"
+                            @if(!$question->deleted_at) 
+                                style="cursor: pointer;" 
+                                onclick="editQuestion({{ $question->id }})" 
+                                data-bs-toggle="modal" 
+                                data-bs-target="#editQuestion"
+                            @endif
+                            >
                             @if($question->deleted_at)
-                            <td class="border-bottom-0">
                                 <font class="badge bg-danger rounded-3 fw-semibol">
-                                    Deleted at: {{ \Carbon\Carbon::parse($question->deleted_at)->format('d/m/Y H:i:s') }}
+                                    Inactive
                                 </font>
-                            </td>
                             @else
-                            <td class="border-bottom-0">
                                 <font class="badge bg-success rounded-3 fw-semibol">
                                     Active
                                 </font>
-                            </td>
                             @endif
+                            </td>
                             <td>
                                 <div class="btn-group">
                                     <button type="button" class="btn btn-icon rounded-pill hide-arrow" data-bs-toggle="dropdown" aria-expanded="false">
@@ -160,25 +261,24 @@
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end">
                                         <li><button data-question-id="{{$question->id}}" class="btnDetail dropdown-item" data-bs-toggle="modal" data-bs-target="#detailQuestion">Show Answers</button></li>
-                                        <li><button data-question-id="{{$question->id}}" class="btnEdit dropdown-item" data-bs-toggle="modal" data-bs-target="#editQuestion">Edit</button></li>
                                         @if($question->deleted_at)
                                         <li>
                                             <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST" class="restore-form">
                                                 @csrf
-                                                <button type="button" data-name="{{ $question->question_text }}" class="dropdown-item restore-link">Restore</button>
+                                                <button type="button" class="dropdown-item restore-link">Set to Active</button>
                                             </form>
                                         </li>
                                         @else
                                         <li>
+                                        <li>
+                                            <button data-question-id="{{$question->id}}" class="btnEdit dropdown-item" data-bs-toggle="modal" data-bs-target="#editQuestion">Edit</button></li>
                                             <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST" class="delete-form">
                                                 @csrf
                                                 @method('POST')
-                                                <button type="button" data-name="{{ $question->question_text }}" class="dropdown-item delete-link">Delete</button>
+                                                <button type="button" class="dropdown-item delete-link">Set to Inactive</button>
                                             </form>
                                         </li>
                                         @endif
-
-
                                     </ul>
                                 </div>
                             </td>
@@ -186,7 +286,7 @@
                         @endforeach
                     </tbody>
                 </table>
-
+                {{ $listQuestions->appends(request()->query())->links() }}
             </div>
 
         </div>
@@ -201,22 +301,138 @@
             .create(document.querySelector( '#create_editor' ) )
             .then(  newEditor => {
                 create_editor = newEditor;
+                newEditor.model.document.on('change:data', () => {
+                handleInput(newEditor.getData(), 'create');
+                });
             } )
             .catch(error => {
                 console.error(error);
             });
         ClassicEditor
-            .create(document.querySelector( '#edit_editor' ) )
+            .create(document.querySelector( '#searchQuestionText' ) )
             .then(  newEditor => {
-                edit_editor = newEditor;
-            } )
+                searchQuestion = newEditor;
+            })
             .catch(error => {
                 console.error(error);
             });
+            
+    let typingTimer;
+    const doneTypingInterval = 500; // 1 second
+    let previousValue = { create: '', edit: '' };
+    function handleInput(value, editorType, id = null) {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(function() {
+            if(value && value !== previousValue[editorType]) {
+                previousValue[editorType] = value;
+                processInput(value,editorType,id);
+            }
+            // Call your processing function here or perform any actions
+        }, doneTypingInterval);
+    }
+
+    function processInput(question_text,editorType,id) {
+        $.ajax({
+            url: url = 'question/findDupeQuestions' + (id ? '/' + id : ''),
+            type: "post",
+            data: {
+                    question_text: question_text,
+                    _token: '{{ csrf_token() }}'
+                },
+            success: function(response) {
+                var matching_questions = response.matching_questions;
+                var matching_answers = response.matching_answers;
+                var questionCount = matching_questions.length;
+                //Remove old lines
+                var alertElement = document.getElementById(editorType+'_name_duplicate_error')
+                var children = Array.from(alertElement.children);
+                    children.forEach(child => {
+                        if (child.tagName !== 'BUTTON' && child.tagName !== 'H4') {
+                            child.remove();
+                        }
+                    });
+                    if (matching_questions.length > 0) {
+                        // Add new lines
+                        matching_questions.forEach((question, index) => {
+                            //Add question line
+                            var questionTextDiv = document.createElement('div');
+                            questionTextDiv.innerHTML += question.question_text;
+                            if(question.question_img){
+                                var questionImg = document.createElement('img');
+                                questionImg.src = question.question_img;
+                                questionImg.style.maxWidth = '50px';
+                                questionImg.style.maxHeight = '50px';
+                                questionImg.style.width = 'auto';
+                                questionTextDiv.appendChild(questionImg);
+                            }
+                            questionTextDiv.style.marginBottom = '20px';
+                            alertElement.appendChild(questionTextDiv);
+                            //Add answer lines
+                            if (matching_answers[question.id]) {
+                                var answers = matching_answers[question.id];
+                                for (const key in answers) {
+                                    if (answers.hasOwnProperty(key)) {
+                                        var answer = answers[key];
+                                        var answerText = document.createElement('div');
+                                        if(answer.is_correct == 1){
+                                            answerText.textContent = key + ': ' + answer.text + ' (correct)';
+                                        }else{
+                                            answerText.textContent = key + ': ' + answer.text;
+                                        }
+                                        alertElement.appendChild(answerText);
+                                        if(answer.img){
+                                            var answerImg = document.createElement('img');
+                                            answerImg.src = '/img/answers/' + answer.img;
+                                            answerImg.style.maxWidth = '50px';
+                                            answerImg.style.maxHeight = '50px';
+                                            answerImg.style.width = 'auto';
+                                            alertElement.appendChild(answerImg);
+                                        }
+                                    }
+                                }
+                            }
+                            //Add hr
+                            if (index < questionCount - 1) {
+                                var lineBreak = document.createElement('hr');
+                                alertElement.appendChild(lineBreak);
+                            }
+                        })
+                        alertElement.classList.remove('d-none');
+                    } else {
+                        alertElement.classList.add('d-none');
+                    }
+            }
+        })
+    }
+    function hideAlert(button) {
+        var alertDiv = button.closest('.alert');
+        alertDiv.classList.add('d-none');
+        //Remove old lines
+        var children = Array.from(alertDiv.children);
+        children.forEach(child => {
+            if (child !== button && child.tagName !== 'H4') {
+                child.remove();
+            }
+        });
+    }
 </script>
 <script>
     var csrfToken = '{{ csrf_token() }}';
     $(document).ready(function() {
+        $("#create_questionForm").submit(function(event) {
+                const errorAlert = $(this).find('#create_name_duplicate_error');
+                if (!errorAlert.hasClass('d-none')) {
+                    event.preventDefault();
+                    alert("Question duplicates haven't been resolved yet.");
+                }
+        });
+        $("#edit_questionForm").submit(function(event) {
+                const errorAlert = $(this).find('#edit_name_duplicate_error');
+                if (!errorAlert.hasClass('d-none')) {
+                    event.preventDefault();
+                    alert("Question duplicates haven't been resolved yet.");
+                }
+        });
         var editID = 0;
         $('.btnEdit').click(function() {
             var questionID = $(this).data('question-id');
@@ -270,13 +486,43 @@
                         if (answersData.hasOwnProperty(key)) {
                             const answer = answersData[key];
 
-                            const answerRow = `
-                            <tr>
-                                <td><img src="img/answers/${answer.img}" alt="Answer Image" class="preview-img"></td>
-                                <td class="text-wrap text-break"><p class="mb-0 fw-normal">${answer.text}</p></td>
-                                <td><span class="badge ${answer.is_correct ? 'bg-primary' : 'bg-secondary'}">${answer.is_correct ? 'Correct' : 'Incorrect'}</span></td>
-                            </tr>
-                        `;
+                            // Create a new row
+                            const answerRow = document.createElement('tr');
+
+                            // Img cell
+                            let imgCell = document.createElement('td');
+                            if (answer.img) {
+                                const img = document.createElement('img');
+                                img.src = `img/answers/${answer.img}`;
+                                img.alt = 'Answer Image';
+                                img.classList.add('preview-img');
+                                imgCell.appendChild(img);
+                            }else{
+                                const textParagraph = document.createElement('p');
+                                textParagraph.textContent = "No Image";
+                                imgCell.appendChild(textParagraph);
+                            }
+                            answerRow.appendChild(imgCell);
+
+                            // Text cell
+                            const textCell = document.createElement('td');
+                            textCell.className = 'text-wrap text-break';
+                            const textParagraph = document.createElement('p');
+                            textParagraph.className = 'mb-0 fw-normal';
+                            textParagraph.textContent = answer.text;
+                            textCell.appendChild(textParagraph);
+                            answerRow.appendChild(textCell);
+
+                            // Badge cell
+                            const badgeCell = document.createElement('td');
+                            const badge = document.createElement('span');
+                            badge.className = `badge ${answer.is_correct ? 'bg-primary' : 'bg-secondary'}`;
+                            badge.textContent = answer.is_correct ? 'Correct' : 'Incorrect';
+                            badgeCell.appendChild(badge);
+                            answerRow.appendChild(badgeCell);
+
+                            // Append row to the table body
+                            console.log(answerRow);
                             answersTableBody.append(answerRow);
                         }
                     }
@@ -296,8 +542,19 @@
             success: function(data, answer) {
 
                 console.log(data.data.question_img)
-
-                edit_editor.setData(data.data.question_text);
+                const editorElement = document.querySelector('#edit_editor');
+                ClassicEditor
+                .create(editorElement)
+                .then(newEditor => {
+                    edit_editor = newEditor;
+                    edit_editor.setData(data.data.question_text);
+                    edit_editor.model.document.on('change:data', () => {
+                        handleInput(edit_editor.getData(), 'edit', questionID);
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
                 $("#edit_topicSelect").val(data.data.topic_id);
                 $("#edit_levelSelect").val(data.data.level_id);
 
@@ -309,13 +566,13 @@
                 } else if (data.data.question_type_id == '3') {
                     loadAnswer(data.answer[0].answer_data, 'edit_', 'radio')
                 }
+                const imgElement = document.createElement('img');
+                const newFilePreview = document.getElementById('edit_fileQuestion');
                 if (data.data.question_img) {
-
-                    $('#edit_loadImg').attr('src', data.data.question_img).show();
-                } else {
-                    $('#edit_loadImg').attr('src', '').show();
+                imgElement.src = data.data.question_img;
                 }
-
+                imgElement.className = 'preview-img';
+                newFilePreview.appendChild(imgElement);
             }
         })
     }
@@ -338,7 +595,7 @@
         const editQuestion = document.getElementById('editQuestion');
         editQuestion.addEventListener('hidden.bs.modal', () => {
             resetModalQuestion('edit_');
-            window.location.reload();
+            // window.location.reload();
         });
         //end event
 
@@ -378,29 +635,28 @@
                 }
             })
 
-            var imgInputs = document.querySelectorAll('input[name="edit_answerImg[]"]');
-            var hiddenImg = document.querySelectorAll('input[name="edit_answerImg[]"][type="hidden"]');
+            // var imgInputs = document.querySelectorAll('input[name="edit_answerImg[]"]');
+            // var hiddenImg = document.querySelectorAll('input[name="edit_answerImg[]"][type="hidden"]');
 
-            imgInputs.forEach(function(item, index) {
-                checkbox.addEventListener('change', function() {
-                    hiddenInputs[index].disabled = true;
-                });
-            })
+            // imgInputs.forEach(function(item, index) {
+            //     checkbox.addEventListener('change', function() {
+            //         console.log("running");
+            //         hiddenInputs[index].disabled = true;
+            //     });
+            // })
         })
         document.querySelectorAll('.delete-link').forEach(function(link) {
             link.addEventListener('click', function(event) {
                 event.preventDefault();
 
                 var form = this.closest('form');
-                var name = this.getAttribute('data-name');
 
                 Swal.fire({
-                    title: 'Xác Nhận Xóa?',
-                    text: 'Bạn có chắc muốn xóa câu hỏi: ' + name,
+                    title: 'Confirm deletion?',
                     icon: 'warning',
                     showCancelButton: true,
-                    confirmButtonText: 'Đồng ý',
-                    cancelButtonText: 'Hủy bỏ',
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
                 }).then(function(result) {
                     if (result.isConfirmed) {
                         form.submit();
@@ -417,12 +673,11 @@
                 var name = this.getAttribute('data-name');
 
                 Swal.fire({
-                    title: 'Xác Nhận Khôi Phục?',
-                    text: 'Bạn có chắc muốn khôi phục câu hỏi: ' + name,
+                    title: 'Confirm restoration?',
                     icon: 'info',
                     showCancelButton: true,
-                    confirmButtonText: 'Đồng ý',
-                    cancelButtonText: 'Hủy bỏ',
+                    confirmButtonText: 'Confirm',
+                    cancelButtonText: 'Cancel',
                 }).then(function(result) {
                     if (result.isConfirmed) {
                         form.submit();
@@ -465,7 +720,7 @@
             <input type="file" name="${modalType}answerImg[]" class="form-control d-none" id="${modalType}inputAnswer${answerCount[modalType]}" onchange="previewFile(event, ${answerCount[modalType]}, '${modalType}')">
             <input type="hidden" name="${modalType}answerImg[]" id="${modalType}inputAnswer${answerCount[modalType]}" value="${answer.img ? answer.img : ''}">
             <button type="button" class="btn btn-icon" onclick="deleteAnswer(event, ${answerCount[modalType]}, '${modalType}')">
-                <span class="ti ti-circle-minus" aria-hidden="true"></span>
+                <span class="ti ti-circle-minus" style="font-size: 20px;" aria-hidden="true"></span>
             </button>
         `;
 
@@ -497,49 +752,49 @@
         const answersContainer = document.getElementById(`${modalType}answersContainer`);
         const btnAddAnswer = document.getElementById(`${modalType}btnAnswer`);
 
-        const getAnswerTemplate = (index, inputType, modalType) => `
-        <div class ="${modalType}answerBox" id="${modalType}answerBox_${index}">
-            <div class="input-group mb-2">
-                <span class="input-group-text">
-                    <input name="${modalType}answers[]" class="check-box form-check-input mt-0" type="${inputType}" value ="1">
-                    <input name ="${modalType}answers[]" class="hidden-box" type="hidden" value="0">
-                    </span>
-                <input type="text" name="${modalType}answerText[]" class="form-control" id ="${modalType}answerText${index}">
-                <label class="btn btn-outline-secondary mb-0" for="${modalType}inputAnswer${index}">
-                    <span class="ti ti-upload"></span>
-                </label>
-                <input type="file" name="${modalType}answerImg[]" class="form-control d-none" id="${modalType}inputAnswer${index}" onchange="previewFile(event,${index},'${modalType}')">
-                <button type="button" class="btn btn-icon" onclick="deleteAnswer(event,${index},'${modalType}')">
-                    <span class="ti ti-circle-minus" aria-hidden="true"></span>
-                </button>
-            </div>
-            <div id="${modalType}filePreview${index}" class="mt-2"></div>
-        </div>`;
+        // const getAnswerTemplate = (index, inputType, modalType) => `
+        // <div class ="${modalType}answerBox" id="${modalType}answerBox_${index}">
+        //     <div class="input-group mb-2">
+        //         <span class="input-group-text">
+        //             <input name="${modalType}answers[]" class="check-box form-check-input mt-0" type="${inputType}" value ="1">
+        //             <input name ="${modalType}answers[]" class="hidden-box" type="hidden" value="0">
+        //             </span>
+        //         <input type="text" name="${modalType}answerText[]" class="form-control" id ="${modalType}answerText${index}">
+        //         <label class="btn btn-outline-secondary mb-0" for="${modalType}inputAnswer${index}">
+        //             <span class="ti ti-upload"></span>
+        //         </label>
+        //         <input type="file" name="${modalType}answerImg[]" class="form-control d-none" id="${modalType}inputAnswer${index}" onchange="previewFile(event,${index},'${modalType}')">
+        //         <button type="button" class="btn btn-icon" onclick="deleteAnswer(event,${index},'${modalType}')">
+        //             <span class="ti ti-circle-minus" aria-hidden="true"></span>
+        //         </button>
+        //     </div>
+        //     <div id="${modalType}filePreview${index}" class="mt-2"></div>
+        // </div>`;
 
 
         let template = '';
 
         resetAnswer(modalType);
         document.getElementById(`${modalType}btnAnswer`).style.display = 'block'
-        template = getAnswerTemplate(1, 'checkbox', `${modalType}`);
+        // template = getAnswerTemplate(1, 'checkbox', `${modalType}`);
         btnAddAnswer.setAttribute('onclick', `addAnswer('checkbox','${modalType}')`)
 
         if (typeRadio.value == '1') {
             resetAnswer(modalType);
             document.getElementById(`${modalType}btnAnswer`).style.display = 'block'
-            template = getAnswerTemplate(1, 'checkbox', `${modalType}`);
+            // template = getAnswerTemplate(1, 'checkbox', `${modalType}`);
             btnAddAnswer.setAttribute('onclick', `addAnswer('checkbox','${modalType}')`)
 
         } else if (typeRadio.value == '2') {
             resetAnswer(modalType);
             document.getElementById(`${modalType}btnAnswer`).style.display = 'block'
-            template = getAnswerTemplate(1, 'radio', `${modalType}`);
+            // template = getAnswerTemplate(1, 'radio', `${modalType}`);
             btnAddAnswer.setAttribute('onclick', `addAnswer('radio','${modalType}')`)
 
         } else if (typeRadio.value == '3') {
             /* resetAnswer(modalType); */
             document.getElementById(`${modalType}btnAnswer`).style.display = 'none'
-            template = getAnswerTemplate(1, 'radio', modalType) + getAnswerTemplate(2, 'radio', modalType);
+            // template = getAnswerTemplate(1, 'radio', modalType) + getAnswerTemplate(2, 'radio', modalType);
         }
         answersContainer.innerHTML = template;
 
@@ -563,7 +818,7 @@
                                  </label>
                                  <input type="file" name="${modalType}answerImg[]" class="form-control d-none" id="${modalType}inputAnswer${answerCount[modalType]}" onchange="previewFile(event,${answerCount[modalType]},'${modalType}')">
                                  <button type="button" class="btn btn-icon" onclick="deleteAnswer(event,${answerCount[modalType]},'${modalType}')">
-                                     <span class="ti ti-circle-minus" aria-hidden="true" ></span>
+                                     <span class="ti ti-circle-minus" style="font-size: 20px;" aria-hidden="true" ></span>
                                  </button>
                              </div>`
         const newFilePreview = document.createElement('div');
@@ -635,36 +890,71 @@
     }
 
     function resetModalQuestion(modalType) {
-        document.getElementById(`${modalType}questionText`).value = '';
+        if (modalType === 'create_') {
+            create_editor.setData('');
+        } else if (modalType === 'edit_') {
+            edit_editor.setData('');
+        }
         document.getElementById(`${modalType}inputQuestion`).value = '';
         document.getElementById(`${modalType}fileQuestion`).innerHTML = '';
-
         document.getElementById(`${modalType}topicSelect`).selectedIndex = 0;
         document.getElementById(`${modalType}levelSelect`).selectedIndex = 0;
 
+        // const newFilePreview = document.getElementById(`${modalType}fileQuestion`);
+        // const imgElement = newFilePreview.querySelector('img');
+        // if(imgElement)
+        // imgElement.src = '';
+    
         checkType('null', `${modalType}`);
         answerCount[modalType] = 1;
+        //Reset dupe question check
+        previousValue.create = '';
+        previousValue.edit = '';
+        //Reset dupe question alert
+        var alertElement = document.getElementById(modalType+'name_duplicate_error')
+        var children = Array.from(alertElement.children);
+            children.forEach(child => {
+                if (child.tagName !== 'BUTTON' && child.tagName !== 'H4') {
+                    child.remove();
+                }
+            });
+        alertElement.classList.add('d-none');
+        //Reset ckeditor
+        if (edit_editor) {
+            edit_editor.destroy()
+                .then(() => {
+                    console.log('Editor destroyed');
+                    edit_editor = null; // Reset the editor variable
+                })
+                .catch(error => {
+                    console.error('Error destroying editor:', error);
+                });
+        }
     }
 
     //
     function validateForm(modalType) {
-
-        var questionText = document.getElementById(`${modalType}QuestionText`).value;
+        var questionText;
+        if (modalType === 'create_') {
+            questionText = create_editor.getData();
+        } else if (modalType === 'edit_') {
+            questionText = edit_editor.getData();
+        }
 
         if (questionText.trim() == "") {
 
-            document.getElementById("errorName").innerHTML = '<font style="vertical-align: inherit;color:red">Name can\'t be empty</font>';
+            document.getElementById(modalType+"errorName").innerHTML = '<font style="vertical-align: inherit;color:red">(Name can\'t be empty)</font>';
+            
+            setTimeout(function() {
+                var element = document.getElementById(modalType+'errorName');
+                if (element) {
+                    element.innerHTML = '';
+                };
+            }, 5000);
             return false;
         }
         return true;
     }
-    setTimeout(function() {
-        var element = document.getElementById('errorName');
-        if (element) {
-            element.style.display = 'none';
-        };
-    }, 5000);
-
 
     //
 </script>

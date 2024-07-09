@@ -1,15 +1,21 @@
+@php
+    $order = 1;
+@endphp
 @foreach($listTags as $tag)
                         <tr>
                             <td class="border-bottom-0">
-                                <h6 class="fw-semibold mb-0">{{$tag->id}}</h6>
+                                <h6 class="fw-semibold mb-0">{{$order}}</h6>
                             </td>
+                            @php
+                                $order++;
+                            @endphp
                             <td class="border-bottom-0">
                                 <h6 class="fw-semibold mb-1">{{$tag->name}}</h6>
                             </td>
                             @if($tag->deleted_at)
                             <td class="border-bottom-0">
                                 <font class="badge bg-danger rounded-3 fw-semibol">
-                                    Deleted at: {{ \Carbon\Carbon::parse($tag->deleted_at)->format('d/m/Y H:i:s') }}
+                                    Inactive
                                 </font>
                             </td>
                             @else
