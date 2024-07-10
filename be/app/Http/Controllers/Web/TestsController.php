@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 use App\Models\Tests;
 use App\Models\QuestionsAdmin;
+use App\Models\QuestionUser;
 use App\Models\QuestionTypes;
 use App\Models\Topics;
 use App\Models\Levels;
@@ -48,28 +49,46 @@ class TestsController extends Controller
         return Excel::download(new ExportTests, 'tests.xlsx');
     }
     public function index(Request $request){
+        $topic_data = $request->input('topic_data',[]);
+        $tag_data = $request->input('tag_data',[]);
         $searchInput = $request->input('searchInput');
         $active = $request->input('active');
         $show = $request->input('show', 10);
-        if ($searchInput != null || $active != null) {
+        if (!empty($topic_data) || !empty($tag_data) || $searchInput || $active ) {
             return $this->search($request);
         }
         $listTests = Tests::withTrashed()->paginate($show);
         $listTags = Tags::all();
-        return view('/test/index',compact('listTests','listTags'));
+        $listTopics = Topics::all();
+        return view('/test/index',compact('listTests','listTags','listTopics', 'topic_data', 'tag_data'));
     }
     public function search(Request $request)
     {
+        $topic_data = $request->input('topic_data',[]);
+        $tag_data = $request->input('tag_data',[]);
         $searchInput = $request->input('searchInput');
         $active = $request->input('active');
         $show = $request->input('show', 10);
         $listTags = Tags::all();
+        $listTopics = Topics::all();
         $listTests = Tests::withTrashed()
         ->where(function ($query) use ($searchInput) {
             $query->where('name', 'like', "%$searchInput%")
                 ->orWhereHas('user', function ($userQuery) use ($searchInput) {
                     $userQuery->where('displayname', 'like', "%$searchInput%");
                 });
+        })
+        ->when(!empty($topic_data), function ($query) use ($topic_data) {
+            foreach ($topic_data as $id) {
+                $query->whereJsonContains('topic_data', $id);
+            }
+            return $query;
+        })
+        ->when(!empty($tag_data), function ($query) use ($tag_data) {
+            foreach ($tag_data as $id) {
+                $query->whereJsonContains('tag_data', $id);
+            }
+            return $query;
         })
         ->when($active !== null, function ($query) use ($active) {
             if ($active) {
@@ -79,11 +98,13 @@ class TestsController extends Controller
             }
         })
         ->paginate($show);
-        return view('/test/index', compact('listTests','listTags'));
+        return view('/test/index', compact('listTests','listTags','listTopics', 'topic_data', 'tag_data'));
     }
     public function edit(Request $request,$id){
         if(!$request->tag_data)
             return redirect()->route('test.index')->withError("Tags can't be empty");
+        if(!$request->name)
+            return redirect()->route('test.index')->withError("Name can't be empty");
         $test = Tests::withTrashed()->find($id);
         if ($request->hasFile('test_img')) {
             if (!empty($test->test_img) && Storage::exists($test->test_img)) {
@@ -107,9 +128,20 @@ class TestsController extends Controller
         return response()->json(['tag_data' => $tag_data,'name' => $name,'test_img' => $test_img]);
     }
     public function detail($id){
-        $test = Tests::withTrashed()->find($id);
-        $question_ids = json_decode($test->question_admin);
-        $listQuestions = QuestionsAdmin::whereIn('id', $question_ids)->orderby('topic_id')->orderby('level_id')->get();
+    $test = Tests::withTrashed()->find($id);
+
+    $question_admin_ids = json_decode($test->question_admin) ?: [];
+    $listQuestionsAdmin = QuestionsAdmin::whereIn('id', $question_admin_ids)
+                                        ->orderBy('topic_id')
+                                        ->orderBy('level_id')
+                                        ->get();
+
+    $question_user_ids = json_decode($test->question_user) ?: [];
+    $listQuestionsUser = QuestionUser::whereIn('id', $question_user_ids)
+                                      ->orderBy('topic_id')
+                                      ->orderBy('level_id')
+                                      ->get();
+    $listQuestions = $listQuestionsAdmin->merge($listQuestionsUser);
         return view('/test/details',compact('listQuestions'));
     }
     public function create(){
@@ -189,6 +221,7 @@ class TestsController extends Controller
         ->distinct('topic_id')
         ->pluck('topic_id')
         ->toArray();
+        $topic_data = array_map('strval', $topic_data);
         $test->topic_data = json_encode(array_unique($topic_data));
         $test->tag_data = json_encode(array_unique($request->tag_data));
         $test->done_count = 0;
