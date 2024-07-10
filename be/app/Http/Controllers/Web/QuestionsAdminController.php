@@ -26,7 +26,7 @@ class QuestionsAdminController extends Controller
 {
     public function findDupeQuestions(Request $request,$id = null){
         $input = $request->input('question_text');
-        $input_text = preg_replace('/[^\w+\-*\/^%]/', '', strip_tags(str_replace(['&nbsp;', ' '], '', $input)));
+        $input_text = strip_tags(str_replace(['&nbsp;', ' '], '', $input));
         
         if($id)
         {
@@ -42,7 +42,7 @@ class QuestionsAdminController extends Controller
             $id = $question['id'];
             $question_text = $question['question_text'];
             $question_img = $question['question_img'];
-            $cleaned_question_text = preg_replace('/[^\w+\-*\/^%]/', '', strip_tags(str_replace(['&nbsp;', ' '], '', $question_text)));
+            $cleaned_question_text = strip_tags(str_replace(['&nbsp;', ' '], '', $question_text));
             if (strpos(mb_strtolower($cleaned_question_text), mb_strtolower($input_text)) !== false) {
                 $matching_questions[] = [
                     'id' => $id,
@@ -116,7 +116,7 @@ class QuestionsAdminController extends Controller
         $user_id = $request->input('user_id');
         $show = $request->input('show', 10);
         $active = $request->input('active');
-        if (!empty($topic_data) || !empty($level_data) || $question_text || $user_id || $show || $active) {
+        if (!empty($topic_data) || !empty($level_data) || $question_text || $user_id || $active) {
             return $this->search($request);
         }
         $listTopics = Topics::all();
@@ -124,7 +124,7 @@ class QuestionsAdminController extends Controller
         $listTypes = QuestionTypes::all();
         $listUsers = Users::where('admin_role','!=',0)->get();
         $listQuestions = QuestionsAdmin::withTrashed()->paginate($show);
-        return view('question/index', compact('listTopics', 'listLevels', 'listTypes', 'listQuestions', 'listUsers'));
+        return view('question/index', compact('listTopics', 'listLevels', 'listTypes', 'listQuestions', 'listUsers', 'topic_data', 'level_data'));
     }
     public function search(Request $request)
     {
@@ -168,8 +168,8 @@ class QuestionsAdminController extends Controller
     public function create(Request $request)
     {
         // dd($request->all());
-        if (empty($request->create_answers) && empty($request->create_questionText)) {
-            return redirect()->route('question.index')->with(['success' => false, 'alert'=> 'Not enough data']);
+        if (empty($request->create_answers) || empty($request->create_questionText)) {
+            return back()->with(['success' => false, 'alert'=> 'Not enough data']);
         }
         $question = new QuestionsAdmin();
         $question->user_id = Auth::user()->id;
@@ -221,7 +221,7 @@ class QuestionsAdminController extends Controller
 
         $answer->answer_data = $answersString;
         $answer->save();
-        return redirect()->route('question.index')->with(['success' => true, 'alert' => 'Successfully created']);
+        return back()->with(['success' => true, 'alert' => 'Successfully created']);
     }
 
     public function edit($id)
@@ -234,7 +234,7 @@ class QuestionsAdminController extends Controller
     public function editHandle(Request $request, $id)
     {
         // dd($request->all());
-        if (empty($request->edit_answers) && empty($request->edit_questionText)) {
+        if (empty($request->edit_answers) || empty($request->edit_questionText)) {
             return redirect()->route('question.index')->with(['success' => false, 'alert'=> 'Not enough data']);
         }
         $question = QuestionsAdmin::find($id);
@@ -318,28 +318,28 @@ class QuestionsAdminController extends Controller
             $answersString = json_encode($answers);
             $answer->answer_data = $answersString;
             $answer->save();
-            return redirect()->route('question.index')->with(['success' => true, 'alert' => 'Successfully edited']);
+            return back()->with(['success' => true, 'alert' => 'Successfully edited']);
         }
     }
     public function deleteHandle($id)
     {
         $question = QuestionsAdmin::withTrashed()->find($id);
         if (!$question) {
-            return redirect()->route('question.index')->with(['success' => false, 'alert'=> 'Question not found']);
+            return back()->with(['success' => false, 'alert'=> 'Question not found']);
         }
         if ($question->trashed()) {
             $topic = Topics::withTrashed()->find($question->topic_id);
             if($topic->trashed()){
-                return redirect()->route('question.index')->with(['success' => false, 'alert' => "Question's topic has been deleted, cannot restore"]);
+                return back()->with(['success' => false, 'alert' => "Question's topic has been deleted, cannot restore"]);
             }
             $question->restore();
-            return redirect()->route('question.index')->with(['success' => true, 'alert' => 'Successfully restored']);
+            return back()->with(['success' => true, 'alert' => 'Successfully restored']);
         } else {
             if(Tests::isQuestionUsedInTests($id)){
-                return redirect()->route('question.index')->with(['success' => false, 'alert' =>'Question is already in use!']);
+                return back()->with(['success' => false, 'alert' =>'Question is already in use!']);
             }
             $question->delete();
-            return redirect()->route('question.index')->with(['success' => true, 'alert' => 'Successfully deleted']);
+            return back()->with(['success' => true, 'alert' => 'Successfully deleted']);
         }
     }
 }

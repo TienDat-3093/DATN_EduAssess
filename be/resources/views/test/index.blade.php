@@ -29,6 +29,28 @@
                     <button class="input-group-text" id="search-button"><i class="ti ti-search"></i></button>
                     <input value="{{ request('searchInput', old('searchInput')) }}" type="text" name="searchInput" id="searchInput" class="form-control" placeholder="Search by name or author">
                 </div>
+                <div class="d-flex mb-4">
+                    <div class="flex-fill me-2">
+                    <label class="form-label">Topics</label>
+                        @foreach ($listTopics as $topic)
+                            <div style="display:inline-block; margin:5px;">
+                            <input @if (in_array($topic->id, $topic_data)) checked @endif class="btn-check" id="topic-{{ $topic->id }}" autocomplete="off" type="checkbox" name="topic_data[]" value="{{ $topic->id }}" id="topic-{{ $topic->id }}">
+                            <label style="border-radius:25px;" class="btn btn-secondary" for="topic-{{ $topic->id }}" class="topic-label">{{ $topic->name }}</label>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="d-flex mb-4">
+                    <div class="flex-fill me-2">
+                    <label class="form-label">Tags</label>
+                        @foreach ($listTags as $tag)
+                            <div style="display:inline-block; margin:5px;">
+                            <input @if (in_array($tag->id, $tag_data)) checked @endif class="btn-check" id="searchtag-{{ $tag->id }}" autocomplete="off" type="checkbox" name="tag_data[]" value="{{ $tag->id }}" id="tag-{{ $tag->id }}">
+                            <label style="border-radius:25px;" class="btn btn-secondary" for="searchtag-{{ $tag->id }}" class="tag-label">{{ $tag->name }}</label>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
                 <!-- Radio Buttons -->
                 <div class="d-flex mb-4">
                     <div class="flex-fill">
