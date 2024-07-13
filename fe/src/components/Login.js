@@ -1,36 +1,61 @@
-
+import { NavLink } from "react-bootstrap";
 import { fetchLogin } from "../services/UserServices";
-import React, { useState,useEffect } from "react";
-export default function Login({onLoginSuccess,onRegisterClick}) {
+import React, { useState, useEffect } from "react";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
+export default function Login({ onLoginSuccess, onRegisterClick }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [showError,setShowError] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const navigate = useNavigate();
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    setError('');
+    setError("");
     setShowError(false);
     try {
       const response = await fetchLogin(email, password);
-      console.log("Login successful:", response.data.access_token);
+      if (response) {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
+        Toast.fire({
+          icon: "success",
+          title: "Login successful",
+        });
+        /* navigate("/"); */
+       
+      }
+      const expirationTime = new Date().getTime() + response.data.expires_in* 1000;
       onLoginSuccess();
       const token = response.data.access_token;
-      localStorage.setItem('token', token);
+      localStorage.setItem("token", token);
+      localStorage.setItem('tokenExpiration', expirationTime);
+      console.log("Login successful:", response.data);
     } catch (err) {
       console.error("Login failed:", err);
       setShowError(true);
-      setError('Login failed. Please check your credentials and try again.');
+      setError("Login failed. Please check your credentials and try again.");
     }
   };
-  useEffect(()=>{
+  useEffect(() => {
     let timer;
-    if(showError){
-      timer = setTimeout(()=>{
+    if (showError) {
+      timer = setTimeout(() => {
         setShowError(false);
-      },(5000));
+      }, 5000);
     }
-    return ()=>clearTimeout(timer);
-  },[showError]);
+    return () => clearTimeout(timer);
+  }, [showError]);
   return (
     <>
       <section className="ftco-section ftco-no-pb ftco-no-pt">
@@ -70,7 +95,9 @@ export default function Login({onLoginSuccess,onRegisterClick}) {
                       onChange={(e) => setPassword(e.target.value)}
                     />
                   </div>
-                  {showError && <div className="alert alert-danger">{error}</div>}
+                  {showError && (
+                    <div className="alert alert-danger">{error}</div>
+                  )}
 
                   <div className="form-group d-flex justify-content-end mt-4">
                     <button type="submit" className="btn btn-primary submit">
@@ -79,7 +106,15 @@ export default function Login({onLoginSuccess,onRegisterClick}) {
                   </div>
                 </form>
                 <p className="text-center">
-                  Do not have an account? <button className="btn btn-link" onClick={onRegisterClick}>Register</button>
+                  Do not have an account?{" "}
+                  <button className="btn btn-link" onClick={onRegisterClick}>
+                    Register
+                  </button>
+                </p>
+                <p className="text-center">
+                  <a href="/forgot-password" className="btn btn-link">
+                    Forgot password
+                  </a>
                 </p>
               </div>
             </div>

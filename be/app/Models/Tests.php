@@ -46,8 +46,13 @@ class Tests extends Model
         }
         return false;
     }
+
     public function user()
     {
         return $this->belongsTo(Users::class);
+    }
+    public function topic()
+    {
+        return $this->belongsTo(Topics::class, 'id');
     }
 }
