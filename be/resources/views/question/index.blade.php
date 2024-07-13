@@ -271,7 +271,7 @@
                                         @else
                                         <li>
                                         <li>
-                                            <button data-question-id="{{$question->id}}" class="btnEdit dropdown-item" data-bs-toggle="modal" data-bs-target="#editQuestion">Edit</button></li>
+                                            <button onclick="editQuestion({{ $question->id }})" class="btnEdit dropdown-item" data-bs-toggle="modal" data-bs-target="#editQuestion">Edit</button></li>
                                             <form action="{{ route('question.delete', ['id' => $question->id]) }}" method="POST" class="delete-form">
                                                 @csrf
                                                 @method('POST')
@@ -433,25 +433,24 @@
                     alert("Question duplicates haven't been resolved yet.");
                 }
         });
-        var editID = 0;
-        $('.btnEdit').click(function() {
-            var questionID = $(this).data('question-id');
-            editID = questionID;
-            editQuestion(questionID);
-            console.log('editID', editID);
-        })
+        // $('.btnEdit').click(function() {
+        //     var questionID = $(this).data('question-id');
+        //     editID = questionID;
+        //     editQuestion(questionID);
+        //     console.log('editID', editID);
+        // })
         $('.btnDetail').click(function() {
             var questionID = $(this).data('question-id');
             showAnswers(questionID);
             console.log('detail', questionID);
 
         })
-        $('.edit-question-btn').click(function() {
+        // $('.edit-question-btn').click(function() {
 
-            var formAction = "{{ route('question.editHandle', ['id' => ':id']) }}";
-            formAction = formAction.replace(':id', editID);
-            $('#edit_questionForm').attr('action', formAction);
-        });
+        //     var formAction = "{{ route('question.editHandle', ['id' => ':id']) }}";
+        //     formAction = formAction.replace(':id', editID);
+        //     $('#edit_questionForm').attr('action', formAction);
+        // });
     })
     $('#createQuestion').on('show.bs.modal', function(e) {
         $('#edit_answersContainer').empty();
@@ -540,7 +539,9 @@
             url: 'question/edit/' + questionID,
             type: "get",
             success: function(data, answer) {
-
+                var formAction = "{{ route('question.editHandle', ['id' => ':id']) }}";
+                formAction = formAction.replace(':id', questionID);
+                $('#edit_questionForm').attr('action', formAction);
                 console.log(data.data.question_img)
                 const editorElement = document.querySelector('#edit_editor');
                 ClassicEditor
