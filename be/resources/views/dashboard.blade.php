@@ -317,7 +317,7 @@
                 var selectElement = $('#mostEngagedTests');
                 response.test_data.forEach(function(test) {
                 var tagSpans = test.tag_data.map(function(tag) {
-                    return `<span class="col-lg-4 m-1 d-flex align-items-stretch justify-content-center badge bg-primary rounded-3 fw-semibold">${tag}</span>`;
+                    return `<span class="col-lg-6 m-1 d-flex align-items-stretch justify-content-center badge bg-primary rounded-3 fw-semibold">${tag}</span>`;
                 }).join('');
                 var row = `<tr>
                                 <td class="border-bottom-0">
