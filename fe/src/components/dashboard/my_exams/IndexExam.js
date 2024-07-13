@@ -1,5 +1,7 @@
 import { NavLink } from "react-router-dom";
 import SideBar from "../SideBar";
+import Moment from 'react-moment';
+import moment from 'moment';
 import {
   fetchExamsToUser,
   fetchDeleteExam,
@@ -10,7 +12,10 @@ import React, { useEffect, useState } from "react";
 import DOMPurify from "dompurify";
 import Swal from "sweetalert2";
 export default function IndexExam() {
-  const [nameExam, setNameExam] = useState("");
+  /* const [nameExam, setNameExam] = useState(""); */
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage] = useState(10);
   const handleCopyLink = (url) => {
     const linkToCopy = "http://localhost:3000" + url;
 
@@ -36,16 +41,17 @@ export default function IndexExam() {
 
   const [data, setData] = useState("");
   const [keyword, setKeyWord] = useState("");
-  const [newf, setNewf] = useState("");
+  const [news, setNews] = useState("");
   const [outstanding, setOutstanding] = useState("");
-  console.log("user", user);
+  console.log("news", news,'outstanding',outstanding);
 
   const getExamsToUser = async () => {
     console.log("id", user.id);
     try {
-      const response = await fetchExamsToUser(user.id);
+      const response = await fetchExamsToUser(user.id,currentPage,itemsPerPage);
       if (response) {
         setData(response.data.data);
+        setTotalPages(response.data.totalPages);
         console.log("res", response);
       }
       console.log("resl", response);
@@ -60,9 +66,10 @@ export default function IndexExam() {
   };
   const getExamToSearch = async () => {
     try {
-      const response = await fetchExamToSearch(user.id, keyword);
+      const response = await fetchExamToSearch(user.id, keyword,currentPage,itemsPerPage);
       if (response) {
         setData(response.data.data);
+        setTotalPages(response.data.totalPages);
       }
       console.log("ress", response);
     } catch (error) {
@@ -70,8 +77,8 @@ export default function IndexExam() {
     }
   };
   const handleClickNew = (e) => {
-    const newf = e.target.checked;
-    setNewf(newf);
+    const news = e.target.checked;
+    setNews(news);
   };
   const handleClickOutstanding = (e) => {
     const outstanding = e.target.checked;
@@ -79,13 +86,15 @@ export default function IndexExam() {
   };
   const getExamToFilter = async () => {
     try {
-      const response = await fetchExamToFilter(user.id, newf, outstanding);
+      const response = await fetchExamToFilter(user.id, news, outstanding,currentPage,itemsPerPage);
       if (response) {
-        setData();
+        setData(response.data.data);
+        setTotalPages(response.data.totalPages);
       }
-      console.log("redf".response);
+      console.log("redf",response);
     } catch (error) {}
   };
+  console.log('data',data)
   const handleDeleteExam = async (id) => {
     console.log("id", id);
     const formData = {
@@ -99,15 +108,15 @@ export default function IndexExam() {
         },
         buttonsStyling: false,
       });
-      let mess = "Bạn có chắc muốn xóa?";
+      let mess = "Are you sure you want to delete?";
 
       const result = await swalWithBootstrapButtons.fire({
         title: mess,
         /* text: "You won't be able to revert this!", */
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: "Đồng ý",
-        cancelButtonText: "Không đồng ý",
+        confirmButtonText: "Ok",
+        cancelButtonText: "No",
         reverseButtons: true,
       });
 
@@ -122,7 +131,7 @@ export default function IndexExam() {
         /* triggerReload(); */
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         swalWithBootstrapButtons.fire({
-          title: "Đã hủy",
+          title: "Cancelled",
 
           icon: "error",
         });
@@ -137,13 +146,14 @@ export default function IndexExam() {
   };
   useEffect(() => {
     getExamsToUser();
-  }, []);
-  /* useEffect(()=>{
+  }, [currentPage]);
+  useEffect(()=>{
     getExamToFilter();
-  },[newf,outstanding]) */
+    console.log(+1)
+  },[news,outstanding,currentPage])
   useEffect(() => {
     getExamToSearch();
-  }, [keyword]);
+  }, [keyword,currentPage]);
   return (
     <>
       <section className="ftco-section bg-light pt-5">
@@ -157,7 +167,7 @@ export default function IndexExam() {
                   <input
                     type="text"
                     className="form-control"
-                    placeholder="Tìm kiếm đề thi..."
+                    placeholder="Search exam..."
                     onChange={handleInputSearch}
                   />
                 </div>
@@ -172,7 +182,7 @@ export default function IndexExam() {
                         onChange={handleClickNew}
                       />
                       <label className="form-check-label" htmlFor="latest">
-                        Mới nhất
+                        New
                       </label>
                     </div>
                     <div className="form-check form-check-inline">
@@ -184,7 +194,7 @@ export default function IndexExam() {
                         onChange={handleClickOutstanding}
                       />
                       <label className="form-check-label" htmlFor="featured">
-                        Nổi bật
+                        Outstanding
                       </label>
                     </div>
                   </div>
@@ -194,7 +204,7 @@ export default function IndexExam() {
                         className="text-white"
                         to="/dashboard/my-exams/create"
                       >
-                        Thêm Mới
+                        Create
                       </NavLink>
                     </button>
                   </div>
@@ -216,9 +226,12 @@ export default function IndexExam() {
                               exam.test_img && isValidImageUrl(exam.test_url)
                                 ? `url('${exam.test_url}')`
                                 : "url(../images/work-2.jpg)",
+                            height: "200px",
+                            backgroundSize: "cover",
+                            backgroundPosition: "center",
                           }}
                         >
-                          <span className="price">Bắt đầu</span>
+                          <span className="price">Start</span>
                         </NavLink>
 
                         <div className="text p-4">
@@ -231,8 +244,19 @@ export default function IndexExam() {
                             />
                           </div>
 
-                          <p className="advisor">
-                            Tác giả: <span>{exam.user.username}</span>
+                          <p className="advisor m-0">
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              fill="currentColor"
+                              class="bi bi-clock"
+                              viewBox="0 0 16 16"
+                            >
+                              <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71z" />
+                              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16m7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0" />
+                            </svg>{"  "}
+                            <Moment format="DD-MM-YYYY">{exam.created_at}</Moment>
                           </p>
                           <NavLink
                             className="btn text-primary"
@@ -347,10 +371,50 @@ export default function IndexExam() {
                       className="img-fluid"
                     />
                     <div className="empty-result-section__title">
-                      Không tìm thấy kết quả nào
+                    No result is found
                     </div>
                   </div>
                 )}
+              </div>
+              <div className="row mt-5">
+                <div className="col">
+                  <div className="block-27">
+                    <ul>
+                      <li
+                        className={currentPage === 1 ? "disabled" : ""}
+                        onClick={() => {
+                          if (currentPage > 1) setCurrentPage(currentPage - 1);
+                        }}
+                      >
+                        <a href="#" onClick={(e) => e.preventDefault()}>
+                          &lt;
+                        </a>
+                      </li>
+                      {Array.from({ length: totalPages }, (_, index) => (
+                        <li
+                          key={index}
+                          className={currentPage === index + 1 ? "active" : ""}
+                          onClick={() => setCurrentPage(index + 1)}
+                        >
+                          <a href="#" onClick={(e) => e.preventDefault()}>
+                            {index + 1}
+                          </a>
+                        </li>
+                      ))}
+                      <li
+                        className={currentPage === totalPages ? "disabled" : ""}
+                        onClick={() => {
+                          if (currentPage < totalPages)
+                            setCurrentPage(currentPage + 1);
+                        }}
+                      >
+                        <a href="#" onClick={(e) => e.preventDefault()}>
+                          &gt;
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

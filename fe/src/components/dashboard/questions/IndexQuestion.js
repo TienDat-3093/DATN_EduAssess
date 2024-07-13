@@ -21,6 +21,9 @@ export default function IndexQuestion() {
   const [keyword, setKeyWord] = useState("");
   const [question, setQuestion] = useState("");
   /* const [questionId, setQuestionId] = useState(0); */
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [itemsPerPage] = useState(20);
   const [reload, setReload] = useState(false);
   const jsonData = JSON.stringify(data);
   localStorage.setItem("selects", jsonData);
@@ -34,7 +37,7 @@ export default function IndexQuestion() {
   console.log("re", reload);
   const getQuestionsToUser = async () => {
     try {
-      const response = await fetchQuestionsToUser(user.id);
+      const response = await fetchQuestionsToUser(user.id,currentPage,itemsPerPage);
       if (
         response &&
         response.data &&
@@ -43,6 +46,7 @@ export default function IndexQuestion() {
       ) {
         const data = response.data.data[0];
         setData(data);
+        setTotalPages(response.data.totalPages);
         console.log("ress", response);
       }
     } catch (error) {
@@ -59,10 +63,13 @@ export default function IndexQuestion() {
         user.id,
         user.admin_role,
         selectedLevels.join(","),
-        selectedTopics.join(",")
+        selectedTopics.join(","),
+        currentPage,
+        itemsPerPage
       );
       if (response) {
         setData(response.data.data[0]);
+        setTotalPages(response.data.totalPages);
         console.log("filter", response);
       }
     } catch (error) {
@@ -74,10 +81,13 @@ export default function IndexQuestion() {
       const response = await fetchQuestionsToSearch(
         user.id,
         user.admin_role,
-        keyword
+        keyword,
+        currentPage,
+        itemsPerPage
       );
       if (response) {
         setData(response.data.data[0]);
+        setTotalPages(response.data.totalPages);
       }
     } catch (error) {}
   };
@@ -107,9 +117,9 @@ export default function IndexQuestion() {
       });
       let mess;
       if (val === 1) {
-        mess = "Bạn có chắc muốn xóa?";
+        mess = "Are you sure you want to delete?";
       } else {
-        mess = "Bạn có chắc muốn khôi phục?";
+        mess = "Are you sure you want to restore?";
       }
       console.log(mess);
       const result = await swalWithBootstrapButtons.fire({
@@ -117,8 +127,8 @@ export default function IndexQuestion() {
         /* text: "You won't be able to revert this!", */
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: "Đồng ý",
-        cancelButtonText: "Không đồng ý",
+        confirmButtonText: "Ok",
+        cancelButtonText: "No",
         reverseButtons: true,
       });
 
@@ -134,7 +144,7 @@ export default function IndexQuestion() {
         triggerReload();
       } else if (result.dismiss === Swal.DismissReason.cancel) {
         swalWithBootstrapButtons.fire({
-          title: "Đã hủy",
+          title: "Cancelled",
 
           icon: "error",
         });
@@ -159,7 +169,7 @@ export default function IndexQuestion() {
       });
       Toast.fire({
         icon: "warning",
-        title: "Câu hỏi đã được xóa không thể cập nhật",
+        title: "Questions that have been deleted cannot be updated",
       });
       return;
     }
@@ -170,13 +180,13 @@ export default function IndexQuestion() {
   }, [questionId]); */
   useEffect(() => {
     getQuestionsToSearch();
-  }, [keyword, reload]);
+  }, [keyword, reload,currentPage]);
   useEffect(() => {
     getQuestionsToFilter();
   }, [selectedTopics, selectedLevels, reload]);
   useEffect(() => {
     getQuestionsToUser();
-  }, []);
+  }, [currentPage]);
   const handleLevelSelect = (e) => {
     const levelId = e.target.value;
     setSelectedLevels((prev) =>
@@ -193,12 +203,15 @@ export default function IndexQuestion() {
         : prev.filter((id) => id !== topicId)
     );
   };
+  console.log('key',keyword)
   const handleInputSearch = (event) => {
+    const keyword = event.target.value;
     if (event.key === "Enter") {
       event.preventDefault();
       const keyword = event.target.value;
       setKeyWord(keyword);
     }
+    setKeyWord(keyword);
   };
   /* const handleQuestionId = (id) => {
     const questionId = id;
@@ -217,13 +230,13 @@ export default function IndexQuestion() {
                 <div className="row">
                   <div className="col">
                     <div className="d-flex justify-content-between align-items-center">
-                      <h3 className="mb-2">Danh sách câu hỏi</h3>
+                      <h3 className="mb-2">List question</h3>
                       <button className="btn btn-secondary mb-2">
                         <NavLink
                           className="text-white"
                           to="/dashboard/questions/create"
                         >
-                          Tạo câu hỏi
+                          Create
                         </NavLink>
                       </button>
                     </div>
@@ -242,13 +255,13 @@ export default function IndexQuestion() {
                         <form>
                           <div className="mb-3">
                             <label htmlFor="search_1" className="form-label">
-                              Tìm câu hỏi
+                              Search question
                             </label>
                             <input
                               type="text"
                               className="form-control"
                               id="search_1"
-                              placeholder="Nhập tên câu hỏi"
+                              placeholder="Search question"
                               onChange={(event) => handleInputSearch(event)}
                               onKeyDown={(event) => handleInputSearch(event)}
                             />
@@ -256,7 +269,7 @@ export default function IndexQuestion() {
                           <div className="row">
                             <div className="col-md-6 mb-3">
                               <label htmlFor="level" className="form-label">
-                                Cấp độ
+                                Levels
                               </label>
                               <div
                                 className="checkbox-container"
@@ -295,7 +308,7 @@ export default function IndexQuestion() {
                             </div>
                             <div className="col-md-6 mb-3">
                               <label htmlFor="topic" className="form-label">
-                                Chủ đề
+                                Topics
                               </label>
                               <div
                                 className="checkbox-container"
@@ -336,7 +349,7 @@ export default function IndexQuestion() {
 
                           <div className="mb-3">
                             <label htmlFor="answers" className="form-label">
-                              Danh sách câu hỏi{" "}
+                              List question{" "}
                               <span className="text-danger">*</span>
                             </label>
                             {data && data.questions ? (
@@ -345,11 +358,11 @@ export default function IndexQuestion() {
                                   <table className="table table-hover">
                                     <thead>
                                       <tr>
-                                        <th scope="col">Ảnh</th>
-                                        <th scope="col">Câu hỏi</th>
-                                        <th scope="col">Loại câu hỏi</th>
-                                        <th scope="col">Độ khó</th>
-                                        <th scope="col">Chức năng</th>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Question</th>
+                                        <th scope="col">Type question</th>
+                                        <th scope="col">Level</th>
+                                        <th scope="col">Function</th>
                                       </tr>
                                     </thead>
                                     <tbody>
@@ -495,6 +508,7 @@ export default function IndexQuestion() {
                           </div>
                         </form>
                       </div>
+                      
                       {/* End of tab pane for basic information */}
 
                       {/* Tab pane for questions */}
@@ -514,12 +528,54 @@ export default function IndexQuestion() {
                       <button className="btn btn-secondary">Trở về</button>
                     </div> */}
                   </div>
+                  
+                </div>
+              </div>
+              <div className="row mt-5 justify-content-center align-items-center ">
+                <div className="col-auto">
+                  <div className="block-27">
+                    <ul>
+                      <li
+                        className={currentPage === 1 ? "disabled" : ""}
+                        onClick={() => {
+                          if (currentPage > 1) setCurrentPage(currentPage - 1);
+                        }}
+                      >
+                        <a href="#" onClick={(e) => e.preventDefault()}>
+                          &lt;
+                        </a>
+                      </li>
+                      {Array.from({ length: totalPages }, (_, index) => (
+                        <li
+                          key={index}
+                          className={currentPage === index + 1 ? "active" : ""}
+                          onClick={() => setCurrentPage(index + 1)}
+                        >
+                          <a href="#" onClick={(e) => e.preventDefault()}>
+                            {index + 1}
+                          </a>
+                        </li>
+                      ))}
+                      <li
+                        className={currentPage === totalPages ? "disabled" : ""}
+                        onClick={() => {
+                          if (currentPage < totalPages)
+                            setCurrentPage(currentPage + 1);
+                        }}
+                      >
+                        <a href="#" onClick={(e) => e.preventDefault()}>
+                          &gt;
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </section>
+      
       {/* Show detail answer */}
       <div
         className="modal fade"
@@ -533,7 +589,7 @@ export default function IndexQuestion() {
           <div className="modal-content">
             <div className="modal-header bg-primary text-white">
               <h5 className="modal-title" id="detailLabel">
-                Câu trả lời
+                Answers
               </h5>
               <button
                 type="button"
@@ -550,9 +606,9 @@ export default function IndexQuestion() {
                   <table className="table table-hover table-bordered text-center">
                     <thead className="thead-dark">
                       <tr>
-                        <th scope="col">Ảnh</th>
-                        <th scope="col">Câu trả lời</th>
-                        <th scope="col">Câu đúng</th>
+                        <th scope="col">Image</th>
+                        <th scope="col">Answers</th>
+                        <th scope="col">Correct</th>
                       </tr>
                     </thead>
                     <tbody>

@@ -24,7 +24,7 @@ const navLinkActiveStyle = {
 return (
     <div className="col-lg-3 sidebar">
         <div className="sidebar-box bg-white p-4 ftco-animate fadeInUp ftco-animated">
-            <h3 className="heading-sidebar">Quản lý đề thi</h3>
+            <h3 className="heading-sidebar">Management</h3>
             <form action="#" className="browse-form">
                 <label htmlFor="option-category-2">
                     <NavLink
@@ -42,7 +42,7 @@ return (
                             }
                         }}
                     >
-                        Đề thi của tôi
+                        My Exams
                     </NavLink>
                 </label>
                 <br />
@@ -62,7 +62,7 @@ return (
                             }
                         }}
                     >
-                        Kết quả thi của tôi
+                        My exam results
                     </NavLink>
                 </label>
                 <br />
@@ -82,7 +82,7 @@ return (
                             }
                         }}
                     >
-                        Quản lý câu hỏi
+                        Questions
                     </NavLink>
                 </label>
                 <br />

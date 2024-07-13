@@ -3,7 +3,8 @@ import Banner1 from "./Banner1";
 import Banner2 from "./Banner2";
 import React, { useState, useEffect } from "react";
 import { Dropdown } from "react-bootstrap";
-import { jwtDecode } from "jwt-decode"; // Đúng cách nhập jwtDecode
+import { jwtDecode } from "jwt-decode";
+
 
 import {
   fetchLogout,
@@ -15,13 +16,16 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState(null);
   const token = localStorage.getItem("token");
+  const tokenExpiration = localStorage.getItem('tokenExpiration');
   const navigate = useNavigate();
-  
+  console.log('token',token)
+  console.log('tokenExpiration',tokenExpiration)
   const isTokenExpiringSoon = (beforeTime = 60) => {
     if (!token) {
       return false;
     }
     const decodedToken = jwtDecode(token);
+    console.log('decodedToken',decodedToken)
     const currentTime = Date.now() / 1000; // Chuyển đổi sang giây
     return decodedToken.exp - currentTime < beforeTime;
   };
@@ -35,6 +39,7 @@ export default function Header() {
         console.log("refresh", response.data.access_token);
       } catch (err) {
         console.log("Failed to fetch refreshToken", err);
+        handleLogout();
       }
     }
   };
@@ -90,7 +95,7 @@ export default function Header() {
       console.log("no token");
     }
   };
-
+  
   return (
     <>
       <nav className="navbar navbar-expand-lg navbar-dark bg-while" id="ftco-navbar">
@@ -111,29 +116,25 @@ export default function Header() {
           </button>
           <div className="collapse navbar-collapse" id="ftco-nav">
             <ul className="navbar-nav ml-auto">
-              <li className="nav-item active">
-                <NavLink to="/" className="nav-link text-dark">
+              <li className="nav-item " >
+                <NavLink to="/" className="nav-link text-dark" style={{ fontSize: '18px', }} >
                   Home
                 </NavLink>
               </li>
-              <li className="nav-item active">
-                <NavLink to="/about" className="nav-link text-dark">
+              <li className="nav-item ">
+                <NavLink to="/about" className="nav-link text-dark" style={{ fontSize: '18px', }} >
                   About
                 </NavLink>
               </li>
-              <li className="nav-item active">
-                <NavLink to="/exams" className="nav-link text-dark">
+              <li className="nav-item ">
+                <NavLink to="/exams" className="nav-link text-dark " style={{ fontSize: '18px', }} >
                   Test
                 </NavLink>
               </li>
-              <li className="nav-item active">
-                <NavLink to="/instructor" className="nav-link text-dark">
-                  Instructor
-                </NavLink>
-              </li>
+              
               {isLoggedIn && (
-                <li className="nav-item active">
-                  <NavLink to="/dashboard" className="nav-link text-dark">
+                <li className="nav-item ">
+                  <NavLink to="/dashboard" className="nav-link text-dark" style={{ fontSize: '18px', }}>
                     DashBoard
                   </NavLink>
                 </li>
@@ -152,8 +153,8 @@ export default function Header() {
                       style={{
                         backgroundImage:
                           user && user.image
-                            ? `url(${user.image})`
-                            : "url(/images/person_1.jpg)",
+                            ? `url("http://localhost:8000/${user.image}")`
+                            : "url(../../images/avatar.png)",
                         width: "40px",
                         height: "40px",
                         backgroundSize: "cover",
@@ -164,7 +165,7 @@ export default function Header() {
                   </div>
                 </Dropdown.Toggle>
                 <Dropdown.Menu>
-                  <Dropdown.Item href="#/profile">Profile</Dropdown.Item>
+                  <Dropdown.Item href="/profile">Profile</Dropdown.Item>
                   <Dropdown.Item href="#/logout" onClick={handleLogout}>
                     Log out
                   </Dropdown.Item>

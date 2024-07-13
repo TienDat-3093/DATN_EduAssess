@@ -25,6 +25,7 @@ import {
   fetchShowQuestion,
   fetchGetQuestion,
   fetchCreateExam,
+  fetchShowExamCreate
 } from "../../../services/UserServices";
 export default function CreateExam() {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ export default function CreateExam() {
 
   console.log("load", loadQuestions);
   console.log("listQuesReturn", listQuesReturn);
-  console.log("data", quesReturnId);
+  console.log("data", data);
   const handleUploadImage = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -116,23 +117,24 @@ export default function CreateExam() {
     } catch (error) {}
   };
 
-  const getQuestionsToUser = async () => {
+  const getShowExamCreate = async () => {
     try {
-      const response = await fetchQuestionsToUser(user.id);
+      const response = await fetchShowExamCreate();
       if (response) {
         setData(response.data.data[0]);
-        console.log("resQ", response);
+        
       }
+      console.log("resQ", response);
     } catch (error) {}
   };
   const getQuestions = async () => {
     let message;
     if (!selectedLevels || selectedLevels.length === 0) {
-      message = "Chưa chọn độ khó cho bài kiểm tra";
+      message = "Please select a level";
     } else if (!selectedTopics || selectedTopics.length === 0) {
-      message = "Chưa chọn chủ đề cho bài kiểm tra";
+      message = "Please select a topic";
     } else if (!quantity || quantity === "") {
-      message = "Chưa nhập số lượng câu hỏi";
+      message = "Please enter the number of questions";
     }
 
     if (message) {
@@ -179,28 +181,28 @@ export default function CreateExam() {
           icon: "success",
           title: response.data.message,
         });
-        console.log("suu", response);
+        
       }
-      console.log("rell", response);
+      
     } catch (error) {
       console.log("err", error);
     }
   };
-
+  console.log('listQuesReturn',listQuesReturn)
   const handleCreateExam = async () => {
     let message;
     if (!examText) {
-      message = "Chưa nhập tên bài kiểm tra";
+      message = "Please enter the name of the test";
     } else if (!selectedTags || selectedTags.length === 0) {
-      message = "Chưa chọn thẻ cho bài kiểm tra";
+      message = "Please select tags";
     } else if (!selectedLevels || selectedLevels.length === 0) {
-      message = "Chưa chọn độ khó cho bài kiểm tra";
+      message = "Please select levels";
     } else if (!selectedTopics || selectedTopics.length === 0) {
-      message = "Chưa chọn chủ đề cho bài kiểm tra";
+      message = "Please select topics";
     } else if (!quantity || quantity === "") {
-      message = "Chưa nhập số lượng câu hỏi";
-    } else if (!listQuesReturn) {
-      message = "Chưa tạo câu hỏi";
+      message = "Please enter the quantity questions";
+    } else if (!listQuesReturn || listQuesReturn.length === 0) {
+      message = "Please create question";
     }
 
     if (message) {
@@ -264,7 +266,7 @@ export default function CreateExam() {
   };
 
   useEffect(() => {
-    getQuestionsToUser();
+    getShowExamCreate();
   }, []);
   useEffect(() => {
     getShowQuestion();
@@ -298,7 +300,7 @@ export default function CreateExam() {
                 <div className="row">
                   <div className="col">
                     <div className="d-flex justify-content-between align-items-center">
-                      <h3 className="mb-2">Thêm mới đề thi</h3>
+                      <h3 className="mb-2">Add exam</h3>
                       <button
                         onClick="{onBacktoIndex}"
                         className="btn btn-secondary mb-2"
@@ -307,7 +309,7 @@ export default function CreateExam() {
                           className="text-white"
                           to="/dashboard/my-exams"
                         >
-                          Trở về
+                          Return
                         </NavLink>
                       </button>
                     </div>
@@ -326,7 +328,7 @@ export default function CreateExam() {
                         <form>
                           <div className="mb-3">
                             <label htmlFor="examName" className="form-label">
-                              Tên đề thi <span className="text-danger">*</span>
+                              Name Exam <span className="text-danger">*</span>
                             </label>
                             <div className="row">
                               <div className="col-md-10 pr-0">
@@ -395,7 +397,7 @@ export default function CreateExam() {
                           {uploadedImage && (
                             <div className="mb-3">
                               <label className="form-label">
-                                Ảnh đã tải lên:
+                              Photo uploaded:
                               </label>
                               <div>
                                 <img
@@ -409,7 +411,7 @@ export default function CreateExam() {
                           <div className="row">
                             <div className="col-md-12 mb-3">
                               <label htmlFor="major" className="form-label">
-                                Thẻ <span className="text-danger">*</span>
+                                Tags <span className="text-danger">*</span>
                               </label>
                               <div
                                 className="checkbox-container"
@@ -450,7 +452,7 @@ export default function CreateExam() {
                           <div className="row">
                             <div className="col-md-6 mb-3">
                               <label htmlFor="password" className="form-label">
-                                Mật khẩu
+                                Password
                               </label>
                               <input
                                 type="text"
@@ -464,7 +466,7 @@ export default function CreateExam() {
 
                             <div className="col-md-6 mb-3">
                               <label htmlFor="privacy" className="form-label">
-                                Trạng thái
+                                Status
                               </label>
                               <div className="form-check">
                                 <input
@@ -479,7 +481,7 @@ export default function CreateExam() {
                                   className="form-check-label"
                                   htmlFor="privacy-private"
                                 >
-                                  Riêng tư
+                                  Privacy
                                 </label>
                               </div>
                               <div className="form-check">
@@ -496,16 +498,16 @@ export default function CreateExam() {
                                   className="form-check-label"
                                   htmlFor="privacy-public"
                                 >
-                                  Công khai
+                                  Public
                                 </label>
                               </div>
                             </div>
                           </div>
-                          <h4 className="form-label test-dark">Câu hỏi</h4>
+                          <h4 className="form-label test-dark">Question</h4>
                           <div className="row">
                             <div className="col-md-6 mb-3">
                               <label htmlFor="level" className="form-label">
-                                Độ khó
+                               Levels
                               </label>
                               <div
                                 className="checkbox-container"
@@ -543,7 +545,7 @@ export default function CreateExam() {
                             </div>
                             <div className="col-md-6 mb-3">
                               <label htmlFor="level" className="form-label">
-                                Chủ đề
+                                Topics
                               </label>
                               <div
                                 className="checkbox-container"
@@ -583,7 +585,7 @@ export default function CreateExam() {
                           <div className="row">
                             <div className="col-md-6 mb-3">
                               <label htmlFor="quantity" className="form-label">
-                                Số lượng câu hỏi{" "}
+                                Quantity Question{" "}
                                 <span className="text-danger">*</span>
                               </label>
                               <div className="input-group">
@@ -599,7 +601,7 @@ export default function CreateExam() {
                                   onClick={getQuestions}
                                   className="btn btn-secondary btn-sm ml-2"
                                 >
-                                  Tạo
+                                  Create
                                 </a>
                               </div>
                             </div>
@@ -607,17 +609,17 @@ export default function CreateExam() {
 
                           <div className="mb-3">
                             <label htmlFor="status" className="form-label">
-                              Danh sách câu hỏi{" "}
+                              List Question{" "}
                               <span className="text-danger">*</span>
                             </label>
                             <table class="table table-hover text-center">
                               <thead>
                                 <tr>
-                                  <th scope="col">Ảnh</th>
-                                  <th scope="col">Câu hỏi</th>
-                                  <th scope="col">Loại câu hỏi</th>
-                                  <th scope="col">Độ khó</th>
-                                  <th scope="col">Chức năng</th>
+                                  <th scope="col">Image</th>
+                                  <th scope="col">Question</th>
+                                  <th scope="col">Type Question</th>
+                                  <th scope="col">Level</th>
+                                  <th scope="col">Function</th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -726,7 +728,7 @@ export default function CreateExam() {
                         onClick={handleCreateExam}
                         className="btn btn-secondary"
                       >
-                        Xác nhận
+                        Submit
                       </button>
                     </div>
                   </div>
@@ -749,7 +751,7 @@ export default function CreateExam() {
           <div className="modal-content">
             <div className="modal-header bg-primary text-white">
               <h5 className="modal-title" id="detailLabel">
-                Câu trả lời
+                Answers
               </h5>
               <button
                 type="button"
@@ -766,9 +768,9 @@ export default function CreateExam() {
                   <table className="table table-hover table-bordered text-center">
                     <thead className="thead-dark">
                       <tr>
-                        <th scope="col">Ảnh</th>
-                        <th scope="col">Câu trả lời</th>
-                        <th scope="col">Câu đúng</th>
+                        <th scope="col">Image</th>
+                        <th scope="col">Answer</th>
+                        <th scope="col">Right sentence</th>
                       </tr>
                     </thead>
                     <tbody>

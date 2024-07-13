@@ -83,11 +83,13 @@ export default function EditQuestion() {
   const handleEditQuestion = async () => {
     let message;
     if (!questionText) {
-      message = "Chưa nhập tên câu hỏi";
+      message = "Please enter the name question";
     } else if (answers.length === 0) {
-      message = "Chưa có câu trả lời";
+      message = "No answer yet";
     } else if (answers.some((answer) => !answer.value)) {
-      message = "Có câu trả lời chưa được nhập";
+      message = "There are answers that have not been entered";
+    }else if(!answers.some((answer) => answer.correct === true)){
+      message = "The correct answer has not been selected";
     }
 
     if (message) {
@@ -220,13 +222,13 @@ export default function EditQuestion() {
                 <div className="row">
                   <div className="col">
                     <div className="d-flex justify-content-between align-items-center">
-                      <h3 className="mb-2">Sửa câu hỏi</h3>
+                      <h3 className="mb-2">Edit Question</h3>
                       <button className="btn btn-secondary mb-2">
                         <NavLink
                           className="text-white"
                           to="/dashboard/questions"
                         >
-                          Trở về
+                          Return
                         </NavLink>
                       </button>
                     </div>
@@ -245,7 +247,7 @@ export default function EditQuestion() {
                         <form method="post">
                           <div className="mb-3">
                             <label htmlFor="examName" className="form-label">
-                              Tên câu hỏi <span className="text-danger">*</span>
+                              Name <span className="text-danger">*</span>
                             </label>
                             <div className="row">
                               <div className="col-md-10 pr-0">
@@ -315,7 +317,7 @@ export default function EditQuestion() {
                           {uploadedImage ? (
                             <div className="mb-3">
                               <label className="form-label">
-                                Ảnh đã tải lên:
+                                Photo Uploaded:
                               </label>
                               <div>
                                 <img
@@ -328,7 +330,7 @@ export default function EditQuestion() {
                           ) : data && data.question_url &&isValidImageUrl(data.question_url) ? (
                             <div className="mb-3">
                               <label className="form-label">
-                                Ảnh đã tải lên:
+                              Photo uploaded:
                               </label>
                               <div>
                                 <img
@@ -345,7 +347,7 @@ export default function EditQuestion() {
                           <div className="row">
                             <div className="col-md-12 mb-3">
                               <label htmlFor="major" className="form-label">
-                                Chủ đề <span className="text-danger">*</span>
+                                Topics <span className="text-danger">*</span>
                               </label>
                               <div
                                 className="checkbox-container"
@@ -395,7 +397,7 @@ export default function EditQuestion() {
                           <div className="row">
                             <div className="col-md-6 mb-3">
                               <label htmlFor="level" className="form-label">
-                                Loại câu hỏi{" "}
+                                Type question{" "}
                                 <span className="text-danger">*</span>
                               </label>
                               <div
@@ -440,7 +442,7 @@ export default function EditQuestion() {
                             </div>
                             <div className="col-md-6 mb-3">
                               <label htmlFor="level" className="form-label">
-                                Độ khó <span className="text-danger">*</span>
+                                Levels <span className="text-danger">*</span>
                               </label>
                               <div
                                 className="checkbox-container"
@@ -489,7 +491,7 @@ export default function EditQuestion() {
 
                           <div className="mb-3">
                             <label htmlFor="status" className="form-label">
-                              Câu trả lời <span className="text-danger">*</span>
+                              Answers <span className="text-danger">*</span>
                             </label>
                             <ul className="list-unstyled">
                               {answers.map((answer, index) => (
@@ -587,7 +589,7 @@ export default function EditQuestion() {
                                         {answer.image ? (
                                           <div className="mb-3">
                                             <label className="form-label">
-                                              Ảnh đã tải lên:
+                                              Photo uploaded:
                                             </label>
                                             <div>
                                               <img
@@ -605,7 +607,7 @@ export default function EditQuestion() {
                                         ) : answer && answer.url ? (
                                           <div className="mb-3">
                                             <label className="form-label">
-                                              Ảnh đã tải lên:
+                                            Photo uploaded:
                                             </label>
                                             <div>
                                               <img
@@ -658,7 +660,7 @@ export default function EditQuestion() {
                             onClick={handleAddAnswer}
                             class="btn btn-outline-primary"
                           >
-                            Thêm
+                            Add
                           </button>
                         )}
                       </div>
@@ -682,7 +684,7 @@ export default function EditQuestion() {
                         onClick={handleEditQuestion}
                         className="btn btn-secondary"
                       >
-                        Xác nhận
+                        Submit
                       </button>
                     </div>
                   </div>

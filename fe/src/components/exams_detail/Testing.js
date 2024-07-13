@@ -4,7 +4,7 @@ import { fetchCreateUserStats } from "../../services/UserServices";
 import Swal from "sweetalert2";
 export default function Testing() {
   const location = useLocation();
-  const user =  JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(localStorage.getItem("user"));
   const { examsData } = location.state || {};
 
   const [startTime, setStartTime] = useState(new Date().getTime());
@@ -18,7 +18,7 @@ export default function Testing() {
   const [results, setResults] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
-  
+
   console.log("userResponses", userResponses);
   const timerIntervalRef = useRef(null);
   useEffect(() => {
@@ -47,8 +47,12 @@ export default function Testing() {
       const correctAnswersCount = results
         ? results.filter((item) => item.isCorrect).length
         : 0;
-        
-      return (<span className="font-weight-bold">{'Số câu đúng: '+correctAnswersCount +'/'+results.length}</span>);
+
+      return (
+        <span className="font-weight-bold">
+          {"Number of correct sentences: " + correctAnswersCount + "/" + results.length}
+        </span>
+      );
     }
   };
   const handleAnswerSelection = (questionIndex, answerIndex, inputType) => {
@@ -73,50 +77,72 @@ export default function Testing() {
     });
   };
   const handleSubmit = () => {
-    const endTime = new Date().getTime();
-    console.log("kthuc", endTime);
-    setEndTime(endTime);
-    console.log("endTime", endTime, "start", startTime);
-    setIsTimerRunning(false);
-    if (!examsData) return;
-    const results = examsData.questions.map((question, index) => {
-      const userAnswerKeys = userResponses[index];
-      const correctAnswerIndexes = Object.values(question.answers)
-        .map((answer, index) => (answer.is_correct === 1 ? index : -1))
-        .filter((index) => index !== -1);
+    if (
+      userResponses.every(
+        (response) =>
+          response !== undefined &&
+          response !== null &&
+          Array.isArray(response) &&
+          response.length > 0
+      )
+    ) {
+      const endTime = new Date().getTime();
 
-      const isCorrect =
-        correctAnswerIndexes.length === userAnswerKeys.length &&
-        correctAnswerIndexes.every((id, idx) => userAnswerKeys[idx] === id);
+      setEndTime(endTime);
+      setIsTimerRunning(false);
+      if (!examsData) return;
+      const results = examsData.questions.map((question, index) => {
+        const userAnswerKeys = userResponses[index];
+        const correctAnswerIndexes = Object.values(question.answers)
+          .map((answer, index) => (answer.is_correct === 1 ? index : -1))
+          .filter((index) => index !== -1);
 
-      return {
-        questionId: question.id,
-        userAnswerKeys,
-        correctAnswerIndexes,
-        isCorrect,
-      };
-    });
-    setResults(results);
-    setSubmitted(true);
-    
+        const isCorrect =
+          correctAnswerIndexes.length === userAnswerKeys.length &&
+          correctAnswerIndexes.every((id, idx) => userAnswerKeys[idx] === id);
+
+        return {
+          questionId: question.id,
+          userAnswerKeys,
+          correctAnswerIndexes,
+          isCorrect,
+        };
+      });
+      setResults(results);
+      setSubmitted(true);
+    } else {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "top-end",
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+        },
+      });
+      Toast.fire({
+        icon: "warning",
+        title: "The answer has not been selected",
+      });
+    }
   };
 
   console.log("examData", examsData);
-  const handleCreateStats = async(correctAnswersCount)=>{
-   
+  const handleCreateStats = async (correctAnswersCount) => {
     try {
-      const formData= {
-        userId:user ? user.id :0,
-        testId:examsData.id,
-        questionRight:correctAnswersCount,
-        totalQuestion:results && results.length,
+      const formData = {
+        userId: user ? user.id : 0,
+        testId: examsData.id,
+        questionRight: correctAnswersCount,
+        totalQuestion: results && results.length,
         totalTimer: endTime - startTime,
         endTime: endTime,
-      }
-      console.log('formData',formData)
+      };
+      console.log("formData", formData);
       const response = await fetchCreateUserStats(formData);
-      if(response)
-      {
+      if (response) {
         const Toast = Swal.mixin({
           toast: true,
           position: "top-end",
@@ -132,71 +158,24 @@ export default function Testing() {
           icon: "success",
           title: response.data.message,
         });
-        
       }
-      console.log('resub',response)
-      
+      console.log("resubmit", response);
     } catch (error) {
-      console.log('err',error)
+      console.log("err", error);
     }
-  }
-  useEffect(()=>{
+  };
+  useEffect(() => {
     if (submitted && results) {
       const correctAnswersCount = results
         ? results.filter((item) => item.isCorrect).length
         : 0;
-      
-      handleCreateStats(correctAnswersCount)
+
+      handleCreateStats(correctAnswersCount);
     }
-   
-  },[submitted,results])
+  }, [submitted, results]);
 
   return (
     <>
-      {/*  <section className="ftco-section bg-light">
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-3 sidebar">
-              
-              <div className="sidebar-box bg-white p-4 ftco-animate fadeInUp ftco-animated">
-                <form action="#" className="browse-form">
-                  <h3 className="heading-sidebar"></h3>
-                  <label htmlFor="option-category-3">
-                    Time: <span>{formatTime(currentTime)}</span>s
-                  </label>
-                  <br />
-                </form>
-              </div>
-              {result()}
-
-              
-            </div>
-            <div className="col-lg-9">
-              <div className="row">
-                <div className="col-md-9 d-flex align-items-stretch ftco-animate fadeInUp ftco-animated">
-                  <div
-                    className="project-wrap overflow-auto"
-                    style={{ maxHeight: 550 }}
-                  >
-                    <div class="container mt-5">
-                      <ul class="list-unstyled">{loadExams}</ul>
-                      <div class="text-center">
-                        <button
-                          onClick={handleSubmit}
-                          class="btn btn-warning btn-lg"
-                          disabled={submitted}
-                        >
-                          Submit
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section> */}
       <div className="container mt-4">
         <div className="card mb-5">
           <div className="card-header text-center">
@@ -208,11 +187,12 @@ export default function Testing() {
           <div className="card-body">
             <div className="bg-light p-2 mb-3 rounded d-flex justify-content-between align-items-center">
               <span className="font-weight-bold">
-                Tổng số câu: {examsData && examsData.questions.length}
+                Total number of sentences:{" "}
+                {examsData && examsData.questions.length}
               </span>
-                {otificationOfResults()}
+              {otificationOfResults()}
               <span className="font-weight-bold">
-                Thời gian: {formatTime(currentTime)}
+                Time: {formatTime(currentTime)}
               </span>
             </div>
             {/* Question 1 */}
@@ -313,14 +293,23 @@ export default function Testing() {
                 );
               })}
           </div>
-          {submitted===false? <button onClick={handleSubmit} disabled={submitted} className="btn btn-primary w-100">
-            Nộp bài
-          </button>: user ? <NavLink to="/dashboard/my-exams" className="btn btn-primary w-100">
-            Trở về
-          </NavLink>:<NavLink to="/" className="btn btn-primary w-100">
-            Trở về
-          </NavLink>}
-         
+          {submitted === false ? (
+            <button
+              onClick={handleSubmit}
+              disabled={submitted}
+              className="btn btn-primary w-100"
+            >
+              Submit
+            </button>
+          ) : user ? (
+            <NavLink to="/dashboard/my-exams" className="btn btn-primary w-100">
+              Return
+            </NavLink>
+          ) : (
+            <NavLink to="/" className="btn btn-primary w-100">
+              Return
+            </NavLink>
+          )}
         </div>
       </div>
     </>

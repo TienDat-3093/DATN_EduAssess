@@ -34,12 +34,12 @@ export default function EditExam() {
   const [data, setData] = useState("");
   const [uploadedImage, setUploadedImage] = useState(null);
   const [selectedTags, setSelectedTags] = useState([]);
-  const [loadExam,setLoadExam] = useState("");
+  const [loadExam, setLoadExam] = useState("");
   const [privacy, setPrivacy] = useState(0);
   const [password, setPassword] = useState("");
   const [examText, setExamText] = useState("");
-  console.log("user",privacy );
-  console.log("resedit",loadExam)
+  console.log("data", data);
+  console.log("resedit", loadExam);
   console.log("pass", password);
   const handleUploadImage = (e) => {
     const file = e.target.files[0];
@@ -62,35 +62,35 @@ export default function EditExam() {
     setPassword(e.target.value);
   };
 
-  const handlePrivacy = (e) => {
-    setPrivacy(Number(e.target.value));
+  const handlePrivacy = (val) => {
+    setPrivacy(Number(val));
   };
 
-  const getQuestionsToUser = async () => {
+  /* const getQuestionsToUser = async () => {
     try {
       const response = await fetchQuestionsToUser(user.id, user.admin_role);
       if (response) {
         setData(response.data.data[0]);
-        
       }
     } catch (error) {}
-  };
+  }; */
   const getShowExamEdit = async () => {
     try {
       const response = await fetchShowExamEdit(user.id, user.admin_role, id);
       if (response) {
-        
-        setLoadExam(response.data.data)
+        setLoadExam(response.data.data);
+        setData(response.data.listTags)
       }
+      console.log('resss',response)
     } catch (error) {}
   };
 
   const handleEditExam = async () => {
     let message;
     if (!examText) {
-      message = "Chưa nhập tên bài kiểm tra";
+      message = "Please enter the test name";
     } else if (!selectedTags || selectedTags.length === 0) {
-      message = "Chưa chọn thẻ cho bài kiểm tra";
+      message = "Please select a tag";
     }
 
     if (message) {
@@ -114,12 +114,12 @@ export default function EditExam() {
     try {
       const formData = {
         examText: examText,
-        examImg: uploadedImage ? uploadedImage :loadExam.test_url ,
+        examImg: uploadedImage ? uploadedImage : loadExam.test_url,
         tags: selectedTags,
         privacy: privacy,
         password: password,
         userId: user.id,
-        examId:id
+        examId: id,
       };
       console.log("foemDra", formData);
       const response = await fetchEditExam(formData);
@@ -146,25 +146,22 @@ export default function EditExam() {
       console.log("error", error);
     }
   };
-  useEffect(()=>{
-    if(loadExam && loadExam.privacy){
-        setPrivacy(loadExam.privacy);
-    }
-  })
-  useEffect(()=>{
-    if(loadExam && loadExam.tag_data)
-        {
-            const selectTag = JSON.parse(loadExam.tag_data)
-            setSelectedTags(selectTag)
-        }
-        setPassword(loadExam.password)
-  },[loadExam])
+
   useEffect(() => {
-    getQuestionsToUser();
+    if (loadExam && loadExam.tag_data) {
+      const selectTag = JSON.parse(loadExam.tag_data);
+      setSelectedTags(selectTag);
+    }
+    setPassword(loadExam.password);
+  }, [loadExam]);
+  useEffect(() => {
+    /* getQuestionsToUser(); */
     getShowExamEdit();
+    if (loadExam && loadExam.privacy) {
+      setPrivacy(loadExam.privacy);
+    }
   }, []);
 
- 
   return (
     <>
       <section className="ftco-section bg-light pt-5">
@@ -177,13 +174,13 @@ export default function EditExam() {
                 <div className="row">
                   <div className="col">
                     <div className="d-flex justify-content-between align-items-center">
-                      <h3 className="mb-2">Cập nhật đề thi</h3>
+                      <h3 className="mb-2">Update Exam</h3>
                       <button className="btn btn-secondary mb-2">
                         <NavLink
                           className="text-white"
                           to="/dashboard/my-exams"
                         >
-                          Trở về
+                          Return
                         </NavLink>
                       </button>
                     </div>
@@ -202,7 +199,7 @@ export default function EditExam() {
                         <form>
                           <div className="mb-3">
                             <label htmlFor="examName" className="form-label">
-                              Tên đề thi <span className="text-danger">*</span>
+                              Name Exam <span className="text-danger">*</span>
                             </label>
                             <div className="row">
                               <div className="col-md-10 pr-0">
@@ -235,7 +232,7 @@ export default function EditExam() {
                                       // Mention configuration
                                     },
                                   }}
-                                  data={loadExam ? loadExam.name:''}
+                                  data={loadExam ? loadExam.name : ""}
                                   onChange={(e, editor) => {
                                     const data = editor.getData();
                                     setExamText(data);
@@ -272,7 +269,7 @@ export default function EditExam() {
                           {uploadedImage ? (
                             <div className="mb-3">
                               <label className="form-label">
-                                Ảnh đã tải lên:
+                                Photo Uploaded:
                               </label>
                               <div>
                                 <img
@@ -282,10 +279,12 @@ export default function EditExam() {
                                 />
                               </div>
                             </div>
-                          ):loadExam && loadExam.test_img && isValidImageUrl(loadExam.test_url) ? (
+                          ) : loadExam &&
+                            loadExam.test_img &&
+                            isValidImageUrl(loadExam.test_url) ? (
                             <div className="mb-3">
                               <label className="form-label">
-                                Ảnh đã tải lên:
+                              Photo Uploaded:
                               </label>
                               <div>
                                 <img
@@ -295,11 +294,13 @@ export default function EditExam() {
                                 />
                               </div>
                             </div>
-                          ):''}
+                          ) : (
+                            ""
+                          )}
                           <div className="row">
                             <div className="col-md-6 mb-3">
                               <label htmlFor="major" className="form-label">
-                                Thẻ <span className="text-danger">*</span>
+                                Tags <span className="text-danger">*</span>
                               </label>
                               <div
                                 className="checkbox-container"
@@ -311,8 +312,8 @@ export default function EditExam() {
                                 }}
                               >
                                 <ul className="list-inline">
-                                  {data && data.tags
-                                    ? data.tags.map((tag, index) => (
+                                  {data 
+                                    ? data.map((tag, index) => (
                                         <li className="list-inline-item">
                                           <div className="form-check form-check-inline">
                                             <input
@@ -320,7 +321,12 @@ export default function EditExam() {
                                               className="form-check-input"
                                               id={tag.id}
                                               name="tag"
-                                              checked = {selectedTags && selectedTags.includes(tag.id.toString()) }
+                                              checked={
+                                                selectedTags &&
+                                                selectedTags.includes(
+                                                  tag.id.toString()
+                                                )
+                                              }
                                               value={tag.id}
                                               onChange={handleTagsSelect}
                                             />
@@ -340,7 +346,7 @@ export default function EditExam() {
 
                             <div className="col-md-6 mb-3">
                               <label htmlFor="privacy" className="form-label">
-                                Trạng thái
+                                Status
                               </label>
                               <div className="form-check">
                                 <input
@@ -348,15 +354,14 @@ export default function EditExam() {
                                   className="form-check-input"
                                   id="privacy-private"
                                   name="privacy"
-                                  checked={privacy === 1}
-                                  value={1}
-                                  onChange={handlePrivacy}
+                                  defaultChecked={privacy === 1}
+                                  onChange={() => handlePrivacy(1)}
                                 />
                                 <label
                                   className="form-check-label"
                                   htmlFor="privacy-private"
                                 >
-                                  Riêng tư
+                                  Privacy
                                 </label>
                               </div>
                               <div className="form-check">
@@ -365,15 +370,14 @@ export default function EditExam() {
                                   className="form-check-input"
                                   id="privacy-public"
                                   name="privacy"
-                                  checked={privacy === 0}
-                                  value={0}
-                                  onChange={handlePrivacy}
+                                  defaultChecked={privacy === 0}
+                                  onChange={() => handlePrivacy(0)}
                                 />
                                 <label
                                   className="form-check-label"
                                   htmlFor="privacy-public"
                                 >
-                                  Công khai
+                                  Public
                                 </label>
                               </div>
                             </div>
@@ -392,14 +396,13 @@ export default function EditExam() {
 
                             <div className="col-md-6 mb-3">
                               <label htmlFor="password" className="form-label">
-                                Mật khẩu
+                                Password
                               </label>
                               <input
                                 type="text"
                                 className="form-control"
                                 id="subject"
                                 disabled=""
-                                
                                 value={password}
                                 onChange={handelPassword}
                               />
@@ -424,10 +427,10 @@ export default function EditExam() {
                   <div className="card-footer">
                     <div className="d-flex justify-content-end">
                       <button
-                         onClick={handleEditExam}
+                        onClick={handleEditExam}
                         className="btn btn-secondary"
                       >
-                        Xác nhận
+                        Submit
                       </button>
                     </div>
                   </div>

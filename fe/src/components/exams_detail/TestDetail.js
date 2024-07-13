@@ -1,17 +1,19 @@
+import { NavLink } from "react-router-dom";
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchDetailExam } from "../../services/UserServices";
 import Swal from "sweetalert2";
 export default function TestDetail() {
   const { name } = useParams();
-  console.log("name", name);
+
   const [data, setData] = useState(null);
   const [randomizeQuestions, setRandomizeQuestions] = useState(false);
   const [randomizeAnswers, setRandomizeAnswers] = useState(false);
   const [password, setPassword] = useState("");
+  const [relatedExams, setRelatedExams] = useState("");
   const navigate = useNavigate();
   console.log("datta", password);
-  
+  console.log("relatedExams", relatedExams);
   const extractIdFromName = (name) => {
     const match = name.match(/^(\d+)-/);
     return match ? match[1] : null;
@@ -20,15 +22,27 @@ export default function TestDetail() {
     const password = e.target.value;
     setPassword(password);
   };
-
+  const generateSlug = (name) => {
+    return name
+      .toString()
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^\w\-]+/g, "")
+      .replace(/\-\-+/g, "-")
+      .replace(/^-+/, "")
+      .replace(/-+$/, "");
+  };
   useEffect(() => {
     let id = extractIdFromName(name);
+
     const getExam = async () => {
       try {
         const response = await fetchDetailExam(id);
         if (response) {
           setData(response.data.data);
+          setRelatedExams(response.data.listTest);
         }
+        console.log("resdetail", response);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -97,9 +111,9 @@ export default function TestDetail() {
       let mess;
       if (data.password) {
         if (password === "") {
-          mess = "Chưa nhập mật khẩu";
+          mess = "Please enter your password";
         } else if (data.password !== password) {
-          mess = "Mật khẩu không đúng";
+          mess = "Incorrect password";
         }
       }
 
@@ -133,7 +147,9 @@ export default function TestDetail() {
             };
           });
         }
-        navigate(`/exams/${name}/testing`, { state: { examsData: { ...data, questions } } });
+        navigate(`/exams/${name}/testing`, {
+          state: { examsData: { ...data, questions } },
+        });
       }
     };
 
@@ -150,15 +166,18 @@ export default function TestDetail() {
                     </h3>
                     <p></p>
                     <div className="d-flex justify-content-between">
-                      <span>📄 {data.questions.length} câu</span>
+                      <span>
+                        📄 {data && data.questions && data.questions.length}{" "}
+                        sentence
+                      </span>
 
-                      <span>👁️ @ lượt thi</span>
+                      <span>👁️ {data && data.done_count} exam turn</span>
                     </div>
                   </div>
                 </div>
                 <div className="sidebar-box bg-white p-4 ftco-animate fadeInUp ftco-animated">
                   <div className="card-body">
-                    <h5 className="card-title">Chọn chế độ</h5>
+                    <h5 className="card-title">Select mode</h5>
                     <div className="mb-3">
                       <div className="form-check">
                         <input
@@ -176,7 +195,7 @@ export default function TestDetail() {
                           className="form-check-label"
                           htmlFor="defaultCheck3"
                         >
-                          Trộn câu hỏi
+                          Randomize questions
                         </label>
                       </div>
 
@@ -196,7 +215,7 @@ export default function TestDetail() {
                           className="form-check-label"
                           htmlFor="defaultCheck3"
                         >
-                          Trộn đáp án
+                          Randomize answers
                         </label>
                       </div>
                     </div>
@@ -207,14 +226,14 @@ export default function TestDetail() {
                             className="form-label"
                             htmlFor="basic-default-password32"
                           >
-                            Mật khẩu
+                            Password
                           </label>
                           <div className="input-group input-group-merge">
                             <input
                               type="password"
                               className="form-control"
                               id="basic-default-password32"
-                              placeholder="Nhập mật khẩu"
+                              placeholder="enter password"
                               aria-describedby="basic-default-password"
                               onChange={hadleInputPassword}
                             />
@@ -228,9 +247,8 @@ export default function TestDetail() {
                         onClick={handleStart}
                         className="btn btn-warning mr-2"
                       >
-                        Bắt đầu
+                        Start
                       </button>
-                     
                     </form>
                     <div className="mt-4">
                       {data &&
@@ -293,33 +311,32 @@ export default function TestDetail() {
               <div className="col-lg-3 sidebar">
                 <div className="sidebar-box bg-white p-4 ftco-animate fadeInUp ftco-animated">
                   <div className="card-body">
-                    <h5 className="card-title">Đề thi nổi bật</h5>
+                    <h5 className="card-title">Related exams</h5>
                     <ul className="list-unstyled">
-                      <li className="mb-2">
-                        150+ câu trắc nghiệm môn SPSS{" "}
-                        <span className="badge badge-secondary">168 câu</span>{" "}
-                        <span className="badge badge-secondary">
-                          157 lượt thi
-                        </span>
-                      </li>
-                      <li className="mb-2">
-                        390+ câu hỏi trắc nghiệm Hóa lý dược{" "}
-                        <span className="badge badge-secondary">392 câu</span>
-                      </li>
-                      <li className="mb-2">
-                        Trắc nghiệm Toán cao cấp C3{" "}
-                        <span className="badge badge-secondary">52 câu</span>
-                      </li>
-                      <li className="mb-2">
-                        525 câu trắc nghiệm môn Toán rời rạc{" "}
-                        <span className="badge badge-secondary">525 câu</span>{" "}
-                        <span className="badge badge-secondary">
-                          1910 lượt thi
-                        </span>
-                      </li>
-                      <li className="mb-2">
-                        500 câu trắc nghiệm Phương pháp nghiên cứu khoa học
-                      </li>
+                      {relatedExams &&
+                        relatedExams.map((exam, index) => (
+                          <li className="mb-2">
+                            <NavLink
+                              to={`/exams/${exam.id}-${generateSlug(
+                                exam.name.replace(
+                                  /<\/?(p|strong|i)[^>]*>/gi,
+                                  ""
+                                )
+                              )}`}
+                            >
+                              {exam.name.replace(
+                                /<\/?(p|strong|i)[^>]*>/gi,
+                                ""
+                              )}{" "}
+                              {/* <span className="badge badge-secondary">
+                              168 câu
+                            </span>{" "} */}
+                              <span className="badge badge-secondary">
+                                {exam.done_count} exam turn
+                              </span>
+                            </NavLink>
+                          </li>
+                        ))}
                     </ul>
                   </div>
                 </div>

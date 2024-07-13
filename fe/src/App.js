@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+
 import Home from "./pages/Home";
 import Tests from "./pages/Tests";
 import DashBoard from "./pages/DashBoard";
@@ -14,13 +15,17 @@ import CreateQuestion from "./components/dashboard/questions/CreateQuestion";
 import EditQuestion from "./components/dashboard/questions/EditQuestion";
 import ExamResult from "./components/dashboard/my_exams/ExamResult";
 import UserStats from "./components/exams_detail/UserStats";
+import Profile from "./components/Profile";
+import ForgotPassword from "./components/ForgotPassword";
 function App() {
   return (
     <>
       <Header />
       <Routes>
         <Route path="/" element={<Home />}></Route>
+        <Route path="/forgot-password" element={<ForgotPassword />}></Route>
         <Route path="/exams" element={<Tests />}></Route>
+        <Route path="/profile" element={<Profile />}></Route>
         <Route path="/dashboard" element={<DashBoard />}></Route>
         <Route path="/exams/:name" element={<Detail />}></Route>
         <Route path="/exams/:name/testing" element={<Testing />}></Route>

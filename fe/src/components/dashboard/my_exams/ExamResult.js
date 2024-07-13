@@ -5,49 +5,52 @@ export default function ExamResult() {
   const [data, setData] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage] = useState(5);
   console.log("data", data);
-  const getUserStatsToUser = async (page) => {
+  const getUserStatsToUser = async () => {
     try {
-      const response = await fetchUserStatsToUser(user.id,page, itemsPerPage);
+      const response = await fetchUserStatsToUser(
+        user.id,
+        currentPage,
+        itemsPerPage
+      );
       if (response) {
         setData(response.data.data);
-        setTotalPages(Math.ceil(response.data.total / itemsPerPage));
+        setTotalPages(response.data.totalPages);
       }
+      console.log("ress", response);
     } catch (error) {}
   };
   useEffect(() => {
-    getUserStatsToUser(currentPage);
+    getUserStatsToUser();
   }, [currentPage]);
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-  };
   return (
     <>
       <div className="container mt-5 mb-5">
         <div className="card">
           <div className="card-header">
-            <h5 className="mb-0">DANH SÁCH KẾT QUẢ ĐỀ THI ĐÃ LÀM</h5>
+            <h5 className="mb-0">LIST OF TEST RESULTS TAKEN</h5>
           </div>
           <div className="card-body">
             <table className="table table-hover">
               <thead className="thead-light">
                 <tr>
-                  <th>Tên đề thi</th>
-                  <th>Tổng số câu hỏi</th>
-                  <th>Số câu đúng</th>
-                  <th>Số câu sai</th>
-                  <th>Thời gian hoàn thành</th>
-                  <th>Thời gian kết thúc bài thi</th>
+                  <th>Name Exam</th>
+                  <th>Total Question</th>
+                  <th>Correct Sentences</th>
+                  <th>Incorrect Sentences</th>
+                  <th>Complete time</th>
+                  <th>Exam end time</th>
                 </tr>
               </thead>
               <tbody>
                 {data &&
                   data.map((item, index) => (
-                    <tr  key={index}>
+                    <tr key={index}>
                       <td>
-                        {item.testName.replace(/<\/?(p|strong|i)[^>]*>/gi, "")}
+                        {item.testName &&
+                          item.testName.replace(/<\/?(p|strong|i)[^>]*>/gi, "")}
                       </td>
                       <td>{item.totalQuestion}</td>
                       <td>{item.questionRight}</td>
@@ -59,41 +62,43 @@ export default function ExamResult() {
                   ))}
               </tbody>
             </table>
-            
           </div>
         </div>
-        <div className="row mt-5 justify-content-center">
+        <div className="row mt-5 justify-content-center align-items-center">
           <div className="col-auto">
             <div className="block-27">
-              <ul className="pagination">
-                <li className={`page-item ${currentPage === 1 && "disabled"}`}>
-                  <button
-                    className="page-link"
-                    onClick={() => handlePageChange(currentPage - 1)}
-                  >
+              <ul>
+                <li
+                  className={currentPage === 1 ? "disabled" : ""}
+                  onClick={() => {
+                    if (currentPage > 1) setCurrentPage(currentPage - 1);
+                  }}
+                >
+                  <a href="#" onClick={(e) => e.preventDefault()}>
                     &lt;
-                  </button>
+                  </a>
                 </li>
-                {[...Array(totalPages)].map((_, index) => (
+                {Array.from({ length: totalPages }, (_, index) => (
                   <li
                     key={index}
-                    className={`page-item ${currentPage === index + 1 && "active"}`}
+                    className={currentPage === index + 1 ? "active" : ""}
+                    onClick={() => setCurrentPage(index + 1)}
                   >
-                    <button
-                      className="page-link"
-                      onClick={() => handlePageChange(index + 1)}
-                    >
+                    <a href="#" onClick={(e) => e.preventDefault()}>
                       {index + 1}
-                    </button>
+                    </a>
                   </li>
                 ))}
-                <li className={`page-item ${currentPage === totalPages && "disabled"}`}>
-                  <button
-                    className="page-link"
-                    onClick={() => handlePageChange(currentPage + 1)}
-                  >
+                <li
+                  className={currentPage === totalPages ? "disabled" : ""}
+                  onClick={() => {
+                    if (currentPage < totalPages)
+                      setCurrentPage(currentPage + 1);
+                  }}
+                >
+                  <a href="#" onClick={(e) => e.preventDefault()}>
                     &gt;
-                  </button>
+                  </a>
                 </li>
               </ul>
             </div>

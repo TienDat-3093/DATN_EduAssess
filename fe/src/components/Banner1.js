@@ -26,15 +26,12 @@ export default function Banner1({ onLoginSuccess }) {
             style={{ height: 730 }}
           >
             <div className="col-md-7 ftco-animate fadeInUp ftco-animated">
-              <span className="subheading">Welcome to StudyLab</span>
-              <h1 className="mb-4">We Are Online Platform For Make Learn</h1>
-              <p className="caps">
-                Far far away, behind the word mountains, far from the countries
-                Vokalia and Consonantia
-              </p>
+              <span className="subheading">Welcome to Edu Assess</span>
+              <h1 className="mb-4">We are an online platform for taking quizzes</h1>
+              
               <p className="mb-0">
                 <a href="#" className="btn btn-primary">
-                  Our Course
+                Our Exams
                 </a>{" "}
                 <a href="#" className="btn btn-white">
                   Learn More

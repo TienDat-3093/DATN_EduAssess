@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { fetchRegister } from "../services/UserServices";
+import Swal from "sweetalert2";
 export default function Register({ onLoginClick }) {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [date_of_birth, setBirthDay] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [avatar, setAvatar] = useState(null);
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
 
@@ -19,7 +19,13 @@ export default function Register({ onLoginClick }) {
       setShowError(true);
       return;
     }
-    if (!username || !email || !password || !confirmPassword || !date_of_birth) {
+    if (
+      !username ||
+      !email ||
+      !password ||
+      !confirmPassword ||
+      !date_of_birth
+    ) {
       setError("Missing input fields");
       setShowError(true);
       return;
@@ -38,18 +44,36 @@ export default function Register({ onLoginClick }) {
       setShowError(true);
       return;
     }
+    const formData = {
+      "displayname":username,
+      "email": email,
+      "date_of_birth": date_of_birth,
+      "password": password,
+     
+    };
+    
+    console.log("formdata", formData);
     try {
-      const formData = new FormData();
-      formData.append('username', username);
-      formData.append('email', email);
-      formData.append('date_of_birth', date_of_birth);
-      formData.append('password', password);
-      formData.append('avatar', avatar);
-      
-      const response = await fetchRegister(username,email,date_of_birth,password,avatar);
-      console.log('register',response.data);
+      const response = await fetchRegister(formData);
+      if (response) {
+        const Toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+          },
+        });
+        Toast.fire({
+          icon: "success",
+          title: response.data.message,
+        });
+      }
+      console.log("register", response.data);
       onLoginClick();
-      
     } catch (err) {
       setError("An error occurred. Please try again.");
       setShowError(true);
@@ -71,7 +95,7 @@ export default function Register({ onLoginClick }) {
                 >
                   <div className="form-group">
                     <label className="label" htmlFor="username">
-                      Username
+                      Display Name
                     </label>
                     <input
                       type="text"
@@ -130,7 +154,7 @@ export default function Register({ onLoginClick }) {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                     />
                   </div>
-                  <div className="form-group">
+                {/*   <div className="form-group">
                     <label className="form-label " htmlFor="img">
                       Avatar
                     </label>
@@ -138,11 +162,12 @@ export default function Register({ onLoginClick }) {
                     <input
                       type="file"
                       className="form-control-file"
-                      
                       onChange={(e) => setAvatar(e.target.files[0])}
                     />
-                  </div>
-                  {showError && <div className="alert alert-danger">{error}</div>}
+                  </div> */}
+                  {showError && (
+                    <div className="alert alert-danger">{error}</div>
+                  )}
                   <div className="form-group d-flex justify-content-end mt-4">
                     <button type="submit" className="btn btn-primary submit">
                       <span className="fa fa-paper-plane" />
