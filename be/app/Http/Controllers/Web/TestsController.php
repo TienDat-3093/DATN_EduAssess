@@ -54,6 +54,10 @@ class TestsController extends Controller
         $searchInput = $request->input('searchInput');
         $active = $request->input('active');
         $show = $request->input('show', 10);
+        $show_allowed_values = [10, 20, 50, 100];
+        if (!in_array($show, $show_allowed_values)) {
+            $show = 10;
+        }
         if (!empty($topic_data) || !empty($tag_data) || $searchInput || $active ) {
             return $this->search($request);
         }
@@ -69,6 +73,10 @@ class TestsController extends Controller
         $searchInput = $request->input('searchInput');
         $active = $request->input('active');
         $show = $request->input('show', 10);
+        $show_allowed_values = [10, 20, 50, 100];
+        if (!in_array($show, $show_allowed_values)) {
+            $show = 10;
+        }
         $listTags = Tags::all();
         $listTopics = Topics::all();
         $listTests = Tests::withTrashed()

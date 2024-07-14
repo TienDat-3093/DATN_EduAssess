@@ -118,6 +118,10 @@ class UsersController extends Controller
         $searchInput = $request->input('searchInput');
         $active = $request->input('active');
         $show = $request->input('show', 10);
+        $show_allowed_values = [10, 20, 50, 100];
+        if (!in_array($show, $show_allowed_values)) {
+            $show = 10;
+        }
         if ($searchInput != null || $active != null) {
             return $this->search($request);
         }
@@ -129,6 +133,10 @@ class UsersController extends Controller
         $searchInput = $request->input('searchInput');
         $active = $request->input('active');
         $show = $request->input('show', 10);
+        $show_allowed_values = [10, 20, 50, 100];
+        if (!in_array($show, $show_allowed_values)) {
+            $show = 10;
+        }
         $listUsers = Users::where(function ($query) use ($searchInput) {
             $query->where('displayname', 'like', "%$searchInput%")
                   ->orWhere('email', 'like', "%$searchInput%");

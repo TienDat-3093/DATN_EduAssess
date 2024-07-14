@@ -50,6 +50,10 @@ class AdminsController extends Controller
         $active = $request->input('active');
         $admin_role = $request->input('admin_role');
         $show = $request->input('show', 10);
+        $show_allowed_values = [10, 20, 50, 100];
+        if (!in_array($show, $show_allowed_values)) {
+            $show = 10;
+        }
         if ($searchInput != null || $active != null || $admin_role != null) {
             return $this->search($request);
         }
@@ -64,6 +68,10 @@ class AdminsController extends Controller
         $active = $request->input('active');
         $admin_role = $request->input('admin_role');
         $show = $request->input('show', 10);
+        $show_allowed_values = [10, 20, 50, 100];
+        if (!in_array($show, $show_allowed_values)) {
+            $show = 10;
+        }
         $listUsers = Users::where(function ($query) use ($searchInput) {
             $query->where('displayname', 'like', "%$searchInput%")
                   ->orWhere('email', 'like', "%$searchInput%");

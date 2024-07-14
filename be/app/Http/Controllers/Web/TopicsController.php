@@ -44,6 +44,10 @@ class TopicsController extends Controller
         $searchInput = $request->input('searchInput');
         $active = $request->input('active');
         $show = $request->input('show', 10);
+        $show_allowed_values = [10, 20, 50, 100];
+        if (!in_array($show, $show_allowed_values)) {
+            $show = 10;
+        }
         if ($searchInput != null || $active != null) {
             return $this->search($request);
         }
@@ -55,6 +59,11 @@ class TopicsController extends Controller
         $searchInput = $request->input('searchInput');
         $active = $request->input('active');
         $show = $request->input('show', 10);
+        $show = $request->input('show', 10);
+        $show_allowed_values = [10, 20, 50, 100];
+        if (!in_array($show, $show_allowed_values)) {
+            $show = 10;
+        }
         $listTopics = Topics::withTrashed()->where('name', 'like', "%$searchInput%")
         ->when($active !== null, function ($query) use ($active) {
             if ($active) {

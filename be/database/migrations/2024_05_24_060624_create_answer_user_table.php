@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('answer_users', function (Blueprint $table) {
             $table->id();
-            $table->string('answer_data');
+            $table->longText('answer_data');
             $table->softDeletes();
             $table->timestamps();
         });

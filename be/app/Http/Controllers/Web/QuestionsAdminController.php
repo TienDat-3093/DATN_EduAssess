@@ -115,6 +115,10 @@ class QuestionsAdminController extends Controller
         $question_text = $request->input('question_text');
         $user_id = $request->input('user_id');
         $show = $request->input('show', 10);
+        $show_allowed_values = [10, 20, 50, 100];
+        if (!in_array($show, $show_allowed_values)) {
+            $show = 10;
+        }
         $active = $request->input('active');
         if (!empty($topic_data) || !empty($level_data) || $question_text || $user_id || $active) {
             return $this->search($request);
@@ -133,6 +137,10 @@ class QuestionsAdminController extends Controller
         $question_text = $request->input('question_text');
         $user_id = $request->input('user_id');
         $show = $request->input('show', 10);
+        $show_allowed_values = [10, 20, 50, 100];
+        if (!in_array($show, $show_allowed_values)) {
+            $show = 10;
+        }
         $active = $request->input('active');
         $listTypes = QuestionTypes::all();
         $listTopics = Topics::all();
